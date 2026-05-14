@@ -81,7 +81,7 @@ class _PolicyScreenState extends State<PolicyScreen> {
           child: IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
-            icon: const Icon(Icons.arrow_back_ios_new, size: 16),
+            icon: const Icon(Icons.arrow_back_ios_new, size: 16), // TODO: Replace with Manus custom SVG arrow
             onPressed: () => context.pop(),
           ),
         ),

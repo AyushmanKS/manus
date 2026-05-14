@@ -7,12 +7,8 @@ import 'package:manus/core/utils/app_logger.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   AppLogger.info('Application Started');
-  
-  runApp(
-    const ProviderScope(
-      child: ManusApp(),
-    ),
-  );
+
+  runApp(const ProviderScope(child: ManusApp()));
 }
 
 class ManusApp extends ConsumerWidget {
@@ -26,6 +22,8 @@ class ManusApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
+      themeAnimationDuration: const Duration(milliseconds: 200),
+      themeAnimationCurve: Curves.easeInOutCubic,
       routerConfig: AppRouter.router,
     );
   }

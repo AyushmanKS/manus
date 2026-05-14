@@ -6,14 +6,14 @@ class MetaBadge extends StatelessWidget {
   const MetaBadge({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color color = isDark ? Colors.white60 : Colors.black54;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
+      children: <Widget>[
         Text(
           'from',
           style: TextStyle(

@@ -15,7 +15,7 @@ class DottedGridPainter extends CustomPainter {
       ..color = dotColor
       ..style = PaintingStyle.fill;
 
-    const double dotRadius = 1.0;
+    const double dotRadius = 1.5;
 
     for (double x = 0; x < size.width; x += spacing) {
       for (double y = 0; y < size.height; y += spacing) {

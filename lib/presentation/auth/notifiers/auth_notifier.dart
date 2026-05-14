@@ -1,22 +1,68 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthNotifier extends Notifier<AsyncValue<void>> {
   @override
   AsyncValue<void> build() {
-    return const AsyncValue.data(null);
+    return const AsyncValue<void>.data(null);
+  }
+
+  Future<void> signInWithFacebook() async {
+    state = const AsyncValue<void>.loading();
+    // Simulate API call
+    await Future<void>.delayed(const Duration(seconds: 1));
+    state = const AsyncValue<void>.data(null);
+  }
+
+  Future<void> signInWithGoogle() async {
+    state = const AsyncValue<void>.loading();
+    await Future<void>.delayed(const Duration(seconds: 1));
+    state = const AsyncValue<void>.data(null);
+  }
+
+  Future<void> signInWithMicrosoft() async {
+    state = const AsyncValue<void>.loading();
+    await Future<void>.delayed(const Duration(seconds: 1));
+    state = const AsyncValue<void>.data(null);
+  }
+
+  Future<void> signInWithApple() async {
+    state = const AsyncValue<void>.loading();
+    await Future<void>.delayed(const Duration(seconds: 1));
+    state = const AsyncValue<void>.data(null);
+  }
+
+  Future<void> signInWithEmail() async {
+    state = const AsyncValue<void>.loading();
+    await Future<void>.delayed(const Duration(seconds: 1));
+    state = const AsyncValue<void>.data(null);
   }
 
   Future<void> loginWithEmail(final String email, final String password) async {
-    state = const AsyncValue.loading();
-    
-    // Simulate API call
+    state = const AsyncValue<void>.loading();
+
     await Future<void>.delayed(const Duration(seconds: 1));
-    
+
     if (email == 'error@manus.ai') {
-      state = AsyncValue.error('Invalid credentials', StackTrace.current);
+      state = AsyncValue<void>.error('Invalid credentials', StackTrace.current);
     } else {
-      state = const AsyncValue.data(null);
+      state = const AsyncValue<void>.data(null);
     }
+  }
+
+  void navigateToPolicy(
+    final BuildContext context, {
+    required final String url,
+    required final String title,
+  }) {
+    context.push(
+      '/policy',
+      extra: <String, String>{
+        'url': url,
+        'title': title,
+      },
+    );
   }
 }
 

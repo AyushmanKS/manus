@@ -6,7 +6,7 @@ class MetaAttribution extends StatelessWidget {
   const MetaAttribution({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color color = isDark ? Colors.white60 : Colors.black54;
 
@@ -18,7 +18,7 @@ class MetaAttribution extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [
+      children: <Widget>[
         Text(
           'from',
           style: textStyle.copyWith(color: color),
@@ -27,16 +27,20 @@ class MetaAttribution extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+          children: <Widget>[
             SvgPicture.asset(
               AppAssets.metaSvg,
-              height: 32,
+              height: 22,
               colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
             ),
             const SizedBox(width: 4),
             Text(
               'Meta',
-              style: textStyle.copyWith(color: color),
+              style: textStyle.copyWith(
+                color: color,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

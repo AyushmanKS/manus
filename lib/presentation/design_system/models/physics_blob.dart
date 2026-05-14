@@ -1,31 +1,38 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
+enum PhysicsBlobType {
+  bigCircle,
+  smallCircle,
+  hollowCircle,
+  triangle,
+}
+
 class PhysicsBlob {
   Offset position;
   Offset velocity;
   final double radius;
+  final double? innerRadius;
+  final PhysicsBlobType type;
+  final Path? trianglePath;
   double rotation;
   final double rotationSpeed;
-  final String assetPath;
-  final Color color;
 
   PhysicsBlob({
     required this.position,
     required this.velocity,
     required this.radius,
-    required this.assetPath,
-    required this.color,
+    required this.type,
+    this.innerRadius,
+    this.trianglePath,
     this.rotation = 0.0,
-    this.rotationSpeed = 0.5,
+    this.rotationSpeed = 0.0,
   });
 
   void update(final double dt, final Size bounds) {
-    // Position integration
     position += velocity * dt;
     rotation += rotationSpeed * dt;
 
-    // Wall collisions
     if (position.dx - radius < 0) {
       position = Offset(radius, position.dy);
       velocity = Offset(velocity.dx.abs(), velocity.dy);
@@ -43,31 +50,48 @@ class PhysicsBlob {
     }
   }
 
+  bool contains(final Offset globalPoint) {
+    final Offset localPoint = globalPoint - position;
+    final double distance = localPoint.distance;
+
+    switch (type) {
+      case PhysicsBlobType.bigCircle:
+      case PhysicsBlobType.smallCircle:
+        return distance < radius;
+      case PhysicsBlobType.hollowCircle:
+        return distance < radius && distance > (innerRadius ?? 0);
+      case PhysicsBlobType.triangle:
+        if (trianglePath == null) return false;
+        final double cosR = math.cos(-rotation);
+        final double sinR = math.sin(-rotation);
+        final Offset rotatedPoint = Offset(
+          localPoint.dx * cosR - localPoint.dy * sinR,
+          localPoint.dx * sinR + localPoint.dy * cosR,
+        );
+        return trianglePath!.contains(rotatedPoint);
+    }
+  }
+
   static void resolveCollision(final PhysicsBlob a, final PhysicsBlob b) {
     final Offset delta = a.position - b.position;
     final double distance = delta.distance;
     final double minDistance = a.radius + b.radius;
 
-    if (distance < minDistance) {
-      // 1. Resolve Overlap (Static resolution)
-      final double overlap = minDistance - distance;
+    if (distance < minDistance && distance > 0) {
       final Offset normal = delta / distance;
-      final Offset separation = normal * (overlap / 2.0);
-      a.position += separation;
-      b.position -= separation;
+      
+      final double overlap = minDistance - distance;
+      a.position += normal * (overlap / 2.0);
+      b.position -= normal * (overlap / 2.0);
 
-      // 2. Elastic Collision (Velocity resolution)
-      // Normal component of velocity
-      final double v1n = a.velocity.dx * normal.dx + a.velocity.dy * normal.dy;
-      final double v2n = b.velocity.dx * normal.dx + b.velocity.dy * normal.dy;
+      final Offset relativeVelocity = a.velocity - b.velocity;
+      final double velocityAlongNormal = relativeVelocity.dx * normal.dx + relativeVelocity.dy * normal.dy;
 
-      // Swap normal velocities (assuming equal mass for simplicity)
-      final double v1nAfter = v2n;
-      final double v2nAfter = v1n;
-
-      // Update velocities
-      a.velocity += normal * (v1nAfter - v1n);
-      b.velocity += normal * (v2nAfter - v2n);
+      if (velocityAlongNormal < 0) {
+        final Offset impulse = normal * velocityAlongNormal;
+        a.velocity -= impulse;
+        b.velocity += impulse;
+      }
     }
   }
 }

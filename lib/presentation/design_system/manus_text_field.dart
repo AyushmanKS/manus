@@ -20,6 +20,9 @@ class ManusTextField extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color onSurface = theme.colorScheme.onSurface;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -27,13 +30,13 @@ class ManusTextField extends StatelessWidget {
           controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: onSurface),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: const TextStyle(color: Colors.white54),
+            hintStyle: TextStyle(color: onSurface.withAlpha(140)),
             prefixIcon: prefixIcon,
             filled: true,
-            fillColor: Colors.white.withAlpha(20),
+            fillColor: onSurface.withAlpha(20),
             errorText: errorText,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -41,7 +44,7 @@ class ManusTextField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+              borderSide: BorderSide(color: theme.colorScheme.primary),
             ),
           ),
         ),

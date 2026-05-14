@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ManusTextStyle {
-  h1,
-  h2,
-  body,
-  caption,
-}
+enum ManusTextStyle { h1, h2, body, caption }
 
 class ManusText extends StatelessWidget {
   final String text;
@@ -22,7 +17,7 @@ class ManusText extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     final TextStyle textStyle = _getStyle(context);
     return Text(
       text,
@@ -31,17 +26,17 @@ class ManusText extends StatelessWidget {
     );
   }
 
-  TextStyle _getStyle(BuildContext context) {
+  TextStyle _getStyle(final BuildContext context) {
     final TextTheme theme = Theme.of(context).textTheme;
     switch (style) {
       case ManusTextStyle.h1:
-        return theme.headlineLarge ?? const TextStyle(fontSize: 32, fontWeight: FontWeight.bold);
+        return theme.headlineLarge!;
       case ManusTextStyle.h2:
-        return theme.headlineMedium ?? const TextStyle(fontSize: 24, fontWeight: FontWeight.w600);
+        return theme.headlineMedium!;
       case ManusTextStyle.body:
-        return theme.bodyLarge ?? const TextStyle(fontSize: 16);
+        return theme.bodyLarge!;
       case ManusTextStyle.caption:
-        return theme.bodySmall ?? const TextStyle(fontSize: 12);
+        return theme.bodySmall!;
     }
   }
 }

@@ -143,10 +143,15 @@ class _ChatComposerState extends State<ChatComposer> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      _ActionIcon(
-                        asset: AppAssets.plusSvg,
-                        onTap: _toggleAttachmentTray,
-                        colorFilter: iconFilter,
+                      AnimatedRotation(
+                        turns: _showAttachmentTray ? 0.125 : 0.0,
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        child: _ActionIcon(
+                          asset: AppAssets.plusSvg,
+                          onTap: _toggleAttachmentTray,
+                          colorFilter: iconFilter,
+                        ),
                       ),
                       const SizedBox(width: 20.0),
                       _ActionIcon(

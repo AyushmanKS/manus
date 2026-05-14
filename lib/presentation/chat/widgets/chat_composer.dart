@@ -47,6 +47,27 @@ class _ChatComposerState extends State<ChatComposer> {
     final Color iconColor = isDark ? AppColors.white : AppColors.black;
     final ColorFilter iconFilter = ColorFilter.mode(iconColor, BlendMode.srcIn);
 
+    final bool hasText = _controller.text.isNotEmpty;
+    final Color borderColor = isDark
+        ? AppColors.iconBorderDark
+        : AppColors.iconBorderLight;
+
+    final Color activeSendCircle = isDark
+        ? AppColors.sendCircleActiveDark
+        : AppColors.sendCircleActiveLight;
+    final Color activeSendIcon = isDark ? AppColors.black : AppColors.white;
+    final Color sendIconColor = hasText
+        ? activeSendIcon
+        : AppColors.iconDisabled;
+    final ColorFilter sendFilter = ColorFilter.mode(
+      sendIconColor,
+      BlendMode.srcIn,
+    );
+
+    final Color inactiveSendCircle = isDark
+        ? AppColors.iconBorderDark
+        : AppColors.iconBorderLight;
+
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
@@ -67,7 +88,7 @@ class _ChatComposerState extends State<ChatComposer> {
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Assign a task or ask anything',
-                contentPadding: EdgeInsets.zero,
+                contentPadding: EdgeInsets.symmetric(vertical: 6.0),
                 isDense: true,
               ),
             ),
@@ -88,18 +109,26 @@ class _ChatComposerState extends State<ChatComposer> {
                       asset: AppAssets.plugSvg,
                       onTap: () {},
                       colorFilter: iconFilter,
+                      isBold: true,
                     ),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    _ActionIcon(
-                      asset: AppAssets.chatSvg,
-                      onTap: () {},
-                      colorFilter: iconFilter,
-                    ),
-                    const SizedBox(width: 20.0),
+                    if (!hasText) ...<Widget>[
+                      _ActionIcon(
+                        asset: AppAssets.chatSvg,
+                        onTap: () {},
+                        colorFilter: iconFilter,
+                        padding: 9.0,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: borderColor),
+                        ),
+                      ),
+                      const SizedBox(width: 20.0),
+                    ],
                     _ActionIcon(
                       asset: AppAssets.micSvg,
                       onTap: () {},
@@ -108,9 +137,15 @@ class _ChatComposerState extends State<ChatComposer> {
                     const SizedBox(width: 20.0),
                     _ActionIcon(
                       asset: AppAssets.upArrowSvg,
-                      onTap: _controller.text.isNotEmpty ? _handleSend : null,
-                      colorFilter: iconFilter,
-                      opacity: _controller.text.isNotEmpty ? 1.0 : 0.3,
+                      onTap: hasText ? _handleSend : null,
+                      colorFilter: sendFilter,
+                      padding: 10.0,
+                      iconSizeOverride: 18.0,
+                      isBold: true,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: hasText ? activeSendCircle : inactiveSendCircle,
+                      ),
                     ),
                   ],
                 ),
@@ -127,28 +162,77 @@ class _ActionIcon extends StatelessWidget {
   final String asset;
   final VoidCallback? onTap;
   final ColorFilter colorFilter;
-  final double opacity;
+  final BoxDecoration? decoration;
+  final double padding;
+  final bool isBold;
+  final double? iconSizeOverride;
 
   const _ActionIcon({
     required this.asset,
     this.onTap,
     required this.colorFilter,
-    this.opacity = 1.0,
+    this.decoration,
+    this.padding = 0.0,
+    this.isBold = false,
+    this.iconSizeOverride,
   });
 
   @override
   Widget build(final BuildContext context) {
+    final double size = iconSizeOverride ?? 18.0;
+    final Widget icon = SvgPicture.asset(
+      asset,
+      width: size,
+      height: size,
+      colorFilter: colorFilter,
+    );
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Opacity(
-        opacity: opacity,
-        child: SvgPicture.asset(
-          asset,
-          width: 18.0,
-          height: 18.0,
-          colorFilter: colorFilter,
-        ),
+      child: Container(
+        padding: EdgeInsets.all(padding),
+        decoration: decoration,
+        child: isBold
+            ? Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  Transform.translate(
+                    offset: const Offset(0.9, 0),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(-0.9, 0),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, 0.9),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, -0.9),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0.65, 0.65),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(-0.65, 0.65),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0.65, -0.65),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(-0.65, -0.65),
+                    child: icon,
+                  ),
+                  icon,
+                ],
+              )
+            : icon,
       ),
     );
   }

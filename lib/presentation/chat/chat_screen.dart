@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/chat/widgets/chat_composer.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends ConsumerWidget {
   const ChatScreen({super.key});
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(final BuildContext context, final WidgetRef ref) {
     final Brightness brightness = Theme.of(context).brightness;
     final BoxDecoration boxDecoration = brightness == Brightness.light
         ? const BoxDecoration(color: AppColors.chatBgLight)

@@ -56,4 +56,9 @@ class AppColors {
   static const Color greyE6 = Color(0xFFE6E6E6);
   static const Color greyF9 = Color(0xFFF9F9F9);
   static const Color greyF2 = Color(0xFFF2F2F2);
+  static const Color iconBorderDark = Color(0xFF303030);
+  static const Color iconBorderLight = Color(0xFFF5F5F5);
+  static const Color iconDisabled = Color(0xFF676765);
+  static const Color sendCircleActiveLight = Color(0xFF000000);
+  static const Color sendCircleActiveDark = Color(0xFFFFFFFF);
 }

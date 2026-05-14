@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
-import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/design_system/widgets/manus_primary_button.dart';
 import 'package:manus/presentation/design_system/widgets/manus_loader.dart';
 
@@ -16,35 +16,27 @@ class AuthButtonList extends ConsumerStatefulWidget {
 class _AuthButtonListState extends ConsumerState<AuthButtonList> {
   bool _isLoading = false;
 
-  Future<void> _handleSocialSignIn(
-    final BuildContext context,
-    final Future<void> Function() signInAction,
-  ) async {
+  Future<void> handleAuthAction(final BuildContext context) async {
     if (_isLoading) {
       return;
     }
 
     setState(() => _isLoading = true);
-
-    final NavigatorState navigator = Navigator.of(context, rootNavigator: true);
-
     unawaited(showManusLoader(context));
 
-    try {
-      await signInAction();
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-        if (navigator.mounted) {
-          navigator.pop();
-        }
-      }
+    await Future<void>.delayed(const Duration(seconds: 2));
+
+    if (!context.mounted) {
+      return;
     }
+
+    setState(() => _isLoading = false);
+    Navigator.of(context).pop();
+    context.go('/chat');
   }
 
   @override
   Widget build(final BuildContext context) {
-    final AuthNotifier notifier = ref.read(authProvider.notifier);
     final ThemeData theme = Theme.of(context);
     final Color dividerColor = theme.dividerColor;
     final TextStyle? mutedTextStyle = theme.textTheme.labelMedium;
@@ -56,7 +48,7 @@ class _AuthButtonListState extends ConsumerState<AuthButtonList> {
           label: 'Continue with Facebook',
           iconPath: AppAssets.facebookSvg,
           isBrandIcon: true,
-          onTap: () => _handleSocialSignIn(context, notifier.signInWithFacebook),
+          onTap: () => handleAuthAction(context),
         ),
         const SizedBox(height: 6.0),
         ManusPrimaryButton(
@@ -64,21 +56,21 @@ class _AuthButtonListState extends ConsumerState<AuthButtonList> {
           iconPath: AppAssets.googleSvg,
           iconSize: 16.0,
           isBrandIcon: true,
-          onTap: () => _handleSocialSignIn(context, notifier.signInWithGoogle),
+          onTap: () => handleAuthAction(context),
         ),
         const SizedBox(height: 6.0),
         ManusPrimaryButton(
           label: 'Continue with Microsoft',
           iconPath: AppAssets.microsoftSvg,
           isBrandIcon: true,
-          onTap: () => _handleSocialSignIn(context, notifier.signInWithMicrosoft),
+          onTap: () => handleAuthAction(context),
         ),
         const SizedBox(height: 6.0),
         ManusPrimaryButton(
           label: 'Continue with Apple',
           iconPath: AppAssets.appleSvg,
           isBrandIcon: false,
-          onTap: () => _handleSocialSignIn(context, notifier.signInWithApple),
+          onTap: () => handleAuthAction(context),
         ),
         const SizedBox(height: 22.0),
         Row(
@@ -86,10 +78,7 @@ class _AuthButtonListState extends ConsumerState<AuthButtonList> {
             Expanded(child: Divider(color: dividerColor, thickness: 1.5)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'OR',
-                style: mutedTextStyle,
-              ),
+              child: Text('OR', style: mutedTextStyle),
             ),
             Expanded(child: Divider(color: dividerColor, thickness: 1.5)),
           ],
@@ -99,7 +88,7 @@ class _AuthButtonListState extends ConsumerState<AuthButtonList> {
           label: 'Continue with Email',
           iconPath: AppAssets.emailSvg,
           isBrandIcon: false,
-          onTap: _isLoading ? () {} : notifier.signInWithEmail,
+          onTap: () => handleAuthAction(context),
         ),
       ],
     );

@@ -13,16 +13,13 @@ class Responsive {
   }
 
   bool get isSmallPhone => _width <= kSmallPhoneWidthDp;
-  
-  bool get isStandardPhone => _width > kSmallPhoneWidthDp && _width <= kStandardPhoneWidthDp;
+
+  bool get isStandardPhone =>
+      _width > kSmallPhoneWidthDp && _width <= kStandardPhoneWidthDp;
 
   bool get isLargePhone => _width > kStandardPhoneWidthDp;
 
-  T responsiveValue<T>({
-    required T small,
-    T? standard,
-    T? large,
-  }) {
+  T responsiveValue<T>({required T small, T? standard, T? large}) {
     if (isLargePhone && large != null) return large;
     if ((isStandardPhone || isLargePhone) && standard != null) return standard;
     return small;

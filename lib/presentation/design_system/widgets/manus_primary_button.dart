@@ -33,9 +33,7 @@ class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
   }
 
   void _handleTapUp(final TapUpDetails details) {
-    Future<void>.delayed(const Duration(milliseconds: 75), () {
-      if (mounted) setState(() => _isPressed = false);
-    });
+    setState(() => _isPressed = false);
     widget.onTap();
   }
 
@@ -56,7 +54,8 @@ class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
         onTapUp: _handleTapUp,
         onTapCancel: _handleTapCancel,
         child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 75),
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeInOutCubic,
           opacity: _isPressed ? 0.7 : 1.0,
           child: Container(
             width: double.infinity,
@@ -66,10 +65,7 @@ class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
               color: isDark ? AppColors.socialButtonBgDark : AppColors.white,
               border: isDark
                   ? null
-                  : Border.all(
-                      color: AppColors.greyE6,
-                      width: 0.5,
-                    ),
+                  : Border.all(color: AppColors.greyE6, width: 0.5),
               gradient: isDark
                   ? null
                   : const LinearGradient(

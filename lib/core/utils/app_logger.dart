@@ -20,7 +20,11 @@ class AppLogger {
     _logger.w(message);
   }
 
-  static void error(final String message, [final Object? error, final StackTrace? stackTrace]) {
+  static void error(
+    final String message, [
+    final Object? error,
+    final StackTrace? stackTrace,
+  ]) {
     _logger.e(message, error: error, stackTrace: stackTrace);
   }
 

@@ -20,10 +20,7 @@ class MetaAttribution extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text(
-          'from',
-          style: textStyle.copyWith(color: color),
-        ),
+        Text('from', style: textStyle.copyWith(color: color)),
         const SizedBox(height: 2),
         Row(
           mainAxisSize: MainAxisSize.min,

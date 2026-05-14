@@ -73,10 +73,7 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
   }) {
     context.push(
       '/policy',
-      extra: <String, String>{
-        'url': url,
-        'title': title,
-      },
+      extra: <String, String>{'url': url, 'title': title},
     );
   }
 }

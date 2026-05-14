@@ -4,10 +4,7 @@ class DottedGridPainter extends CustomPainter {
   final Color dotColor;
   final double spacing;
 
-  const DottedGridPainter({
-    required this.dotColor,
-    this.spacing = 24.0,
-  });
+  const DottedGridPainter({required this.dotColor, this.spacing = 24.0});
 
   @override
   void paint(final Canvas canvas, final Size size) {

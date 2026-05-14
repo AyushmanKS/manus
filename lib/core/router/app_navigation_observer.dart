@@ -3,7 +3,10 @@ import 'package:manus/core/utils/app_logger.dart';
 
 class AppNavigationObserver extends NavigatorObserver {
   @override
-  void didPush(final Route<dynamic> route, final Route<dynamic>? previousRoute) {
+  void didPush(
+    final Route<dynamic> route,
+    final Route<dynamic>? previousRoute,
+  ) {
     super.didPush(route, previousRoute);
     AppLogger.route('PUSH: ${route.settings.name ?? route.toString()}');
   }
@@ -15,15 +18,23 @@ class AppNavigationObserver extends NavigatorObserver {
   }
 
   @override
-  void didReplace({final Route<dynamic>? newRoute, final Route<dynamic>? oldRoute}) {
+  void didReplace({
+    final Route<dynamic>? newRoute,
+    final Route<dynamic>? oldRoute,
+  }) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
     if (newRoute != null) {
-      AppLogger.route('REPLACE: ${newRoute.settings.name ?? newRoute.toString()}');
+      AppLogger.route(
+        'REPLACE: ${newRoute.settings.name ?? newRoute.toString()}',
+      );
     }
   }
 
   @override
-  void didRemove(final Route<dynamic> route, final Route<dynamic>? previousRoute) {
+  void didRemove(
+    final Route<dynamic> route,
+    final Route<dynamic>? previousRoute,
+  ) {
     super.didRemove(route, previousRoute);
     AppLogger.route('REMOVE: ${route.settings.name ?? route.toString()}');
   }

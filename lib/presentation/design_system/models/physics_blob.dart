@@ -1,12 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-enum PhysicsBlobType {
-  bigCircle,
-  smallCircle,
-  hollowCircle,
-  triangle,
-}
+enum PhysicsBlobType { bigCircle, smallCircle, hollowCircle, triangle }
 
 class PhysicsBlob {
   Offset position;
@@ -79,13 +74,14 @@ class PhysicsBlob {
 
     if (distance < minDistance && distance > 0) {
       final Offset normal = delta / distance;
-      
+
       final double overlap = minDistance - distance;
       a.position += normal * (overlap / 2.0);
       b.position -= normal * (overlap / 2.0);
 
       final Offset relativeVelocity = a.velocity - b.velocity;
-      final double velocityAlongNormal = relativeVelocity.dx * normal.dx + relativeVelocity.dy * normal.dy;
+      final double velocityAlongNormal =
+          relativeVelocity.dx * normal.dx + relativeVelocity.dy * normal.dy;
 
       if (velocityAlongNormal < 0) {
         final Offset impulse = normal * velocityAlongNormal;

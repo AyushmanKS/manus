@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 
 class AuthNotifier extends Notifier<AsyncValue<void>> {
   @override
@@ -10,27 +11,42 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
 
   Future<void> signInWithFacebook() async {
     state = const AsyncValue<void>.loading();
-    // Simulate API call
-    await Future<void>.delayed(const Duration(seconds: 1));
-    state = const AsyncValue<void>.data(null);
+    try {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      state = const AsyncValue<void>.data(null);
+    } catch (e, st) {
+      state = AsyncValue<void>.error(e, st);
+    }
   }
 
   Future<void> signInWithGoogle() async {
     state = const AsyncValue<void>.loading();
-    await Future<void>.delayed(const Duration(seconds: 1));
-    state = const AsyncValue<void>.data(null);
+    try {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      state = const AsyncValue<void>.data(null);
+    } catch (e, st) {
+      state = AsyncValue<void>.error(e, st);
+    }
   }
 
   Future<void> signInWithMicrosoft() async {
     state = const AsyncValue<void>.loading();
-    await Future<void>.delayed(const Duration(seconds: 1));
-    state = const AsyncValue<void>.data(null);
+    try {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      state = const AsyncValue<void>.data(null);
+    } catch (e, st) {
+      state = AsyncValue<void>.error(e, st);
+    }
   }
 
   Future<void> signInWithApple() async {
     state = const AsyncValue<void>.loading();
-    await Future<void>.delayed(const Duration(seconds: 1));
-    state = const AsyncValue<void>.data(null);
+    try {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      state = const AsyncValue<void>.data(null);
+    } catch (e, st) {
+      state = AsyncValue<void>.error(e, st);
+    }
   }
 
   Future<void> signInWithEmail() async {
@@ -41,7 +57,6 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
 
   Future<void> loginWithEmail(final String email, final String password) async {
     state = const AsyncValue<void>.loading();
-
     await Future<void>.delayed(const Duration(seconds: 1));
 
     if (email == 'error@manus.ai') {

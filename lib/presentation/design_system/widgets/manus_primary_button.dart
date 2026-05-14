@@ -63,11 +63,11 @@ class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: isDark ? AppColors.socialButtonBgDark : Colors.white,
+              color: isDark ? AppColors.socialButtonBgDark : AppColors.white,
               border: isDark
                   ? null
                   : Border.all(
-                      color: const Color(0xFFE6E6E6),
+                      color: AppColors.greyE6,
                       width: 0.5,
                     ),
               gradient: isDark
@@ -76,9 +76,9 @@ class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: <Color>[
-                        Colors.white,
-                        Color(0xFFF9F9F9),
-                        Color(0xFFF2F2F2),
+                        AppColors.white,
+                        AppColors.greyF9,
+                        AppColors.greyF2,
                       ],
                       stops: <double>[0.0, 0.95, 1.0],
                     ),
@@ -98,7 +98,7 @@ class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
                         colorFilter: widget.isBrandIcon
                             ? null
                             : ColorFilter.mode(
-                                isDark ? Colors.white : Colors.black,
+                                isDark ? AppColors.white : AppColors.black,
                                 BlendMode.srcIn,
                               ),
                       ),

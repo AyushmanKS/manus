@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -97,7 +98,7 @@ class _PolicyScreenState extends State<PolicyScreen> {
               right: 0,
               child: LinearProgressIndicator(
                 value: _loadingProgress / 100.0,
-                backgroundColor: Colors.transparent,
+                backgroundColor: AppColors.transparent,
                 minHeight: 2,
               ),
             ),

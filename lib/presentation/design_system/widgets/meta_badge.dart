@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
+import 'package:manus/core/theme/app_colors.dart';
 
 class MetaBadge extends StatelessWidget {
   const MetaBadge({super.key});
@@ -8,7 +9,7 @@ class MetaBadge extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color color = isDark ? Colors.white60 : Colors.black54;
+    final Color color = isDark ? AppColors.white60 : AppColors.black54;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

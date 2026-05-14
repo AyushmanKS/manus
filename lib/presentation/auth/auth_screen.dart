@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
+import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/app_spacing.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/auth/widgets/auth_button_list.dart';
@@ -16,7 +17,7 @@ class AuthScreen extends ConsumerWidget {
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       resizeToAvoidBottomInset: true,
       body: ManusAnimatedBackground(
         child: RepaintBoundary(

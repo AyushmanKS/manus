@@ -32,9 +32,7 @@ class AppColors {
   static const Color textSecondaryDark = Color(0xFFB0B0B0);
 
   static final Color loaderBackground = const Color(0xFF575755).withValues(alpha: 0.9);
-  static const Color loaderDot1 = Colors.white;
-  static const Color loaderDot2 = Colors.white60;
-  static const Color loaderDot3 = Colors.white30;
+  static const Color loaderDotColor = Colors.white;
 
   static const Color white = Colors.white;
   static const Color white60 = Colors.white60;

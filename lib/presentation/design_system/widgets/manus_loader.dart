@@ -18,11 +18,11 @@ class ManusLoader extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            _Dot(index: 0, color: AppColors.white),
+            _Dot(index: 0, color: AppColors.loaderDotColor),
             SizedBox(width: 6.0),
-            _Dot(index: 1, color: AppColors.white),
+            _Dot(index: 1, color: AppColors.loaderDotColor),
             SizedBox(width: 6.0),
-            _Dot(index: 2, color: AppColors.white),
+            _Dot(index: 2, color: AppColors.loaderDotColor),
           ],
         ),
       ),
@@ -52,27 +52,27 @@ class _Dot extends StatelessWidget {
           end: 3.0,
           duration: 600.ms,
           delay: (index * 200).ms,
-          curve: Curves.linear,
+          curve: Curves.easeInOut,
         )
         .fade(
           begin: 0.2,
           end: 1.0,
           duration: 600.ms,
           delay: (index * 200).ms,
-          curve: Curves.linear,
+          curve: Curves.easeInOut,
         );
   }
 }
 
 Future<void> showManusLoader(
   final BuildContext context, {
-  final bool barrierDismissible = false,
+  final bool barrierDismissible = true,
 }) {
   return showDialog<void>(
     context: context,
     barrierDismissible: barrierDismissible,
     useRootNavigator: true,
-    barrierColor: AppColors.black26,
+    barrierColor: Colors.transparent,
     builder: (final BuildContext context) => const Center(child: ManusLoader()),
   );
 }

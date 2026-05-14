@@ -22,6 +22,8 @@ class ChatScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       body: Container(
         decoration: boxDecoration,
         child: const SafeArea(child: SizedBox.expand()),

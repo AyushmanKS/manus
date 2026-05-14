@@ -18,6 +18,8 @@ class AuthScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.transparent,
+      extendBody: true,
+      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: true,
       body: ManusAnimatedBackground(
         child: RepaintBoundary(

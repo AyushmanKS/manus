@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/router/app_router.dart';
 import 'package:manus/core/theme/app_theme.dart';
 import 'package:manus/core/utils/app_logger.dart';
 
-void main() {
+Future<void> main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      systemStatusBarContrastEnforced: false,
+      systemNavigationBarContrastEnforced: false,
+    ),
+  );
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   AppLogger.info('Application Started');
 

@@ -52,97 +52,103 @@ class _ChatComposerState extends State<ChatComposer> {
         color: bgColor,
         borderRadius: BorderRadius.circular(25.0),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          TextField(
-            controller: _controller,
-            minLines: 1,
-            maxLines: 3,
-            keyboardType: TextInputType.multiline,
-            textCapitalization: TextCapitalization.sentences,
-            style: Theme.of(context).textTheme.bodyLarge,
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Assign a task or ask anything',
-              contentPadding: EdgeInsets.zero,
-              isDense: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TextField(
+              controller: _controller,
+              minLines: 1,
+              maxLines: 3,
+              keyboardType: TextInputType.multiline,
+              textCapitalization: TextCapitalization.sentences,
+              style: Theme.of(context).textTheme.bodyLarge,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Assign a task or ask anything',
+                contentPadding: EdgeInsets.zero,
+                isDense: true,
+              ),
             ),
-          ),
-          const SizedBox(height: 16.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  IconButton(
-                    onPressed: () {},
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: SvgPicture.asset(
-                      AppAssets.plusSvg,
-                      width: 18.0,
-                      height: 18.0,
+            const SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _ActionIcon(
+                      asset: AppAssets.plusSvg,
+                      onTap: () {},
                       colorFilter: iconFilter,
                     ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  IconButton(
-                    onPressed: () {},
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: SvgPicture.asset(
-                      AppAssets.plugSvg,
-                      width: 18.0,
-                      height: 18.0,
+                    const SizedBox(width: 20.0),
+                    _ActionIcon(
+                      asset: AppAssets.plugSvg,
+                      onTap: () {},
                       colorFilter: iconFilter,
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {},
-                    behavior: HitTestBehavior.opaque,
-                    child: SvgPicture.asset(
-                      AppAssets.chatSvg,
-                      width: 18.0,
-                      height: 18.0,
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _ActionIcon(
+                      asset: AppAssets.chatSvg,
+                      onTap: () {},
                       colorFilter: iconFilter,
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    behavior: HitTestBehavior.opaque,
-                    child: SvgPicture.asset(
-                      AppAssets.micSvg,
-                      width: 18.0,
-                      height: 18.0,
+                    const SizedBox(width: 20.0),
+                    _ActionIcon(
+                      asset: AppAssets.micSvg,
+                      onTap: () {},
                       colorFilter: iconFilter,
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: _controller.text.isNotEmpty ? _handleSend : null,
-                    behavior: HitTestBehavior.opaque,
-                    child: Opacity(
+                    const SizedBox(width: 20.0),
+                    _ActionIcon(
+                      asset: AppAssets.upArrowSvg,
+                      onTap: _controller.text.isNotEmpty ? _handleSend : null,
+                      colorFilter: iconFilter,
                       opacity: _controller.text.isNotEmpty ? 1.0 : 0.3,
-                      child: SvgPicture.asset(
-                        AppAssets.upArrowSvg,
-                        width: 18.0,
-                        height: 18.0,
-                        colorFilter: iconFilter,
-                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionIcon extends StatelessWidget {
+  final String asset;
+  final VoidCallback? onTap;
+  final ColorFilter colorFilter;
+  final double opacity;
+
+  const _ActionIcon({
+    required this.asset,
+    this.onTap,
+    required this.colorFilter,
+    this.opacity = 1.0,
+  });
+
+  @override
+  Widget build(final BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Opacity(
+        opacity: opacity,
+        child: SvgPicture.asset(
+          asset,
+          width: 18.0,
+          height: 18.0,
+          colorFilter: colorFilter,
+        ),
       ),
     );
   }

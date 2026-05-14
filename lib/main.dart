@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/router/app_router.dart';
 import 'package:manus/core/theme/app_theme.dart';
 import 'package:manus/core/utils/app_logger.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  final WidgetsBinding widgetsBinding =
+      WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   AppLogger.info('Application Started');
 
   runApp(const ProviderScope(child: ManusApp()));
@@ -17,7 +20,7 @@ class ManusApp extends ConsumerWidget {
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     return MaterialApp.router(
-      title: 'Manus AI',
+      title: 'Manus',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

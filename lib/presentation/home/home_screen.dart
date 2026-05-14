@@ -13,7 +13,7 @@ class HomeScreen extends StatelessWidget {
         padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.screenHorizontalPadding,
         ),
-        child: Center(child: ManusText('Welcome to Manus AI')),
+        child: Center(child: ManusText('Welcome to Manus')),
       ),
     );
   }

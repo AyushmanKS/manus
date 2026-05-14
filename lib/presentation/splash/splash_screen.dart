@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
@@ -12,15 +13,31 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterNativeSplash.remove();
+      _controller.forward();
+    });
+
     Future<void>.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         context.go('/auth');
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         BlendMode.srcIn,
                       ),
                     )
-                    .animate()
+                    .animate(controller: _controller, autoPlay: false)
                     .fadeIn(duration: 800.ms)
                     .scale(
                       begin: const Offset(0.5, 0.5),
@@ -52,12 +69,14 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
           ),
           const Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 60.0),
-              child: MetaAttribution(),
-            ),
-          ).animate().fadeIn(duration: 1000.ms, delay: 300.ms),
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 60.0),
+                  child: MetaAttribution(),
+                ),
+              )
+              .animate(controller: _controller, autoPlay: false)
+              .fadeIn(duration: 1000.ms, delay: 300.ms),
         ],
       ),
     );

@@ -1,0 +1,4 @@
+<!-- Padded logo to fix Android 12+ scaling -->
+<svg width="432" height="432" viewBox="0 0 432 432" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M175.5 256.5V175.5H189L202.5 195.75L216 175.5H229.5V256.5H216V195.75L202.5 216L189 195.75V256.5H175.5Z" fill="white"/>
+</svg>

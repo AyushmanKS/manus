@@ -13,6 +13,12 @@ class AppAssets {
   static const String microsoftSvg = 'assets/icons/microsoft.svg';
   static const String emailSvg = 'assets/icons/email.svg';
 
+  static const String plusSvg = 'assets/icons/plus.svg';
+  static const String plugSvg = 'assets/icons/plug.svg';
+  static const String chatSvg = 'assets/icons/chat.svg';
+  static const String micSvg = 'assets/icons/mic.svg';
+  static const String upArrowSvg = 'assets/icons/up-arrow.svg';
+
   static const String blobSolid = 'assets/illustrations/blob_solid.svg';
   static const String blobHollow = 'assets/illustrations/blob_hollow.svg';
   static const String blobTriangle = 'assets/illustrations/blob_triangle.svg';

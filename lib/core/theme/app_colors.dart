@@ -12,6 +12,12 @@ class AppColors {
   static const Color chatBgDarkTop = Color(0xFF1E1E1E);
   static const Color chatBgDarkBottom = Color(0xFF101010);
 
+  static const Color composerBgDark = Color(0xFF262626);
+  static const Color composerBgLight = Color(0xFFFFFFFF);
+
+  static const Color composerIconBgDark = Color(0xFF333333);
+  static const Color composerIconBgLight = Color(0xFFF2F2F2);
+
   static const Color dotIdleDark = Color(0xFF242424);
   static const Color dotIdleLight = Color(0xFFE6E4E5);
 

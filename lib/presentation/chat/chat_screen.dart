@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/presentation/chat/widgets/chat_composer.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -24,9 +25,23 @@ class ChatScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       extendBody: true,
       extendBodyBehindAppBar: true,
-      body: Container(
-        decoration: boxDecoration,
-        child: const SafeArea(child: SizedBox.expand()),
+      resizeToAvoidBottomInset: true,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Container(
+          decoration: boxDecoration,
+          child: const SafeArea(
+            child: Column(
+              children: <Widget>[
+                Expanded(child: SizedBox()),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
+                  child: ChatComposer(),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

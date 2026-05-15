@@ -10,19 +10,24 @@ class ChatComposer extends StatefulWidget {
   const ChatComposer({
     required this.onSend,
     required this.controller,
+    required this.focusNode,
+    required this.onKeyboardOpen,
     super.key,
   });
 
   final void Function(String text) onSend;
   final TextEditingController controller;
+  final FocusNode focusNode;
+  final VoidCallback onKeyboardOpen;
 
   @override
   State<ChatComposer> createState() => _ChatComposerState();
 }
 
 class _ChatComposerState extends State<ChatComposer> {
-  late final FocusNode _focusNode;
   bool _showAttachmentTray = false;
+
+  FocusNode get _focusNode => widget.focusNode;
 
   TextEditingController get _controller => widget.controller;
 
@@ -30,14 +35,18 @@ class _ChatComposerState extends State<ChatComposer> {
   void initState() {
     super.initState();
     _controller.addListener(_onTextChanged);
-    _focusNode = FocusNode();
+    _focusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
     _controller.removeListener(_onTextChanged);
-    _focusNode.dispose();
+    _focusNode.removeListener(_onFocusChanged);
     super.dispose();
+  }
+
+  void _onFocusChanged() {
+    if (_focusNode.hasFocus) widget.onKeyboardOpen();
   }
 
   void _onTextChanged() => setState(() {});

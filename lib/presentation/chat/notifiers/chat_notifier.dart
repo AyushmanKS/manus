@@ -5,10 +5,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:manus/core/network/api_client.dart';
+import 'package:manus/core/network/connectivity_provider.dart';
+import 'package:manus/core/network/connectivity_service.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/data/repositories/chat_repository.dart';
 import 'package:manus/data/repositories/mock_chat_repository.dart';
+import 'package:manus/data/repositories/offline_chat_repository.dart';
 import 'package:manus/data/services/impl/google_llm_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -51,6 +54,17 @@ final Provider<ChatRepository> _chatRepositoryProvider =
         return ChatRepositoryImpl(GoogleLlmService(ApiClient()));
       }
     });
+
+Future<ChatRepository> _resolveRepository(final Ref ref) async {
+  final ConnectivityService connectivity =
+      ref.read(connectivityServiceProvider);
+  final bool online = await connectivity.isConnected;
+  if (!online) {
+    AppLogger.warning('ChatNotifier: device is offline, using OfflineChatRepository');
+    return const OfflineChatRepository();
+  }
+  return ref.read(_chatRepositoryProvider);
+}
 
 final NotifierProvider<StreamingNotifier, bool> chatIsStreamingProvider =
     NotifierProvider<StreamingNotifier, bool>(StreamingNotifier.new);
@@ -127,7 +141,7 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
         .where((final ChatMessage m) => m.id != assistantId)
         .toList();
 
-    final ChatRepository repository = ref.read(_chatRepositoryProvider);
+    final ChatRepository repository = await _resolveRepository(ref);
 
     try {
       final Stream<String> stream = repository.streamChat(
@@ -265,6 +279,9 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
   }
 
   String _errorMessage(final Object e) {
+    if (e is NoConnectionException) {
+      return 'No internet connection. Please check your network and try again.';
+    }
     if (e is DioException) {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {

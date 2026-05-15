@@ -21,6 +21,9 @@ class AppAssets {
   static const String micSvg = 'assets/icons/mic.svg';
   static const String upArrowSvg = 'assets/icons/up-arrow.svg';
 
+  static const String pencilSvg = 'assets/icons/pencil.svg';
+  static const String copySvg = 'assets/icons/copy.svg';
+
   static const String blobSolid = 'assets/illustrations/blob_solid.svg';
   static const String blobHollow = 'assets/illustrations/blob_hollow.svg';
   static const String blobTriangle = 'assets/illustrations/blob_triangle.svg';

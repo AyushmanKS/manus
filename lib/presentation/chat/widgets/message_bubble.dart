@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/markdown_segmenter.dart';
 import 'package:manus/data/models/chat_message.dart';
@@ -8,14 +12,14 @@ import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/widgets/markdown_renderer.dart';
 
 class MessageBubble extends ConsumerStatefulWidget {
-  final String messageId;
-  final int index;
-
   const MessageBubble({
     required this.messageId,
     required this.index,
     super.key,
   });
+
+  final String messageId;
+  final int index;
 
   @override
   ConsumerState<MessageBubble> createState() => _MessageBubbleState();
@@ -40,7 +44,7 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: isUser
-            ? _UserBubble(text: message.text)
+            ? _UserBubble(message: message)
             : _AssistantBubble(message: message),
       ),
     );
@@ -63,10 +67,140 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
   }
 }
 
-class _UserBubble extends StatelessWidget {
-  final String text;
+class _UserBubble extends ConsumerStatefulWidget {
+  const _UserBubble({required this.message});
 
-  const _UserBubble({required this.text});
+  final ChatMessage message;
+
+  @override
+  ConsumerState<_UserBubble> createState() => _UserBubbleState();
+}
+
+class _UserBubbleState extends ConsumerState<_UserBubble> {
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  void _removeOverlay() {
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+    }
+  }
+
+  void _showContextMenu() {
+    _removeOverlay();
+
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    const double menuWidth = 114.0;
+
+    _overlayEntry = OverlayEntry(
+      builder: (final BuildContext context) {
+        return Stack(
+          children: <Widget>[
+            GestureDetector(
+              onTap: _removeOverlay,
+              behavior: HitTestBehavior.opaque,
+              child: Container(color: Colors.transparent),
+            ),
+            Positioned(
+              width: menuWidth,
+              child: CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                targetAnchor: Alignment.bottomRight,
+                followerAnchor: Alignment.topRight,
+                offset: const Offset(0.0, 6.0),
+                child: Material(
+                  color: Colors.transparent,
+                  child:
+                      Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: isDark
+                                  ? AppColors.composerBgDark
+                                  : AppColors.composerBgLight,
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  blurRadius: 15,
+                                  spreadRadius: 0,
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                ),
+                              ],
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 8,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                _ContextMenuItem(
+                                  label: 'Copy',
+                                  asset: AppAssets.copySvg,
+                                  onTap: () {
+                                    unawaited(
+                                      Clipboard.setData(
+                                        ClipboardData(
+                                          text: widget.message.text,
+                                        ),
+                                      ),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Copied'),
+                                        duration: Duration(milliseconds: 1500),
+                                      ),
+                                    );
+                                    _removeOverlay();
+                                  },
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 24,
+                                  color: AppColors.textSecondaryDark.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                ),
+                                _ContextMenuItem(
+                                  label: 'Edit',
+                                  asset: AppAssets.pencilSvg,
+                                  onTap: () {
+                                    ref
+                                        .read(editingMessageProvider.notifier)
+                                        .startEditing(
+                                          widget.message.id,
+                                          widget.message.text,
+                                        );
+                                    _removeOverlay();
+                                  },
+                                ),
+                              ],
+                            ),
+                          )
+                          .animate()
+                          .fadeIn(duration: 150.ms)
+                          .scaleXY(
+                            begin: 0.85,
+                            end: 1.0,
+                            curve: Curves.easeOutCubic,
+                            alignment: Alignment.topRight,
+                          ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
 
   @override
   Widget build(final BuildContext context) {
@@ -74,22 +208,103 @@ class _UserBubble extends StatelessWidget {
 
     return Align(
       alignment: Alignment.centerRight,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.8,
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 10.0,
-        ),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.socialButtonBgDark : AppColors.greyF2,
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: SelectionArea(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodyLarge,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          CompositedTransformTarget(
+            link: _layerLink,
+            child: GestureDetector(
+              onLongPress: _showContextMenu,
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.sizeOf(context).width * 0.8,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 10.0,
+                ),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.socialButtonBgDark
+                      : AppColors.greyF2,
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    SelectionArea(
+                      child: Text(
+                        widget.message.text,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                    if (widget.message.isEdited)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          'edited',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                                fontSize: 10,
+                              ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContextMenuItem extends StatelessWidget {
+  const _ContextMenuItem({
+    required this.label,
+    required this.asset,
+    required this.onTap,
+  });
+
+  final String label;
+  final String asset;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(final BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: 50,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              SvgPicture.asset(
+                asset,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: iconColor, fontSize: 10),
+              ),
+            ],
           ),
         ),
       ),
@@ -98,9 +313,9 @@ class _UserBubble extends StatelessWidget {
 }
 
 class _AssistantBubble extends StatefulWidget {
-  final ChatMessage message;
-
   const _AssistantBubble({required this.message});
+
+  final ChatMessage message;
 
   @override
   State<_AssistantBubble> createState() => _AssistantBubbleState();
@@ -112,6 +327,7 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
   @override
   Widget build(final BuildContext context) {
     final bool isStreaming = widget.message.status == MessageStatus.sending;
+    final bool isStopped = widget.message.status == MessageStatus.stopped;
     final List<MarkdownBlock> blocks = MarkdownSegmenter.parse(
       widget.message.text,
     );
@@ -127,6 +343,7 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
           children: <Widget>[
             _buildBlockList(blocks, isStreaming),
             if (isStreaming) const _StreamingCaret(),
+            if (isStopped) const _StoppedBadge(),
           ],
         ),
       ),
@@ -165,6 +382,35 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: children,
     );
+  }
+}
+
+class _StoppedBadge extends StatelessWidget {
+  const _StoppedBadge();
+
+  @override
+  Widget build(final BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color color = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(Icons.stop_rounded, size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            'Generation stopped',
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: color),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 400.ms);
   }
 }
 

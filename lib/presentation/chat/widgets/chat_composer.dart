@@ -6,7 +6,7 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 
-class ChatComposer extends StatefulWidget {
+class ChatComposer extends ConsumerStatefulWidget {
   const ChatComposer({
     required this.onSend,
     required this.controller,
@@ -21,10 +21,10 @@ class ChatComposer extends StatefulWidget {
   final VoidCallback onKeyboardOpen;
 
   @override
-  State<ChatComposer> createState() => _ChatComposerState();
+  ConsumerState<ChatComposer> createState() => _ChatComposerState();
 }
 
-class _ChatComposerState extends State<ChatComposer> {
+class _ChatComposerState extends ConsumerState<ChatComposer> {
   bool _showAttachmentTray = false;
 
   FocusNode get _focusNode => widget.focusNode;
@@ -51,11 +51,19 @@ class _ChatComposerState extends State<ChatComposer> {
 
   void _onTextChanged() => setState(() {});
 
-  void _handleSend() {
+  void _handleSend(final EditingMessage? editingMessage) {
     HapticFeedback.lightImpact();
     final String text = _controller.text.trim();
     if (text.isEmpty) return;
-    widget.onSend(text);
+
+    if (editingMessage != null) {
+      ref
+          .read(chatProvider.notifier)
+          .editAndResend(editingMessage.messageId, text);
+      ref.read(editingMessageProvider.notifier).confirmEditing();
+    } else {
+      widget.onSend(text);
+    }
     _controller.clear();
   }
 
@@ -77,13 +85,36 @@ class _ChatComposerState extends State<ChatComposer> {
 
   @override
   Widget build(final BuildContext context) {
+    final EditingMessage? editingMessage = ref.watch(editingMessageProvider);
+
+    ref.listen<EditingMessage?>(editingMessageProvider, (
+      final EditingMessage? previous,
+      final EditingMessage? next,
+    ) {
+      if (next != null && previous != next) {
+        _controller.text = next.originalText;
+        _controller.selection = TextSelection.collapsed(
+          offset: _controller.text.length,
+        );
+        WidgetsBinding.instance.addPostFrameCallback(
+          (final _) => _focusNode.requestFocus(),
+        );
+      }
+    });
+
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color bgColor = isDark
         ? AppColors.composerBgDark
         : AppColors.composerBgLight;
     final Color iconColor = isDark ? AppColors.white : AppColors.black;
+    final Color secondaryTextColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
     final ColorFilter iconFilter = ColorFilter.mode(iconColor, BlendMode.srcIn);
+
     final bool hasText = _controller.text.isNotEmpty;
+    final bool isEditing = editingMessage != null;
+
     final Color borderColor = isDark
         ? AppColors.iconBorderDark
         : AppColors.iconBorderLight;
@@ -111,6 +142,51 @@ class _ChatComposerState extends State<ChatComposer> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                child: isEditing
+                    ? AnimatedOpacity(
+                        opacity: isEditing ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: SizedBox(
+                          height: 28,
+                          child: Row(
+                            children: <Widget>[
+                              SvgPicture.asset(
+                                AppAssets.pencilSvg,
+                                width: 16,
+                                height: 16,
+                                colorFilter: ColorFilter.mode(
+                                  secondaryTextColor,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Editing message',
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: secondaryTextColor),
+                              ),
+                              const Spacer(),
+                              IconButton(
+                                icon: const Icon(Icons.close, size: 18),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                color: secondaryTextColor,
+                                onPressed: () {
+                                  _controller.clear();
+                                  ref
+                                      .read(editingMessageProvider.notifier)
+                                      .cancelEditing();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 220),
                 switchInCurve: Curves.easeOutCubic,
@@ -152,6 +228,7 @@ class _ChatComposerState extends State<ChatComposer> {
                     isDark,
                     activeSendCircle,
                     inactiveSendCircle,
+                    editingMessage,
                   ),
                 ],
               ),
@@ -195,6 +272,7 @@ class _ChatComposerState extends State<ChatComposer> {
     final bool isDark,
     final Color activeSendCircle,
     final Color inactiveSendCircle,
+    final EditingMessage? editingMessage,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -233,14 +311,22 @@ class _ChatComposerState extends State<ChatComposer> {
               (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
                 final bool isStreaming = ref.watch(chatIsStreamingProvider);
                 final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
-                final bool canTap = hasText || isStreaming;
+
+                bool canTap;
+                if (editingMessage != null) {
+                  canTap =
+                      _controller.text.trim().isNotEmpty &&
+                      _controller.text.trim() != editingMessage.originalText;
+                } else {
+                  canTap = hasText || isStreaming;
+                }
 
                 void onTap() {
                   if (isStreaming) {
                     HapticFeedback.mediumImpact();
                     ref.read(chatProvider.notifier).stopStream();
                   } else if (!isSubmitting) {
-                    _handleSend();
+                    _handleSend(editingMessage);
                   }
                 }
 
@@ -297,14 +383,6 @@ class _ChatComposerState extends State<ChatComposer> {
 enum _SendState { idle, submitting, streaming }
 
 class _SendButton extends StatelessWidget {
-  final bool hasText;
-  final bool isStreaming;
-  final bool isSubmitting;
-  final VoidCallback? onTap;
-  final bool isDark;
-  final Color activeSendCircle;
-  final Color inactiveSendCircle;
-
   const _SendButton({
     required this.hasText,
     required this.isStreaming,
@@ -314,6 +392,14 @@ class _SendButton extends StatelessWidget {
     required this.activeSendCircle,
     required this.inactiveSendCircle,
   });
+
+  final bool hasText;
+  final bool isStreaming;
+  final bool isSubmitting;
+  final VoidCallback? onTap;
+  final bool isDark;
+  final Color activeSendCircle;
+  final Color inactiveSendCircle;
 
   _SendState get _state {
     if (isSubmitting) return _SendState.submitting;
@@ -403,9 +489,9 @@ class _SendButton extends StatelessWidget {
 }
 
 class _AttachmentTray extends StatelessWidget {
-  final Color iconColor;
-
   const _AttachmentTray({required this.iconColor});
+
+  final Color iconColor;
 
   @override
   Widget build(final BuildContext context) {
@@ -438,15 +524,15 @@ class _AttachmentTray extends StatelessWidget {
 }
 
 class _TrayItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color iconColor;
-
   const _TrayItem({
     required this.icon,
     required this.label,
     required this.iconColor,
   });
+
+  final IconData icon;
+  final String label;
+  final Color iconColor;
 
   @override
   Widget build(final BuildContext context) {
@@ -489,9 +575,9 @@ class _TrayItem extends StatelessWidget {
 }
 
 class _ModelPickerSheet extends StatelessWidget {
-  final bool isDark;
-
   const _ModelPickerSheet({required this.isDark});
+
+  final bool isDark;
 
   @override
   Widget build(final BuildContext context) {
@@ -570,14 +656,6 @@ class _ModelPickerSheet extends StatelessWidget {
 }
 
 class _ActionIcon extends StatelessWidget {
-  final String asset;
-  final VoidCallback? onTap;
-  final ColorFilter colorFilter;
-  final BoxDecoration? decoration;
-  final double padding;
-  final bool isBold;
-  final double size;
-
   const _ActionIcon({
     required this.asset,
     this.onTap,
@@ -587,6 +665,14 @@ class _ActionIcon extends StatelessWidget {
     this.isBold = false,
     this.size = 18.0,
   });
+
+  final String asset;
+  final VoidCallback? onTap;
+  final ColorFilter colorFilter;
+  final BoxDecoration? decoration;
+  final double padding;
+  final bool isBold;
+  final double size;
 
   @override
   Widget build(final BuildContext context) {

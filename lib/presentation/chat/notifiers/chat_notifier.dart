@@ -14,6 +14,35 @@ import 'package:uuid/uuid.dart';
 
 const bool kUseMockChat = true;
 
+class EditingMessage {
+  const EditingMessage({required this.messageId, required this.originalText});
+
+  final String messageId;
+  final String originalText;
+}
+
+final NotifierProvider<EditingNotifier, EditingMessage?>
+editingMessageProvider = NotifierProvider<EditingNotifier, EditingMessage?>(
+  EditingNotifier.new,
+);
+
+class EditingNotifier extends Notifier<EditingMessage?> {
+  @override
+  EditingMessage? build() => null;
+
+  void startEditing(final String messageId, final String originalText) {
+    state = EditingMessage(messageId: messageId, originalText: originalText);
+  }
+
+  void cancelEditing() {
+    state = null;
+  }
+
+  void confirmEditing() {
+    state = null;
+  }
+}
+
 final Provider<ChatRepository> _chatRepositoryProvider =
     Provider<ChatRepository>((final Ref ref) {
       if (kUseMockChat) {
@@ -63,7 +92,10 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
   @override
   List<ChatMessage> build() => <ChatMessage>[];
 
-  Future<void> sendMessage(final String text) async {
+  Future<void> sendMessage(
+    final String text, {
+    final bool isEdited = false,
+  }) async {
     _cancelToken = CancelToken();
 
     final String userId = const Uuid().v4();
@@ -77,6 +109,7 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
       text: text,
       timestamp: now,
       status: MessageStatus.streamed,
+      isEdited: isEdited,
     );
 
     final ChatMessage placeholder = ChatMessage(
@@ -173,6 +206,24 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
     ref.read(chatIsSubmittingProvider.notifier).setSubmitting(false);
     ref.read(chatIsStreamingProvider.notifier).setStreaming(false);
     unawaited(_persist());
+  }
+
+  Future<void> editAndResend(
+    final String messageId,
+    final String newText,
+  ) async {
+    final int index = state.indexWhere(
+      (final ChatMessage m) => m.id == messageId,
+    );
+    if (index == -1 || state[index].role != MessageRole.user) {
+      AppLogger.warning('Cannot edit message: invalid ID or role');
+      return;
+    }
+
+    AppLogger.debug('Forking conversation from index $index');
+    state = state.sublist(0, index);
+    await _persist();
+    await sendMessage(newText, isEdited: true);
   }
 
   Future<void> regenerateLastMessage() async {

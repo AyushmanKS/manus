@@ -9,6 +9,7 @@ class ChatMessage {
     required this.text,
     required this.timestamp,
     required this.status,
+    this.isEdited = false,
   });
 
   factory ChatMessage.fromJson(final Map<String, dynamic> json) {
@@ -18,6 +19,7 @@ class ChatMessage {
       text: json['text'] as String,
       timestamp: DateTime.parse(json['timestamp'] as String),
       status: MessageStatus.values.byName(json['status'] as String),
+      isEdited: json['isEdited'] as bool? ?? false,
     );
   }
 
@@ -26,6 +28,7 @@ class ChatMessage {
   final String text;
   final DateTime timestamp;
   final MessageStatus status;
+  final bool isEdited;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -34,6 +37,7 @@ class ChatMessage {
       'text': text,
       'timestamp': timestamp.toIso8601String(),
       'status': status.name,
+      'isEdited': isEdited,
     };
   }
 
@@ -43,6 +47,7 @@ class ChatMessage {
     final String? text,
     final DateTime? timestamp,
     final MessageStatus? status,
+    final bool? isEdited,
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -50,6 +55,7 @@ class ChatMessage {
       text: text ?? this.text,
       timestamp: timestamp ?? this.timestamp,
       status: status ?? this.status,
+      isEdited: isEdited ?? this.isEdited,
     );
   }
 }

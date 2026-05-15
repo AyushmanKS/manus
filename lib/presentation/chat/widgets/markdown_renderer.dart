@@ -20,17 +20,15 @@ class MarkdownRenderer extends StatelessWidget {
   Widget build(final BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: blocks.indexed
-          .map<Widget>((final (int, MarkdownBlock) record) {
-            final int i = record.$1;
-            final MarkdownBlock block = record.$2;
-            return MarkdownBlockItem(
-              key: ValueKey<String>('${block.type.name}_$i'),
-              block: block,
-              isStreaming: isStreaming,
-            );
-          })
-          .toList(),
+      children: blocks.indexed.map<Widget>((final (int, MarkdownBlock) record) {
+        final int i = record.$1;
+        final MarkdownBlock block = record.$2;
+        return MarkdownBlockItem(
+          key: ValueKey<String>('${block.type.name}_$i'),
+          block: block,
+          isStreaming: isStreaming,
+        );
+      }).toList(),
     );
   }
 }
@@ -68,16 +66,16 @@ class _ParagraphBlock extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     return MarkdownBody(
       data: block.content,
       styleSheet: MarkdownStyleSheet(
-        p: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: textColor,
-          height: 1.5,
-        ),
+        p: Theme.of(
+          context,
+        ).textTheme.bodyLarge?.copyWith(color: textColor, height: 1.5),
         strong: const TextStyle(fontWeight: FontWeight.w700),
         code: TextStyle(
           fontFamily: AppTheme.monoFontFamily,
@@ -215,7 +213,21 @@ class _ThinkingBlock extends StatefulWidget {
 }
 
 class _ThinkingBlockState extends State<_ThinkingBlock> {
-  bool _expanded = false;
+  late bool _expanded;
+
+  @override
+  void initState() {
+    super.initState();
+    _expanded = !widget.block.isComplete;
+  }
+
+  @override
+  void didUpdateWidget(final _ThinkingBlock oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!oldWidget.block.isComplete && widget.block.isComplete) {
+      _expanded = false;
+    }
+  }
 
   @override
   Widget build(final BuildContext context) {
@@ -234,7 +246,9 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           GestureDetector(
-            onTap: () => setState(() => _expanded = !_expanded),
+            onTap: isStreaming
+                ? null
+                : () => setState(() => _expanded = !_expanded),
             behavior: HitTestBehavior.opaque,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
@@ -258,36 +272,29 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                     ),
                   ),
                   const Spacer(),
-                  AnimatedRotation(
-                    turns: _expanded ? 0.5 : 0.0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeOutBack,
-                    child: const Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      size: 18,
-                      color: Colors.blueGrey,
+                  if (!isStreaming)
+                    AnimatedRotation(
+                      turns: _expanded ? 0.5 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOutCubic,
+                      child: const Icon(
+                        Icons.expand_more_rounded,
+                        size: 18,
+                        color: Colors.blueGrey,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
           ),
           AnimatedSize(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.fastOutSlowIn,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
             alignment: Alignment.topCenter,
             child: _expanded
                 ? Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                    child: Text(
-                      widget.block.content,
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1.5,
-                        color: isDark ? Colors.white70 : Colors.black54,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
+                    child: _ParagraphBlock(block: widget.block),
                   )
                 : const SizedBox.shrink(),
           ),
@@ -302,13 +309,15 @@ class _PulsingDot extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color color = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
+
     return Container(
           width: 8,
           height: 8,
-          decoration: const BoxDecoration(
-            color: Colors.blueGrey,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         )
         .animate(
           onPlay: (final AnimationController controller) =>
@@ -317,9 +326,10 @@ class _PulsingDot extends StatelessWidget {
         .scale(
           begin: const Offset(0.8, 0.8),
           end: const Offset(1.2, 1.2),
-          duration: const Duration(milliseconds: 600),
+          duration: const Duration(milliseconds: 900),
           curve: Curves.easeInOut,
-        );
+        )
+        .fadeIn(duration: const Duration(milliseconds: 900));
   }
 }
 
@@ -332,12 +342,15 @@ class _TableBlock extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color shimmerBase =
-        isDark ? AppColors.composerIconBgDark : AppColors.composerIconBgLight;
-    final Color shimmerHighlight =
-        isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color shimmerBase = isDark
+        ? AppColors.composerIconBgDark
+        : AppColors.composerIconBgLight;
+    final Color shimmerHighlight = isDark
+        ? AppColors.dividerDark
+        : AppColors.dividerLight;
 
     if (isStreaming && !block.isComplete) {
       return _TableSkeleton(base: shimmerBase, highlight: shimmerHighlight);
@@ -415,35 +428,37 @@ class _SkeletonRow extends StatelessWidget {
     return Row(
       children: List<Widget>.generate(4, (final int i) {
         return Expanded(
-          child: Container(
-            height: isHeader ? 20.0 : 16.0,
-            margin: const EdgeInsets.symmetric(horizontal: 4.0),
-            decoration: BoxDecoration(
-              color: base,
-              borderRadius: BorderRadius.circular(4.0),
-            ),
-          )
-              .animate(
-                onPlay: (final AnimationController c) =>
-                    c.repeat(reverse: true),
-              )
-              .custom(
-                duration: Duration(milliseconds: 900 + i * 120),
-                curve: Curves.easeInOut,
-                builder: (
-                  final BuildContext context,
-                  final double value,
-                  final Widget? child,
-                ) {
-                  return ColorFiltered(
-                    colorFilter: ColorFilter.mode(
-                      Color.lerp(base, highlight, value)!,
-                      BlendMode.srcATop,
+          child:
+              Container(
+                    height: isHeader ? 20.0 : 16.0,
+                    margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                    decoration: BoxDecoration(
+                      color: base,
+                      borderRadius: BorderRadius.circular(4.0),
                     ),
-                    child: child,
-                  );
-                },
-              ),
+                  )
+                  .animate(
+                    onPlay: (final AnimationController c) =>
+                        c.repeat(reverse: true),
+                  )
+                  .custom(
+                    duration: Duration(milliseconds: 900 + i * 120),
+                    curve: Curves.easeInOut,
+                    builder:
+                        (
+                          final BuildContext context,
+                          final double value,
+                          final Widget? child,
+                        ) {
+                          return ColorFiltered(
+                            colorFilter: ColorFilter.mode(
+                              Color.lerp(base, highlight, value)!,
+                              BlendMode.srcATop,
+                            ),
+                            child: child,
+                          );
+                        },
+                  ),
         );
       }),
     );

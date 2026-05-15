@@ -74,12 +74,15 @@ class MarkdownSegmenter {
           currentType = BlockType.thinking;
           inThink = true;
         }
-        buffer.writeln(line.substring(thinkingPrefix.length));
+        buffer.writeln(line.replaceFirst(thinkingPrefix, '').trim());
         if (isLast) flush(complete: false);
         continue;
       }
 
-      if (inThink && !line.startsWith(thinkingPrefix)) {
+      if (inThink &&
+          currentType == BlockType.thinking &&
+          !line.startsWith(thinkingPrefix) &&
+          !fullText.contains('<think>')) {
         flush(complete: true);
         inThink = false;
         currentType = BlockType.paragraph;
@@ -89,14 +92,14 @@ class MarkdownSegmenter {
         flush(complete: true);
         inThink = true;
         currentType = BlockType.thinking;
-        final String after = line.replaceFirst(_thinkOpen, '');
+        final String after = line.replaceFirst(_thinkOpen, '').trim();
         if (after.isNotEmpty) buffer.writeln(after);
         continue;
       }
 
       if (inThink && currentType == BlockType.thinking) {
         if (_thinkClose.hasMatch(line)) {
-          final String before = line.split(_thinkClose).first;
+          final String before = line.replaceFirst(_thinkClose, '').trim();
           if (before.isNotEmpty) buffer.writeln(before);
           flush(complete: true);
           inThink = false;

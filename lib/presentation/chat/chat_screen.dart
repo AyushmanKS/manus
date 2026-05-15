@@ -55,12 +55,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         .bottom;
     if (viewInset == _previousViewInset) return;
     _previousViewInset = viewInset;
-    WidgetsBinding.instance.addPostFrameCallback((final _) {
-      _listKey.currentState?.onScrollMetricsChanged();
-      WidgetsBinding.instance.addPostFrameCallback((final _) {
-        _listKey.currentState?.onScrollMetricsChanged();
-      });
-    });
+    _listKey.currentState?.onScrollMetricsChanged();
   }
 
   @override
@@ -112,12 +107,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     return Scaffold(
       backgroundColor: bgColor,
       resizeToAvoidBottomInset: true,
-      body: NotificationListener<ScrollMetricsNotification>(
-        onNotification: (final ScrollMetricsNotification n) {
-          _listKey.currentState?.onScrollMetricsChanged();
-          return false;
-        },
-        child: Container(
+      body: Container(
           decoration: bgDecoration,
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
@@ -147,7 +137,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               ],
             ),
           ),
-        ),
       ),
     );
   }

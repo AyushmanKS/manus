@@ -8,8 +8,13 @@ import 'package:manus/core/utils/markdown_segmenter.dart';
 
 class MarkdownRenderer extends StatelessWidget {
   final List<MarkdownBlock> blocks;
+  final bool isStreaming;
 
-  const MarkdownRenderer({required this.blocks, super.key});
+  const MarkdownRenderer({
+    required this.blocks,
+    required this.isStreaming,
+    super.key,
+  });
 
   @override
   Widget build(final BuildContext context) {
@@ -21,6 +26,7 @@ class MarkdownRenderer extends StatelessWidget {
         return MarkdownBlockItem(
           key: ValueKey<String>('${block.type.name}_$i'),
           block: block,
+          isStreaming: isStreaming,
         );
       }).toList(),
     );
@@ -29,8 +35,13 @@ class MarkdownRenderer extends StatelessWidget {
 
 class MarkdownBlockItem extends StatelessWidget {
   final MarkdownBlock block;
+  final bool isStreaming;
 
-  const MarkdownBlockItem({required this.block, super.key});
+  const MarkdownBlockItem({
+    required this.block,
+    required this.isStreaming,
+    super.key,
+  });
 
   @override
   Widget build(final BuildContext context) {
@@ -40,7 +51,7 @@ class MarkdownBlockItem extends StatelessWidget {
       case BlockType.code:
         return _CodeBlock(block: block);
       case BlockType.table:
-        return _TableBlock(block: block);
+        return _TableBlock(block: block, isStreaming: isStreaming);
       case BlockType.thinking:
         return _ThinkingBlock(block: block);
     }
@@ -312,26 +323,47 @@ class _PulsingDot extends StatelessWidget {
 
 class _TableBlock extends StatelessWidget {
   final MarkdownBlock block;
+  final bool isStreaming;
 
-  const _TableBlock({required this.block});
+  const _TableBlock({required this.block, required this.isStreaming});
 
   @override
   Widget build(final BuildContext context) {
+    if (isStreaming && !block.isComplete) return const SizedBox.shrink();
+
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: MarkdownBody(
-        data: block.content,
-        styleSheet: MarkdownStyleSheet(
-          tableBorder: TableBorder.all(
-            color: isDark ? Colors.white24 : Colors.black12,
+    final Color textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+
+    return LayoutBuilder(
+      builder: (final BuildContext context, final BoxConstraints constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: MarkdownBody(
+              data: block.content,
+              styleSheet: MarkdownStyleSheet(
+                p: TextStyle(color: textColor, fontSize: 14.0),
+                tableHead: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.0,
+                ),
+                tableBody: TextStyle(color: textColor, fontSize: 14.0),
+                tableBorder: TableBorder.all(
+                  color: isDark ? Colors.white24 : Colors.black12,
+                ),
+                tableCellsPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                tableColumnWidth: const FlexColumnWidth(),
+              ),
+            ),
           ),
-          tableCellsPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 8,
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

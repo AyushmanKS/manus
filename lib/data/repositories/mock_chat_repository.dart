@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:characters/characters.dart';
 import 'package:dio/dio.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/data/models/chat_message.dart';
@@ -33,8 +34,8 @@ class MockChatRepository implements ChatRepository {
       '### Comparison Table\n\n'
       '| Feature | Manus | Others |\n'
       '|---------|-------|--------|\n'
-      '| Streaming | ✅ | ⚠️ |\n'
-      '| Markdown | ✅ | ❌ |\n'
+      '| Streaming | Yes | Partial |\n'
+      '| Markdown | Yes | No |\n'
       '| Speed | Fast | Slow |\n\n'
       '> This is a blockquote with some **important** information.\n\n'
       'Here is a longer paragraph to test bubble growth and scroll behavior '
@@ -72,10 +73,10 @@ class MockChatRepository implements ChatRepository {
       "Here's a detailed comparison table:\n\n"
       '| Model | Speed | Quality | Cost |\n'
       '|-------|-------|---------|------|\n'
-      '| Gemini 2.5 Flash | ⚡ Fast | ⭐⭐⭐⭐ | Free |\n'
-      '| GPT-4o | 🐢 Slow | ⭐⭐⭐⭐⭐ | Paid |\n'
-      '| Claude Sonnet | 🚀 Fast | ⭐⭐⭐⭐⭐ | Paid |\n'
-      '| Llama 3.3 | ⚡ Fast | ⭐⭐⭐⭐ | Free |\n\n'
+      '| Gemini 2.5 Flash | (fast) | 4/5 | Free |\n'
+      '| GPT-4o | (slow) | 5/5 | Paid |\n'
+      '| Claude Sonnet | (very fast) | 5/5 | Paid |\n'
+      '| Llama 3.3 | (fast) | 4/5 | Free |\n\n'
       '**Recommendation:** For a free-tier project, Gemini 2.5 Flash is the '
       'best balance of speed and quality.\n\n'
       '> Note: Speed and quality ratings are approximate and may vary based '
@@ -237,7 +238,8 @@ class MockChatRepository implements ChatRepository {
         return;
       }
 
-      final String chunk = chunks[i];
+      final String chunk = _sanitize(chunks[i]);
+      if (chunk.isEmpty) continue;
       controller.add(chunk);
 
       final int delay = _delayFor(chunk);
@@ -246,19 +248,22 @@ class MockChatRepository implements ChatRepository {
   }
 
   List<String> _tokenize(final String text) {
+    final List<String> graphemes = text.characters.toList();
     final List<String> chunks = <String>[];
     int i = 0;
     final Random rng = Random();
 
-    while (i < text.length) {
+    while (i < graphemes.length) {
       final int size = 1 + rng.nextInt(4);
-      final int end = min(i + size, text.length);
-      chunks.add(text.substring(i, end));
+      final int end = min(i + size, graphemes.length);
+      chunks.add(graphemes.sublist(i, end).join());
       i = end;
     }
 
     return chunks;
   }
+
+  String _sanitize(final String s) => String.fromCharCodes(s.runes);
 
   int _delayFor(final String chunk) {
     final int jitter = DateTime.now().millisecondsSinceEpoch % 20;

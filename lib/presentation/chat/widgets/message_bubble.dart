@@ -65,6 +65,7 @@ class _AssistantBubble extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final List<MarkdownBlock> blocks = MarkdownSegmenter.parse(message.text);
+    final bool isStreaming = message.status == MessageStatus.sending;
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -72,7 +73,7 @@ class _AssistantBubble extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.9,
         ),
-        child: MarkdownRenderer(blocks: blocks),
+        child: MarkdownRenderer(blocks: blocks, isStreaming: isStreaming),
       ),
     ).animate().fadeIn(duration: 200.ms);
   }

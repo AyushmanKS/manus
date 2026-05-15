@@ -329,11 +329,20 @@ class _TableBlock extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    if (isStreaming && !block.isComplete) return const SizedBox.shrink();
-
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color textColor =
         isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color shimmerBase =
+        isDark ? AppColors.composerIconBgDark : AppColors.composerIconBgLight;
+    final Color shimmerHighlight =
+        isDark ? AppColors.dividerDark : AppColors.dividerLight;
+
+    if (isStreaming && !block.isComplete) {
+      return _TableSkeleton(
+        base: shimmerBase,
+        highlight: shimmerHighlight,
+      );
+    }
 
     return LayoutBuilder(
       builder: (final BuildContext context, final BoxConstraints constraints) {
@@ -364,6 +373,80 @@ class _TableBlock extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _TableSkeleton extends StatelessWidget {
+  final Color base;
+  final Color highlight;
+
+  const _TableSkeleton({required this.base, required this.highlight});
+
+  @override
+  Widget build(final BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        _SkeletonRow(base: base, highlight: highlight, isHeader: true),
+        const SizedBox(height: 2),
+        _SkeletonRow(base: base, highlight: highlight, isHeader: false),
+        const SizedBox(height: 2),
+        _SkeletonRow(base: base, highlight: highlight, isHeader: false),
+        const SizedBox(height: 2),
+        _SkeletonRow(base: base, highlight: highlight, isHeader: false),
+      ],
+    );
+  }
+}
+
+class _SkeletonRow extends StatelessWidget {
+  final Color base;
+  final Color highlight;
+  final bool isHeader;
+
+  const _SkeletonRow({
+    required this.base,
+    required this.highlight,
+    required this.isHeader,
+  });
+
+  @override
+  Widget build(final BuildContext context) {
+    return Row(
+      children: List<Widget>.generate(4, (final int i) {
+        return Expanded(
+          child: Container(
+            height: isHeader ? 20.0 : 16.0,
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            decoration: BoxDecoration(
+              color: base,
+              borderRadius: BorderRadius.circular(4.0),
+            ),
+          )
+              .animate(
+                onPlay: (final AnimationController c) =>
+                    c.repeat(reverse: true),
+              )
+              .custom(
+                duration: Duration(milliseconds: 900 + i * 120),
+                curve: Curves.easeInOut,
+                builder: (
+                  final BuildContext context,
+                  final double value,
+                  final Widget? child,
+                ) {
+                  return ColorFiltered(
+                    colorFilter: ColorFilter.mode(
+                      Color.lerp(base, highlight, value)!,
+                      BlendMode.srcATop,
+                    ),
+                    child: child,
+                  );
+                },
+              ),
+        );
+      }),
     );
   }
 }

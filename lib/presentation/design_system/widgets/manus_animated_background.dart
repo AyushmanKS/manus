@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/design_system/models/physics_blob.dart';
 
 class ManusAnimatedBackground extends StatefulWidget {
@@ -36,48 +35,47 @@ class _ManusAnimatedBackgroundState extends State<ManusAnimatedBackground>
 
     _blobs.add(
       PhysicsBlob(
-        position: _randomPos(size, 100, random),
+        position: _randomPos(size, 75, random),
         velocity: _randomVel(random),
-        radius: 100,
+        radius: 75,
         type: PhysicsBlobType.bigCircle,
       ),
     );
 
     _blobs.add(
       PhysicsBlob(
-        position: _randomPos(size, 60, random),
+        position: _randomPos(size, 40, random),
         velocity: _randomVel(random),
-        radius: 60,
+        radius: 40,
         type: PhysicsBlobType.smallCircle,
       ),
     );
 
     _blobs.add(
       PhysicsBlob(
-        position: _randomPos(size, 90, random),
+        position: _randomPos(size, 70, random),
         velocity: _randomVel(random),
-        radius: 90,
-        innerRadius: 60,
+        radius: 70,
+        innerRadius: 45,
         type: PhysicsBlobType.hollowCircle,
       ),
     );
 
-    const double side = 150.0;
-    const double height = side * 0.866;
+    const double triSize = 65.0;
     final Path triPath = Path()
-      ..moveTo(0, -height * 0.66)
-      ..lineTo(side / 2, height * 0.33)
-      ..lineTo(-side / 2, height * 0.33)
+      ..moveTo(0, -triSize)
+      ..lineTo(triSize, triSize)
+      ..lineTo(-triSize, triSize)
       ..close();
 
     _blobs.add(
       PhysicsBlob(
-        position: _randomPos(size, 75, random),
+        position: _randomPos(size, triSize, random),
         velocity: _randomVel(random),
-        radius: 75,
+        radius: triSize,
         type: PhysicsBlobType.triangle,
         trianglePath: triPath,
-        rotationSpeed: 0.3,
+        rotationSpeed: 0.6,
       ),
     );
 
@@ -131,22 +129,18 @@ class _ManusAnimatedBackgroundState extends State<ManusAnimatedBackground>
 
   @override
   Widget build(final BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final bool isDark = theme.brightness == Brightness.dark;
-
-    final Color bgColor = isDark
-        ? AppColors.backgroundDark
-        : AppColors.backgroundLight;
-    final Color idleDotColor = isDark
-        ? AppColors.dotIdleDark
-        : AppColors.dotIdleLight;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return RepaintBoundary(
       child: CustomPaint(
         painter: ManusBackgroundPainter(
           blobs: List<PhysicsBlob>.from(_blobs),
-          bgColor: bgColor,
-          idleDotColor: idleDotColor,
+          bgColor: colorScheme.surface,
+          idleDotColor: colorScheme.outlineVariant,
+          activeBigCircle: colorScheme.primaryContainer,
+          activeSmallCircle: colorScheme.secondaryContainer,
+          activeHollowCircle: colorScheme.tertiaryContainer,
+          activeTriangle: colorScheme.errorContainer,
         ),
         child: widget.child,
       ),
@@ -158,19 +152,27 @@ class ManusBackgroundPainter extends CustomPainter {
   final List<PhysicsBlob> blobs;
   final Color bgColor;
   final Color idleDotColor;
+  final Color activeBigCircle;
+  final Color activeSmallCircle;
+  final Color activeHollowCircle;
+  final Color activeTriangle;
 
   ManusBackgroundPainter({
     required this.blobs,
     required this.bgColor,
     required this.idleDotColor,
+    required this.activeBigCircle,
+    required this.activeSmallCircle,
+    required this.activeHollowCircle,
+    required this.activeTriangle,
   });
 
   @override
   void paint(final Canvas canvas, final Size size) {
     canvas.drawRect(Offset.zero & size, Paint()..color = bgColor);
 
-    const double spacing = 6.0;
-    const double dotRadius = 0.4;
+    const double spacing = 12.0;
+    const double radius = 1.2;
 
     final List<Offset> idleDots = <Offset>[];
     final List<Offset> bigDots = <Offset>[];
@@ -212,14 +214,14 @@ class ManusBackgroundPainter extends CustomPainter {
     }
 
     final Paint p = Paint()
-      ..strokeWidth = dotRadius * 2
+      ..strokeWidth = radius * 2
       ..strokeCap = StrokeCap.round;
 
     _drawPoints(canvas, idleDots, p..color = idleDotColor);
-    _drawPoints(canvas, bigDots, p..color = AppColors.blobBigCircle);
-    _drawPoints(canvas, smallDots, p..color = AppColors.blobSmallCircle);
-    _drawPoints(canvas, hollowDots, p..color = AppColors.blobHollowCircle);
-    _drawPoints(canvas, triangleDots, p..color = AppColors.blobTriangle);
+    _drawPoints(canvas, bigDots, p..color = activeBigCircle);
+    _drawPoints(canvas, smallDots, p..color = activeSmallCircle);
+    _drawPoints(canvas, hollowDots, p..color = activeHollowCircle);
+    _drawPoints(canvas, triangleDots, p..color = activeTriangle);
   }
 
   void _drawPoints(

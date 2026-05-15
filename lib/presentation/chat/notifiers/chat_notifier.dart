@@ -4,14 +4,16 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:manus/core/network/api_client.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/data/repositories/chat_repository.dart';
+import 'package:manus/data/services/impl/google_llm_service.dart';
 import 'package:uuid/uuid.dart';
 
 final Provider<ChatRepository> _chatRepositoryProvider =
     Provider<ChatRepository>(
-  (final Ref ref) => GeminiRepository(Dio()),
-);
+      (final Ref ref) => ChatRepositoryImpl(GoogleLlmService(ApiClient())),
+    );
 
 final NotifierProvider<StreamingNotifier, bool> chatIsStreamingProvider =
     NotifierProvider<StreamingNotifier, bool>(StreamingNotifier.new);
@@ -68,19 +70,22 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
 
     final ChatRepository repository = ref.read(_chatRepositoryProvider);
 
-    final Stream<String> stream = repository.streamChat(
-      text,
-      history,
-      _cancelToken!,
-    );
-
     try {
+      final Stream<String> stream = repository.streamChat(
+        text,
+        history,
+        _cancelToken!,
+      );
+
       await for (final String token in stream) {
         if (_activeAssistantId != assistantId) break;
+
         final List<ChatMessage> updated = state.toList();
-        final int idx =
-            updated.indexWhere((final ChatMessage m) => m.id == assistantId);
+        final int idx = updated.indexWhere(
+          (final ChatMessage m) => m.id == assistantId,
+        );
         if (idx == -1) break;
+
         updated[idx] = updated[idx].copyWith(
           text: updated[idx].text + token,
           status: MessageStatus.sending,
@@ -89,28 +94,42 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
       }
 
       final List<ChatMessage> finished = state.toList();
-      final int idx =
-          finished.indexWhere((final ChatMessage m) => m.id == assistantId);
-      if (idx != -1 &&
-          finished[idx].status != MessageStatus.stopped) {
-        finished[idx] =
-            finished[idx].copyWith(status: MessageStatus.streamed);
+      final int idx = finished.indexWhere(
+        (final ChatMessage m) => m.id == assistantId,
+      );
+      if (idx != -1 && finished[idx].status != MessageStatus.stopped) {
+        finished[idx] = finished[idx].copyWith(status: MessageStatus.streamed);
         state = finished;
       }
-    } catch (_) {
+    } catch (e) {
       final List<ChatMessage> errored = state.toList();
-      final int idx =
-          errored.indexWhere((final ChatMessage m) => m.id == assistantId);
-      if (idx != -1 &&
-          errored[idx].status != MessageStatus.stopped) {
-        errored[idx] = errored[idx].copyWith(status: MessageStatus.error);
+      final int idx = errored.indexWhere(
+        (final ChatMessage m) => m.id == assistantId,
+      );
+      if (idx != -1 && errored[idx].status != MessageStatus.stopped) {
+        String errorMessage = 'Sorry, something went wrong. Please try again.';
+        if (e is DioException) {
+          if (e.type == DioExceptionType.connectionTimeout ||
+              e.type == DioExceptionType.receiveTimeout) {
+            errorMessage =
+                'The connection timed out. Please check your internet.';
+          } else if (e.response?.statusCode == 401 ||
+              e.response?.statusCode == 403) {
+            errorMessage = 'Invalid API key. Please check your configuration.';
+          }
+        }
+
+        errored[idx] = errored[idx].copyWith(
+          text: errorMessage,
+          status: MessageStatus.error,
+        );
         state = errored;
       }
+    } finally {
+      ref.read(chatIsStreamingProvider.notifier).setStreaming(false);
+      _activeAssistantId = null;
+      await _persist();
     }
-
-    ref.read(chatIsStreamingProvider.notifier).setStreaming(false);
-    _activeAssistantId = null;
-    await _persist();
   }
 
   void stopStream() {

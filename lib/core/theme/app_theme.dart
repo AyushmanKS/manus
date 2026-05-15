@@ -6,11 +6,14 @@ class AppTheme {
   AppTheme._();
 
   static String get _bodyFontFamily => Platform.isIOS ? '.SF UI Text' : 'Inter';
+
   static String get _displayFontFamily =>
       Platform.isIOS ? '.SF UI Display' : 'Inter';
+
   static String get monoFontFamily => Platform.isIOS ? 'SF Mono' : 'monospace';
 
   static ThemeData get lightTheme => _buildTheme(Brightness.light);
+
   static ThemeData get darkTheme => _buildTheme(Brightness.dark);
 
   static ThemeData _buildTheme(final Brightness brightness) {
@@ -38,6 +41,19 @@ class AppTheme {
         primary: AppColors.primary,
         surface: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         onSurface: onSurface,
+        outlineVariant: isDark ? AppColors.dotIdleDark : AppColors.dotIdleLight,
+        primaryContainer: isDark
+            ? AppColors.activeBigCircleDark
+            : AppColors.activeBigCircleLight,
+        secondaryContainer: isDark
+            ? AppColors.activeSmallCircleDark
+            : AppColors.activeSmallCircleLight,
+        tertiaryContainer: isDark
+            ? AppColors.activeHollowCircleDark
+            : AppColors.activeHollowCircleLight,
+        errorContainer: isDark
+            ? AppColors.activeTriangleDark
+            : AppColors.activeTriangleLight,
       ),
       textTheme: baseTextTheme.copyWith(
         displaySmall: baseTextTheme.displaySmall?.copyWith(

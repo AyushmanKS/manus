@@ -27,13 +27,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     super.dispose();
   }
 
-  void _onSuggestionTap(final String text) {
-    _composerController.text = text;
-    _composerController.selection = TextSelection.collapsed(
-      offset: text.length,
-    );
-  }
-
   @override
   Widget build(final BuildContext context) {
     final Brightness brightness = Theme.of(context).brightness;
@@ -64,11 +57,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           child: SafeArea(
             child: Column(
               children: <Widget>[
-                Expanded(
-                  child: ChatHistoryList(
-                    onSuggestionTap: _onSuggestionTap,
-                  ),
-                ),
+                const Expanded(child: ChatHistoryList()),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
                   child: ChatComposer(

@@ -5,13 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
-import 'package:manus/presentation/chat/widgets/empty_chat_state.dart';
 import 'package:manus/presentation/chat/widgets/message_bubble.dart';
 
 class ChatHistoryList extends ConsumerStatefulWidget {
-  const ChatHistoryList({required this.onSuggestionTap, super.key});
-
-  final void Function(String text) onSuggestionTap;
+  const ChatHistoryList({super.key});
 
   @override
   ConsumerState<ChatHistoryList> createState() => _ChatHistoryListState();
@@ -46,7 +43,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
       return;
     }
 
-    final bool nearBottom = _scrollController.offset < 40.0;
+    final bool nearBottom = _scrollController.offset < 50.0;
     if (nearBottom && !_isAutoScrollEnabled) {
       setState(() => _isAutoScrollEnabled = true);
     }
@@ -65,7 +62,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
     final List<ChatMessage> messages = ref.watch(chatProvider);
 
     if (_isAutoScrollEnabled && messages.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((final Duration _) {
+      WidgetsBinding.instance.addPostFrameCallback((final _) {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
             0.0,
@@ -76,20 +73,9 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
       });
     }
 
-    if (messages.isEmpty) {
-      return EmptyChatState(onSuggestionTap: widget.onSuggestionTap);
-    }
+    if (messages.isEmpty) return const SizedBox.shrink();
 
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color pillBg = isDark
-        ? AppColors.composerBgDark
-        : AppColors.composerBgLight;
-    final Color pillIcon = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
-    final Color pillBorder = isDark
-        ? AppColors.iconBorderDark
-        : AppColors.iconBorderLight;
 
     return Stack(
       children: <Widget>[
@@ -99,14 +85,6 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           itemCount: messages.length,
-          findChildIndexCallback: (final Key key) {
-            final ValueKey<String> valueKey = key as ValueKey<String>;
-            final int idx = messages.indexWhere(
-              (final ChatMessage m) => m.id == valueKey.value,
-            );
-            if (idx == -1) return null;
-            return messages.length - 1 - idx;
-          },
           itemBuilder: (final BuildContext context, final int index) {
             final ChatMessage message = messages[messages.length - 1 - index];
             return MessageBubble(
@@ -116,52 +94,50 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
             );
           },
         ),
-        Positioned(
-          bottom: 12.0,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: AnimatedOpacity(
-              opacity: _isAutoScrollEnabled ? 0.0 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              child:
-                  IgnorePointer(
-                        ignoring: _isAutoScrollEnabled,
-                        child: GestureDetector(
-                          onTap: _jumpToLatest,
-                          child: Container(
-                            width: 36.0,
-                            height: 36.0,
-                            decoration: BoxDecoration(
-                              color: pillBg,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: pillBorder),
-                              boxShadow: <BoxShadow>[
-                                const BoxShadow(
-                                  color: AppColors.black26,
-                                  blurRadius: 8.0,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
+        if (!_isAutoScrollEnabled)
+          Positioned(
+            bottom: 12.0,
+            left: 0,
+            right: 0,
+            child:
+                Center(
+                      child: GestureDetector(
+                        onTap: _jumpToLatest,
+                        child: Container(
+                          width: 38.0,
+                          height: 38.0,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? AppColors.composerBgDark
+                                : AppColors.composerBgLight,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDark ? Colors.white10 : Colors.black12,
                             ),
-                            child: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: pillIcon,
-                              size: 20.0,
-                            ),
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 10.0,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: isDark ? Colors.white70 : Colors.black87,
+                            size: 24.0,
                           ),
                         ),
-                      )
-                      .animate(target: _isAutoScrollEnabled ? 0 : 1)
-                      .scale(
-                        begin: const Offset(0.7, 0.7),
-                        end: const Offset(1.0, 1.0),
-                        duration: 200.ms,
-                        curve: Curves.easeOutCubic,
                       ),
-            ),
+                    )
+                    .animate()
+                    .fadeIn(duration: 200.ms)
+                    .scale(
+                      begin: const Offset(0.8, 0.8),
+                      end: const Offset(1.0, 1.0),
+                      curve: Curves.easeOutBack,
+                    ),
           ),
-        ),
       ],
     );
   }

@@ -13,6 +13,8 @@ class AppAssets {
   static const String microsoftSvg = 'assets/icons/microsoft.svg';
   static const String emailSvg = 'assets/icons/email.svg';
 
+  static const String arrowBackSvg = 'assets/icons/arrow-back.svg';
+
   static const String plusSvg = 'assets/icons/plus.svg';
   static const String plugSvg = 'assets/icons/plug.svg';
   static const String chatSvg = 'assets/icons/chat.svg';

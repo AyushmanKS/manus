@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -81,7 +83,15 @@ class _PolicyScreenState extends State<PolicyScreen> {
           child: IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
-            icon: const Icon(Icons.arrow_back_ios_new, size: 16),
+            icon: SvgPicture.asset(
+              AppAssets.arrowBackSvg,
+              width: 20,
+              height: 20,
+              colorFilter: ColorFilter.mode(
+                Theme.of(context).iconTheme.color ?? Colors.black,
+                BlendMode.srcIn,
+              ),
+            ),
             onPressed: () => context.pop(),
           ),
         ),

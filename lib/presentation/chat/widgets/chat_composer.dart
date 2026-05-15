@@ -160,6 +160,7 @@ class _ChatComposerState extends State<ChatComposer> {
                           asset: AppAssets.plusSvg,
                           onTap: _toggleAttachmentTray,
                           colorFilter: iconFilter,
+                          size: 24.0,
                         ),
                       ),
                       const SizedBox(width: 20.0),
@@ -479,6 +480,7 @@ class _ActionIcon extends StatelessWidget {
   final BoxDecoration? decoration;
   final double padding;
   final bool isBold;
+  final double size;
 
   const _ActionIcon({
     required this.asset,
@@ -487,11 +489,12 @@ class _ActionIcon extends StatelessWidget {
     this.decoration,
     this.padding = 0.0,
     this.isBold = false,
+    this.size = 18.0,
   });
 
   @override
   Widget build(final BuildContext context) {
-    const double size = 18.0;
+    final double size = this.size;
     const double strength = 0.3;
     final Widget icon = SvgPicture.asset(
       asset,

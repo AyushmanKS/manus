@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 
 class ChatComposer extends StatefulWidget {
-  const ChatComposer({super.key});
+  const ChatComposer({
+    required this.onSend,
+    required this.controller,
+    super.key,
+  });
+
+  final void Function(String text) onSend;
+  final TextEditingController controller;
 
   @override
   State<ChatComposer> createState() => _ChatComposerState();
 }
 
 class _ChatComposerState extends State<ChatComposer> {
-  late final TextEditingController _controller;
   late final FocusNode _focusNode;
   bool _showAttachmentTray = false;
+
+  TextEditingController get _controller => widget.controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
     _controller.addListener(_onTextChanged);
     _focusNode = FocusNode();
   }
@@ -27,7 +36,6 @@ class _ChatComposerState extends State<ChatComposer> {
   @override
   void dispose() {
     _controller.removeListener(_onTextChanged);
-    _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -38,6 +46,9 @@ class _ChatComposerState extends State<ChatComposer> {
 
   void _handleSend() {
     HapticFeedback.lightImpact();
+    final String text = _controller.text.trim();
+    if (text.isEmpty) return;
+    widget.onSend(text);
     _controller.clear();
   }
 
@@ -71,8 +82,6 @@ class _ChatComposerState extends State<ChatComposer> {
     final Color borderColor = isDark ? AppColors.iconBorderDark : AppColors.iconBorderLight;
     final Color activeSendCircle = isDark ? AppColors.sendCircleActiveDark : AppColors.sendCircleActiveLight;
     final Color activeSendIcon = isDark ? AppColors.black : AppColors.white;
-    final Color sendIconColor = hasText ? activeSendIcon : AppColors.iconDisabled;
-    final ColorFilter sendFilter = ColorFilter.mode(sendIconColor, BlendMode.srcIn);
     final Color inactiveSendCircle = isDark ? AppColors.iconBorderDark : AppColors.iconBorderLight;
 
     return Container(
@@ -203,12 +212,30 @@ class _ChatComposerState extends State<ChatComposer> {
                         colorFilter: iconFilter,
                       ),
                       const SizedBox(width: 20.0),
-                      _SendButton(
-                        hasText: hasText,
-                        onTap: hasText ? _handleSend : null,
-                        sendFilter: sendFilter,
-                        activeSendCircle: activeSendCircle,
-                        inactiveSendCircle: inactiveSendCircle,
+                      Consumer(
+                        builder: (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
+                          final bool isStreaming = ref.watch(chatIsStreamingProvider);
+                          final Color sendIconColor = (hasText || isStreaming) ? activeSendIcon : AppColors.iconDisabled;
+                          final ColorFilter sendFilter = ColorFilter.mode(sendIconColor, BlendMode.srcIn);
+
+                          void onSendOrStop() {
+                            if (isStreaming) {
+                              HapticFeedback.mediumImpact();
+                              ref.read(chatProvider.notifier).stopStream();
+                            } else {
+                              _handleSend();
+                            }
+                          }
+
+                          return _SendButton(
+                            hasText: hasText,
+                            isStreaming: isStreaming,
+                            onTap: (hasText || isStreaming) ? onSendOrStop : null,
+                            sendFilter: sendFilter,
+                            activeSendCircle: activeSendCircle,
+                            inactiveSendCircle: inactiveSendCircle,
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -224,6 +251,7 @@ class _ChatComposerState extends State<ChatComposer> {
 
 class _SendButton extends StatelessWidget {
   final bool hasText;
+  final bool isStreaming;
   final VoidCallback? onTap;
   final ColorFilter sendFilter;
   final Color activeSendCircle;
@@ -231,6 +259,7 @@ class _SendButton extends StatelessWidget {
 
   const _SendButton({
     required this.hasText,
+    required this.isStreaming,
     required this.onTap,
     required this.sendFilter,
     required this.activeSendCircle,
@@ -239,26 +268,68 @@ class _SendButton extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    return AnimatedScale(
-      scale: hasText ? 1.08 : 1.0,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutBack,
-      child: AnimatedRotation(
-        turns: hasText ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 300),
+    final bool isActive = hasText || isStreaming;
+    final Color circleColor =
+        isActive ? activeSendCircle : inactiveSendCircle;
+    final Color iconColor = isActive
+        ? (Theme.of(context).brightness == Brightness.dark
+            ? AppColors.black
+            : AppColors.white)
+        : AppColors.iconDisabled;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        child: _ActionIcon(
-          asset: AppAssets.upArrowSvg,
-          onTap: onTap,
-          colorFilter: sendFilter,
-          padding: 10.0,
-          iconSizeOverride: 18.0,
-          isBold: true,
-          boldStrength: 0.7,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: hasText ? activeSendCircle : inactiveSendCircle,
-          ),
+        width: 38.0,
+        height: 38.0,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: circleColor,
+        ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeIn,
+          transitionBuilder: (
+            final Widget child,
+            final Animation<double> animation,
+          ) {
+            final Animation<double> scale = Tween<double>(
+              begin: 0.4,
+              end: 1.0,
+            ).animate(animation);
+            final Animation<double> rotation = Tween<double>(
+              begin: -0.25,
+              end: 0.0,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            ));
+            return RotationTransition(
+              turns: rotation,
+              child: ScaleTransition(scale: scale, child: child),
+            );
+          },
+          child: isStreaming
+              ? Icon(
+                  Icons.stop_rounded,
+                  key: const ValueKey<String>('stop'),
+                  color: iconColor,
+                  size: 18.0,
+                )
+              : Padding(
+                  key: const ValueKey<String>('send'),
+                  padding: const EdgeInsets.all(10.0),
+                  child: SvgPicture.asset(
+                    AppAssets.upArrowSvg,
+                    width: 18.0,
+                    height: 18.0,
+                    colorFilter: sendFilter,
+                  ),
+                ),
         ),
       ),
     );
@@ -408,8 +479,6 @@ class _ActionIcon extends StatelessWidget {
   final BoxDecoration? decoration;
   final double padding;
   final bool isBold;
-  final double boldStrength;
-  final double? iconSizeOverride;
 
   const _ActionIcon({
     required this.asset,
@@ -418,13 +487,12 @@ class _ActionIcon extends StatelessWidget {
     this.decoration,
     this.padding = 0.0,
     this.isBold = false,
-    this.boldStrength = 0.3,
-    this.iconSizeOverride,
   });
 
   @override
   Widget build(final BuildContext context) {
-    final double size = iconSizeOverride ?? 18.0;
+    const double size = 18.0;
+    const double strength = 0.3;
     final Widget icon = SvgPicture.asset(
       asset,
       width: size,
@@ -444,14 +512,14 @@ class _ActionIcon extends StatelessWidget {
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: <Widget>[
-                  Transform.translate(offset: Offset(boldStrength, 0), child: icon),
-                  Transform.translate(offset: Offset(-boldStrength, 0), child: icon),
-                  Transform.translate(offset: Offset(0, boldStrength), child: icon),
-                  Transform.translate(offset: Offset(0, -boldStrength), child: icon),
-                  Transform.translate(offset: Offset(boldStrength * 0.65, boldStrength * 0.65), child: icon),
-                  Transform.translate(offset: Offset(-boldStrength * 0.65, boldStrength * 0.65), child: icon),
-                  Transform.translate(offset: Offset(boldStrength * 0.65, -boldStrength * 0.65), child: icon),
-                  Transform.translate(offset: Offset(-boldStrength * 0.65, -boldStrength * 0.65), child: icon),
+                  Transform.translate(offset: const Offset(strength, 0), child: icon),
+                  Transform.translate(offset: const Offset(-strength, 0), child: icon),
+                  Transform.translate(offset: const Offset(0, strength), child: icon),
+                  Transform.translate(offset: const Offset(0, -strength), child: icon),
+                  Transform.translate(offset: const Offset(strength * 0.65, strength * 0.65), child: icon),
+                  Transform.translate(offset: const Offset(-strength * 0.65, strength * 0.65), child: icon),
+                  Transform.translate(offset: const Offset(strength * 0.65, -strength * 0.65), child: icon),
+                  Transform.translate(offset: const Offset(-strength * 0.65, -strength * 0.65), child: icon),
                   icon,
                 ],
               )

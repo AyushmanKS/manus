@@ -29,6 +29,8 @@ class MarkdownBlock {
 class MarkdownSegmenter {
   MarkdownSegmenter._();
 
+  static const String thinkingPrefix = '__THINKING__';
+
   static final RegExp _thinkOpen = RegExp(r'<think>', caseSensitive: false);
   static final RegExp _thinkClose = RegExp(r'</think>', caseSensitive: false);
   static final RegExp _codeFence = RegExp(r'^```(\w*)');
@@ -50,12 +52,14 @@ class MarkdownSegmenter {
     void flush({required final bool complete}) {
       final String content = buffer.toString().trimRight();
       if (content.isEmpty) return;
-      blocks.add(MarkdownBlock(
-        type: currentType,
-        content: content,
-        isComplete: complete,
-        language: currentType == BlockType.code ? codeLanguage : null,
-      ));
+      blocks.add(
+        MarkdownBlock(
+          type: currentType,
+          content: content,
+          isComplete: complete,
+          language: currentType == BlockType.code ? codeLanguage : null,
+        ),
+      );
       buffer.clear();
       codeLanguage = null;
     }
@@ -63,6 +67,23 @@ class MarkdownSegmenter {
     for (int i = 0; i < lines.length; i++) {
       final String line = lines[i];
       final bool isLast = i == lines.length - 1;
+
+      if (!inCode && !inThink && line.startsWith(thinkingPrefix)) {
+        if (currentType != BlockType.thinking) {
+          flush(complete: true);
+          currentType = BlockType.thinking;
+          inThink = true;
+        }
+        buffer.writeln(line.substring(thinkingPrefix.length));
+        if (isLast) flush(complete: false);
+        continue;
+      }
+
+      if (inThink && !line.startsWith(thinkingPrefix)) {
+        flush(complete: true);
+        inThink = false;
+        currentType = BlockType.paragraph;
+      }
 
       if (!inCode && !inThink && _thinkOpen.hasMatch(line)) {
         flush(complete: true);
@@ -73,7 +94,7 @@ class MarkdownSegmenter {
         continue;
       }
 
-      if (inThink) {
+      if (inThink && currentType == BlockType.thinking) {
         if (_thinkClose.hasMatch(line)) {
           final String before = line.split(_thinkClose).first;
           if (before.isNotEmpty) buffer.writeln(before);

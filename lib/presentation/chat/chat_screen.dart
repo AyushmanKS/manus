@@ -29,36 +29,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(final BuildContext context) {
-    final Brightness brightness = Theme.of(context).brightness;
-    final bool isDark = brightness == Brightness.dark;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     final BoxDecoration bgDecoration = isDark
         ? const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: <Color>[
-                AppColors.chatBgDarkTop,
-                AppColors.chatBgDarkBottom,
-              ],
+              colors: <Color>[AppColors.chatBgDarkTop, AppColors.chatBgDarkBottom],
             ),
           )
         : const BoxDecoration(color: AppColors.chatBgLight);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      extendBody: true,
-      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: true,
       body: Container(
         decoration: bgDecoration,
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: SafeArea(
-            child: Column(
-              children: <Widget>[
-                const Expanded(child: ChatHistoryList()),
-                Padding(
+          child: Column(
+            children: <Widget>[
+              const Expanded(child: ChatHistoryList()),
+              SafeArea(
+                top: false,
+                child: Padding(
                   padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
                   child: ChatComposer(
                     controller: _composerController,
@@ -67,8 +62,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     },
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

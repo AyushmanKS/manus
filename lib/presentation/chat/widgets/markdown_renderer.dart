@@ -20,15 +20,17 @@ class MarkdownRenderer extends StatelessWidget {
   Widget build(final BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: blocks.indexed.map<Widget>((final (int, MarkdownBlock) record) {
-        final int i = record.$1;
-        final MarkdownBlock block = record.$2;
-        return MarkdownBlockItem(
-          key: ValueKey<String>('${block.type.name}_$i'),
-          block: block,
-          isStreaming: isStreaming,
-        );
-      }).toList(),
+      children: blocks.indexed
+          .map<Widget>((final (int, MarkdownBlock) record) {
+            final int i = record.$1;
+            final MarkdownBlock block = record.$2;
+            return MarkdownBlockItem(
+              key: ValueKey<String>('${block.type.name}_$i'),
+              block: block,
+              isStreaming: isStreaming,
+            );
+          })
+          .toList(),
     );
   }
 }
@@ -66,16 +68,16 @@ class _ParagraphBlock extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
+    final Color textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
 
     return MarkdownBody(
       data: block.content,
       styleSheet: MarkdownStyleSheet(
-        p: Theme.of(
-          context,
-        ).textTheme.bodyLarge?.copyWith(color: textColor, height: 1.5),
+        p: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: textColor,
+          height: 1.5,
+        ),
         strong: const TextStyle(fontWeight: FontWeight.w700),
         code: TextStyle(
           fontFamily: AppTheme.monoFontFamily,
@@ -338,10 +340,7 @@ class _TableBlock extends StatelessWidget {
         isDark ? AppColors.dividerDark : AppColors.dividerLight;
 
     if (isStreaming && !block.isComplete) {
-      return _TableSkeleton(
-        base: shimmerBase,
-        highlight: shimmerHighlight,
-      );
+      return _TableSkeleton(base: shimmerBase, highlight: shimmerHighlight);
     }
 
     return LayoutBuilder(

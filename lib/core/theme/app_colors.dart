@@ -62,4 +62,18 @@ class AppColors {
     0xFF575755,
   ).withValues(alpha: 0.9);
   static const Color loaderDotColor = Colors.white;
+
+  static const Color codeBgDark = Color(0xFF1E1E1E);
+  static const Color codeBgLight = Color(0xFFF5F5F5);
+  static const Color copySuccessColor = Color(0xFF4CAF50);
+
+  static const Color errorBubbleBgDark = Color(0xFF3B1F1F);
+  static const Color errorBubbleBgLight = Color(0xFFFFEBEB);
+  static const Color errorTextDark = Color(0xFFFF6B6B);
+  static const Color errorTextLight = Color(0xFFCC0000);
+
+  static const Color stoppedBgDark = Color(0xFF2A2A2A);
+  static const Color stoppedBgLight = Color(0xFFEEEEEE);
+  static const Color stoppedTextDark = Color(0xFF888888);
+  static const Color stoppedTextLight = Color(0xFF888888);
 }

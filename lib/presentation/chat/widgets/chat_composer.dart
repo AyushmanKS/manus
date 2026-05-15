@@ -40,9 +40,7 @@ class _ChatComposerState extends State<ChatComposer> {
     super.dispose();
   }
 
-  void _onTextChanged() {
-    setState(() {});
-  }
+  void _onTextChanged() => setState(() {});
 
   void _handleSend() {
     HapticFeedback.lightImpact();
@@ -54,9 +52,7 @@ class _ChatComposerState extends State<ChatComposer> {
 
   void _toggleAttachmentTray() {
     HapticFeedback.mediumImpact();
-    setState(() {
-      _showAttachmentTray = !_showAttachmentTray;
-    });
+    setState(() => _showAttachmentTray = !_showAttachmentTray);
   }
 
   void _toggleModelPicker() {
@@ -64,25 +60,30 @@ class _ChatComposerState extends State<ChatComposer> {
       context: context,
       backgroundColor: AppColors.transparent,
       isScrollControlled: true,
-      builder: (final BuildContext ctx) {
-        return _ModelPickerSheet(isDark: Theme.of(context).brightness == Brightness.dark);
-      },
-    );
+      builder: (final BuildContext ctx) => _ModelPickerSheet(
+        isDark: Theme.of(context).brightness == Brightness.dark,
+      ),
+    ).whenComplete(() => _focusNode.requestFocus());
   }
 
   @override
   Widget build(final BuildContext context) {
-    final Brightness brightness = Theme.of(context).brightness;
-    final bool isDark = brightness == Brightness.dark;
-    final Color bgColor = isDark ? AppColors.composerBgDark : AppColors.composerBgLight;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color bgColor = isDark
+        ? AppColors.composerBgDark
+        : AppColors.composerBgLight;
     final Color iconColor = isDark ? AppColors.white : AppColors.black;
     final ColorFilter iconFilter = ColorFilter.mode(iconColor, BlendMode.srcIn);
-
     final bool hasText = _controller.text.isNotEmpty;
-    final Color borderColor = isDark ? AppColors.iconBorderDark : AppColors.iconBorderLight;
-    final Color activeSendCircle = isDark ? AppColors.sendCircleActiveDark : AppColors.sendCircleActiveLight;
-    final Color activeSendIcon = isDark ? AppColors.black : AppColors.white;
-    final Color inactiveSendCircle = isDark ? AppColors.iconBorderDark : AppColors.iconBorderLight;
+    final Color borderColor = isDark
+        ? AppColors.iconBorderDark
+        : AppColors.iconBorderLight;
+    final Color activeSendCircle = isDark
+        ? AppColors.sendCircleActiveDark
+        : AppColors.sendCircleActiveLight;
+    final Color inactiveSendCircle = isDark
+        ? AppColors.iconBorderDark
+        : AppColors.iconBorderLight;
 
     return Container(
       clipBehavior: Clip.antiAlias,
@@ -105,22 +106,7 @@ class _ChatComposerState extends State<ChatComposer> {
                 duration: const Duration(milliseconds: 220),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (final Widget child, final Animation<double> animation) {
-                  final Animation<Offset> slide = Tween<Offset>(
-                    begin: const Offset(0.0, 1.0),
-                    end: Offset.zero,
-                  ).animate(animation);
-                  return ClipRect(
-                    child: SlideTransition(
-                      position: slide,
-                      child: SizeTransition(
-                        sizeFactor: animation,
-                        axisAlignment: -1.0,
-                        child: child,
-                      ),
-                    ),
-                  );
-                },
+                transitionBuilder: _slideTransition,
                 child: _showAttachmentTray
                     ? Padding(
                         key: const ValueKey<String>('tray'),
@@ -147,98 +133,16 @@ class _ChatComposerState extends State<ChatComposer> {
               const SizedBox(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      AnimatedRotation(
-                        turns: _showAttachmentTray ? 0.125 : 0.0,
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOutCubic,
-                        child: _ActionIcon(
-                          asset: AppAssets.plusSvg,
-                          onTap: _toggleAttachmentTray,
-                          colorFilter: iconFilter,
-                          size: 24.0,
-                        ),
-                      ),
-                      const SizedBox(width: 20.0),
-                      _ActionIcon(
-                        asset: AppAssets.plugSvg,
-                        onTap: _toggleModelPicker,
-                        colorFilter: iconFilter,
-                        isBold: true,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 180),
-                        transitionBuilder: (final Widget child, final Animation<double> animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: SizeTransition(
-                              sizeFactor: animation,
-                              axis: Axis.horizontal,
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: hasText
-                            ? const SizedBox.shrink(key: ValueKey<bool>(true))
-                            : Row(
-                                key: const ValueKey<bool>(false),
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  _ActionIcon(
-                                    asset: AppAssets.chatSvg,
-                                    onTap: () {},
-                                    colorFilter: iconFilter,
-                                    padding: 9.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: borderColor),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 20.0),
-                                ],
-                              ),
-                      ),
-                      _ActionIcon(
-                        asset: AppAssets.micSvg,
-                        onTap: () {},
-                        colorFilter: iconFilter,
-                      ),
-                      const SizedBox(width: 20.0),
-                      Consumer(
-                        builder: (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
-                          final bool isStreaming = ref.watch(chatIsStreamingProvider);
-                          final Color sendIconColor = (hasText || isStreaming) ? activeSendIcon : AppColors.iconDisabled;
-                          final ColorFilter sendFilter = ColorFilter.mode(sendIconColor, BlendMode.srcIn);
-
-                          void onSendOrStop() {
-                            if (isStreaming) {
-                              HapticFeedback.mediumImpact();
-                              ref.read(chatProvider.notifier).stopStream();
-                            } else {
-                              _handleSend();
-                            }
-                          }
-
-                          return _SendButton(
-                            hasText: hasText,
-                            isStreaming: isStreaming,
-                            onTap: (hasText || isStreaming) ? onSendOrStop : null,
-                            sendFilter: sendFilter,
-                            activeSendCircle: activeSendCircle,
-                            inactiveSendCircle: inactiveSendCircle,
-                          );
-                        },
-                      ),
-                    ],
+                  _buildLeftActions(iconFilter),
+                  _buildRightActions(
+                    iconFilter,
+                    borderColor,
+                    hasText,
+                    isDark,
+                    activeSendCircle,
+                    inactiveSendCircle,
                   ),
                 ],
               ),
@@ -248,34 +152,172 @@ class _ChatComposerState extends State<ChatComposer> {
       ),
     );
   }
+
+  Widget _buildLeftActions(final ColorFilter iconFilter) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        AnimatedRotation(
+          turns: _showAttachmentTray ? 0.125 : 0.0,
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          child: _ActionIcon(
+            asset: AppAssets.plusSvg,
+            onTap: _toggleAttachmentTray,
+            colorFilter: iconFilter,
+            size: 24.0,
+          ),
+        ),
+        const SizedBox(width: 20.0),
+        _ActionIcon(
+          asset: AppAssets.plugSvg,
+          onTap: _toggleModelPicker,
+          colorFilter: iconFilter,
+          isBold: true,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRightActions(
+    final ColorFilter iconFilter,
+    final Color borderColor,
+    final bool hasText,
+    final bool isDark,
+    final Color activeSendCircle,
+    final Color inactiveSendCircle,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          transitionBuilder: _fadeHorizontalTransition,
+          child: hasText
+              ? const SizedBox.shrink(key: ValueKey<bool>(true))
+              : Row(
+                  key: const ValueKey<bool>(false),
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _ActionIcon(
+                      asset: AppAssets.chatSvg,
+                      onTap: () {},
+                      colorFilter: iconFilter,
+                      padding: 9.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: borderColor),
+                      ),
+                    ),
+                    const SizedBox(width: 20.0),
+                  ],
+                ),
+        ),
+        _ActionIcon(
+          asset: AppAssets.micSvg,
+          onTap: () {},
+          colorFilter: iconFilter,
+        ),
+        const SizedBox(width: 20.0),
+        Consumer(
+          builder:
+              (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
+                final bool isStreaming = ref.watch(chatIsStreamingProvider);
+                final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
+                final bool canTap = hasText || isStreaming;
+
+                void onTap() {
+                  if (isStreaming) {
+                    HapticFeedback.mediumImpact();
+                    ref.read(chatProvider.notifier).stopStream();
+                  } else if (!isSubmitting) {
+                    _handleSend();
+                  }
+                }
+
+                return _SendButton(
+                  hasText: hasText,
+                  isStreaming: isStreaming,
+                  isSubmitting: isSubmitting,
+                  onTap: canTap ? onTap : null,
+                  isDark: isDark,
+                  activeSendCircle: activeSendCircle,
+                  inactiveSendCircle: inactiveSendCircle,
+                );
+              },
+        ),
+      ],
+    );
+  }
+
+  static Widget _slideTransition(
+    final Widget child,
+    final Animation<double> animation,
+  ) {
+    final Animation<Offset> slide = Tween<Offset>(
+      begin: const Offset(0.0, 1.0),
+      end: Offset.zero,
+    ).animate(animation);
+    return ClipRect(
+      child: SlideTransition(
+        position: slide,
+        child: SizeTransition(
+          sizeFactor: animation,
+          axisAlignment: -1.0,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  static Widget _fadeHorizontalTransition(
+    final Widget child,
+    final Animation<double> animation,
+  ) {
+    return FadeTransition(
+      opacity: animation,
+      child: SizeTransition(
+        sizeFactor: animation,
+        axis: Axis.horizontal,
+        child: child,
+      ),
+    );
+  }
 }
+
+enum _SendState { idle, submitting, streaming }
 
 class _SendButton extends StatelessWidget {
   final bool hasText;
   final bool isStreaming;
+  final bool isSubmitting;
   final VoidCallback? onTap;
-  final ColorFilter sendFilter;
+  final bool isDark;
   final Color activeSendCircle;
   final Color inactiveSendCircle;
 
   const _SendButton({
     required this.hasText,
     required this.isStreaming,
+    required this.isSubmitting,
     required this.onTap,
-    required this.sendFilter,
+    required this.isDark,
     required this.activeSendCircle,
     required this.inactiveSendCircle,
   });
 
+  _SendState get _state {
+    if (isSubmitting) return _SendState.submitting;
+    if (isStreaming) return _SendState.streaming;
+    return _SendState.idle;
+  }
+
   @override
   Widget build(final BuildContext context) {
-    final bool isActive = hasText || isStreaming;
-    final Color circleColor =
-        isActive ? activeSendCircle : inactiveSendCircle;
+    final bool isActive = hasText || isStreaming || isSubmitting;
+    final Color circleColor = isActive ? activeSendCircle : inactiveSendCircle;
     final Color iconColor = isActive
-        ? (Theme.of(context).brightness == Brightness.dark
-            ? AppColors.black
-            : AppColors.white)
+        ? (isDark ? AppColors.black : AppColors.white)
         : AppColors.iconDisabled;
 
     return GestureDetector(
@@ -286,53 +328,67 @@ class _SendButton extends StatelessWidget {
         curve: Curves.easeOutCubic,
         width: 38.0,
         height: 38.0,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: circleColor,
-        ),
+        decoration: BoxDecoration(shape: BoxShape.circle, color: circleColor),
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
+          duration: const Duration(milliseconds: 200),
           switchInCurve: Curves.easeOutCubic,
           switchOutCurve: Curves.easeIn,
-          transitionBuilder: (
-            final Widget child,
-            final Animation<double> animation,
-          ) {
-            final Animation<double> scale = Tween<double>(
-              begin: 0.4,
-              end: 1.0,
-            ).animate(animation);
-            final Animation<double> rotation = Tween<double>(
-              begin: -0.25,
-              end: 0.0,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            ));
-            return RotationTransition(
-              turns: rotation,
-              child: ScaleTransition(scale: scale, child: child),
-            );
-          },
-          child: isStreaming
-              ? Icon(
-                  Icons.stop_rounded,
-                  key: const ValueKey<String>('stop'),
-                  color: iconColor,
-                  size: 18.0,
-                )
-              : Padding(
-                  key: const ValueKey<String>('send'),
-                  padding: const EdgeInsets.all(10.0),
-                  child: SvgPicture.asset(
-                    AppAssets.upArrowSvg,
-                    width: 18.0,
-                    height: 18.0,
-                    colorFilter: sendFilter,
-                  ),
-                ),
+          transitionBuilder: _morphTransition,
+          child: _buildIcon(iconColor),
         ),
       ),
+    );
+  }
+
+  Widget _buildIcon(final Color iconColor) {
+    switch (_state) {
+      case _SendState.submitting:
+        return SizedBox(
+          key: const ValueKey<String>('submitting'),
+          width: 18.0,
+          height: 18.0,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.0,
+            valueColor: AlwaysStoppedAnimation<Color>(iconColor),
+          ),
+        );
+      case _SendState.streaming:
+        return Center(
+          key: const ValueKey<String>('streaming'),
+          child: Container(
+            width: 16.0,
+            height: 16.0,
+            decoration: BoxDecoration(
+              color: iconColor,
+              borderRadius: BorderRadius.circular(3.0),
+            ),
+          ),
+        );
+      case _SendState.idle:
+        return Padding(
+          key: const ValueKey<String>('idle'),
+          padding: const EdgeInsets.all(10.0),
+          child: SvgPicture.asset(
+            AppAssets.upArrowSvg,
+            width: 18.0,
+            height: 18.0,
+            colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          ),
+        );
+    }
+  }
+
+  static Widget _morphTransition(
+    final Widget child,
+    final Animation<double> animation,
+  ) {
+    final Animation<double> scale = Tween<double>(
+      begin: 0.5,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+    return FadeTransition(
+      opacity: animation,
+      child: ScaleTransition(scale: scale, child: child),
     );
   }
 }
@@ -347,10 +403,26 @@ class _AttachmentTray extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
-        _TrayItem(icon: Icons.camera_alt_outlined, label: 'Camera', iconColor: iconColor),
-        _TrayItem(icon: Icons.photo_outlined, label: 'Photo', iconColor: iconColor),
-        _TrayItem(icon: Icons.insert_drive_file_outlined, label: 'File', iconColor: iconColor),
-        _TrayItem(icon: Icons.crop_free_outlined, label: 'Capture', iconColor: iconColor),
+        _TrayItem(
+          icon: Icons.camera_alt_outlined,
+          label: 'Camera',
+          iconColor: iconColor,
+        ),
+        _TrayItem(
+          icon: Icons.photo_outlined,
+          label: 'Photo',
+          iconColor: iconColor,
+        ),
+        _TrayItem(
+          icon: Icons.insert_drive_file_outlined,
+          label: 'File',
+          iconColor: iconColor,
+        ),
+        _TrayItem(
+          icon: Icons.crop_free_outlined,
+          label: 'Capture',
+          iconColor: iconColor,
+        ),
       ],
     );
   }
@@ -370,8 +442,12 @@ class _TrayItem extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color bgColor = isDark ? AppColors.composerIconBgDark : AppColors.composerIconBgLight;
-    final Color labelColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final Color bgColor = isDark
+        ? AppColors.composerIconBgDark
+        : AppColors.composerIconBgLight;
+    final Color labelColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     return GestureDetector(
       onTap: () {},
@@ -410,9 +486,15 @@ class _ModelPickerSheet extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final Color bg = isDark ? AppColors.composerBgDark : AppColors.composerBgLight;
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color divider = isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    final Color bg = isDark
+        ? AppColors.composerBgDark
+        : AppColors.composerBgLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color divider = isDark
+        ? AppColors.dividerDark
+        : AppColors.dividerLight;
 
     return Container(
       decoration: BoxDecoration(
@@ -441,7 +523,12 @@ class _ModelPickerSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16.0),
-          ...<String>['Manus Default', 'GPT-4o', 'Claude 3.5', 'Gemini 1.5 Pro'].map<Widget>(
+          ...<String>[
+            'Manus Default',
+            'GPT-4o',
+            'Claude 3.5',
+            'Gemini 1.5 Pro',
+          ].map<Widget>(
             (final String model) => Column(
               children: <Widget>[
                 GestureDetector(
@@ -494,7 +581,6 @@ class _ActionIcon extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final double size = this.size;
     const double strength = 0.3;
     final Widget icon = SvgPicture.asset(
       asset,
@@ -515,14 +601,38 @@ class _ActionIcon extends StatelessWidget {
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: <Widget>[
-                  Transform.translate(offset: const Offset(strength, 0), child: icon),
-                  Transform.translate(offset: const Offset(-strength, 0), child: icon),
-                  Transform.translate(offset: const Offset(0, strength), child: icon),
-                  Transform.translate(offset: const Offset(0, -strength), child: icon),
-                  Transform.translate(offset: const Offset(strength * 0.65, strength * 0.65), child: icon),
-                  Transform.translate(offset: const Offset(-strength * 0.65, strength * 0.65), child: icon),
-                  Transform.translate(offset: const Offset(strength * 0.65, -strength * 0.65), child: icon),
-                  Transform.translate(offset: const Offset(-strength * 0.65, -strength * 0.65), child: icon),
+                  Transform.translate(
+                    offset: const Offset(strength, 0),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(-strength, 0),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, strength),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(0, -strength),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(strength * 0.65, strength * 0.65),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(-strength * 0.65, strength * 0.65),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(strength * 0.65, -strength * 0.65),
+                    child: icon,
+                  ),
+                  Transform.translate(
+                    offset: const Offset(-strength * 0.65, -strength * 0.65),
+                    child: icon,
+                  ),
                   icon,
                 ],
               )

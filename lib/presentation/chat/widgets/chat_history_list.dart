@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/theme/app_colors.dart';
@@ -16,7 +15,7 @@ class ChatHistoryList extends ConsumerStatefulWidget {
 
 class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
   late final ScrollController _scrollController;
-  bool _isAutoScrollEnabled = true;
+  bool _autoScroll = true;
 
   @override
   void initState() {
@@ -33,43 +32,44 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
   }
 
   void _onScroll() {
-    final ScrollDirection direction =
-        _scrollController.position.userScrollDirection;
+    if (!_scrollController.hasClients) return;
+    final double distanceFromBottom =
+        _scrollController.position.maxScrollExtent - _scrollController.offset;
 
-    if (direction == ScrollDirection.forward) {
-      if (_isAutoScrollEnabled) {
-        setState(() => _isAutoScrollEnabled = false);
-      }
-      return;
-    }
-
-    final bool nearBottom = _scrollController.offset < 50.0;
-    if (nearBottom && !_isAutoScrollEnabled) {
-      setState(() => _isAutoScrollEnabled = true);
+    if (distanceFromBottom > 40.0 && _autoScroll) {
+      setState(() => _autoScroll = false);
+    } else if (distanceFromBottom <= 40.0 && !_autoScroll) {
+      setState(() => _autoScroll = true);
     }
   }
 
-  void _jumpToLatest() {
+  void _scrollToBottom() {
+    if (!_scrollController.hasClients) return;
     _scrollController.animateTo(
-      0.0,
+      _scrollController.position.maxScrollExtent,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutCubic,
+    );
+    setState(() => _autoScroll = true);
+  }
+
+  void _trackNewToken() {
+    if (!_autoScroll || !_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 80),
+      curve: Curves.easeOut,
     );
   }
 
   @override
   Widget build(final BuildContext context) {
     final List<ChatMessage> messages = ref.watch(chatProvider);
+    final bool isStreaming = ref.watch(chatIsStreamingProvider);
 
-    if (_isAutoScrollEnabled && messages.isNotEmpty) {
+    if (isStreaming) {
       WidgetsBinding.instance.addPostFrameCallback((final _) {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 50),
-            curve: Curves.linear,
-          );
-        }
+        _trackNewToken();
       });
     }
 
@@ -81,64 +81,97 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
       children: <Widget>[
         ListView.builder(
           controller: _scrollController,
-          reverse: true,
           physics: const BouncingScrollPhysics(),
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           itemCount: messages.length,
           itemBuilder: (final BuildContext context, final int index) {
-            final ChatMessage message = messages[messages.length - 1 - index];
+            final ChatMessage message = messages[index];
             return MessageBubble(
               key: ValueKey<String>(message.id),
-              message: message,
-              isLast: index == 0,
+              messageId: message.id,
+              index: index,
             );
           },
         ),
-        if (!_isAutoScrollEnabled)
+        if (!_autoScroll)
           Positioned(
             bottom: 12.0,
             left: 0,
             right: 0,
-            child:
-                Center(
-                      child: GestureDetector(
-                        onTap: _jumpToLatest,
-                        child: Container(
-                          width: 38.0,
-                          height: 38.0,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppColors.composerBgDark
-                                : AppColors.composerBgLight,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isDark ? Colors.white10 : Colors.black12,
-                            ),
-                            boxShadow: <BoxShadow>[
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 10.0,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            color: isDark ? Colors.white70 : Colors.black87,
-                            size: 24.0,
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate()
-                    .fadeIn(duration: 200.ms)
-                    .scale(
-                      begin: const Offset(0.8, 0.8),
-                      end: const Offset(1.0, 1.0),
-                      curve: Curves.easeOutBack,
-                    ),
+            child: Center(
+              child: _JumpToLatestPill(isDark: isDark, onTap: _scrollToBottom),
+            ),
           ),
       ],
     );
+  }
+}
+
+class _JumpToLatestPill extends StatelessWidget {
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _JumpToLatestPill({required this.isDark, required this.onTap});
+
+  @override
+  Widget build(final BuildContext context) {
+    final Color bg = isDark
+        ? AppColors.composerBgDark
+        : AppColors.composerBgLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color borderColor = isDark ? Colors.white12 : Colors.black12;
+
+    return GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14.0,
+              vertical: 8.0,
+            ),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(20.0),
+              border: Border.all(color: borderColor),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 12.0,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18.0,
+                  color: textColor,
+                ),
+                const SizedBox(width: 4.0),
+                Text(
+                  'Jump to latest',
+                  style: TextStyle(
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+        .animate()
+        .fadeIn(duration: 200.ms)
+        .slideY(
+          begin: 0.3,
+          end: 0.0,
+          duration: 200.ms,
+          curve: Curves.easeOutCubic,
+        );
   }
 }

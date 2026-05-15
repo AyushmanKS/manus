@@ -1,26 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/markdown_segmenter.dart';
 import 'package:manus/data/models/chat_message.dart';
+import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/widgets/markdown_renderer.dart';
 
-class MessageBubble extends StatelessWidget {
-  final ChatMessage message;
-  final bool isLast;
+class MessageBubble extends ConsumerStatefulWidget {
+  final String messageId;
+  final int index;
 
-  const MessageBubble({required this.message, required this.isLast, super.key});
+  const MessageBubble({
+    required this.messageId,
+    required this.index,
+    super.key,
+  });
+
+  @override
+  ConsumerState<MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends ConsumerState<MessageBubble> {
+  bool _hasAnimated = false;
 
   @override
   Widget build(final BuildContext context) {
-    final bool isUser = message.role == MessageRole.user;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: isUser
-          ? _UserBubble(text: message.text)
-          : _AssistantBubble(message: message, isLast: isLast),
+    final ChatMessage? message = ref.watch(
+      chatMessageByIdProvider(widget.messageId),
     );
+
+    if (message == null) return const SizedBox.shrink();
+
+    final bool isUser = message.role == MessageRole.user;
+    final int staggerIndex = widget.index % 3;
+    final Duration staggerDelay = Duration(milliseconds: staggerIndex * 60);
+
+    Widget child = RepaintBoundary(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: isUser
+            ? _UserBubble(text: message.text)
+            : _AssistantBubble(message: message),
+      ),
+    );
+
+    if (!_hasAnimated) {
+      _hasAnimated = true;
+      child = child
+          .animate()
+          .fadeIn(duration: 250.ms, delay: staggerDelay)
+          .scale(
+            begin: const Offset(0.85, 0.85),
+            end: const Offset(1.0, 1.0),
+            duration: 350.ms,
+            delay: staggerDelay,
+            curve: Curves.easeOutBack,
+          );
+    }
+
+    return child;
   }
 }
 
@@ -34,38 +73,48 @@ class _UserBubble extends StatelessWidget {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Align(
-          alignment: Alignment.centerRight,
-          child: Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.sizeOf(context).width * 0.8,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 10.0,
-            ),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.socialButtonBgDark : AppColors.greyF2,
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+      alignment: Alignment.centerRight,
+      child: Container(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * 0.8,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 10.0,
+        ),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.socialButtonBgDark : AppColors.greyF2,
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: SelectionArea(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
-        )
-        .animate()
-        .fadeIn(duration: 200.ms)
-        .slideY(begin: 0.1, end: 0, curve: Curves.easeOut);
+        ),
+      ),
+    );
   }
 }
 
-class _AssistantBubble extends StatelessWidget {
+class _AssistantBubble extends StatefulWidget {
   final ChatMessage message;
-  final bool isLast;
 
-  const _AssistantBubble({required this.message, required this.isLast});
+  const _AssistantBubble({required this.message});
+
+  @override
+  State<_AssistantBubble> createState() => _AssistantBubbleState();
+}
+
+class _AssistantBubbleState extends State<_AssistantBubble> {
+  final Map<int, Widget> _blockCache = <int, Widget>{};
 
   @override
   Widget build(final BuildContext context) {
-    final List<MarkdownBlock> blocks = MarkdownSegmenter.parse(message.text);
-    final bool isStreaming = message.status == MessageStatus.sending;
+    final bool isStreaming = widget.message.status == MessageStatus.sending;
+    final List<MarkdownBlock> blocks = MarkdownSegmenter.parse(
+      widget.message.text,
+    );
 
     return Align(
       alignment: Alignment.centerLeft,
@@ -73,8 +122,74 @@ class _AssistantBubble extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.9,
         ),
-        child: MarkdownRenderer(blocks: blocks, isStreaming: isStreaming),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _buildBlockList(blocks, isStreaming),
+            if (isStreaming) const _StreamingCaret(),
+          ],
+        ),
       ),
-    ).animate().fadeIn(duration: 200.ms);
+    );
+  }
+
+  Widget _buildBlockList(
+    final List<MarkdownBlock> blocks,
+    final bool isStreaming,
+  ) {
+    final List<Widget> children = <Widget>[];
+
+    for (int i = 0; i < blocks.length; i++) {
+      final MarkdownBlock block = blocks[i];
+      final bool isLastBlock = i == blocks.length - 1;
+      final bool shouldCache = block.isComplete && !isLastBlock;
+
+      if (shouldCache && _blockCache.containsKey(i)) {
+        children.add(_blockCache[i]!);
+        continue;
+      }
+
+      final Widget rendered = KeyedSubtree(
+        key: ValueKey<String>('block_${block.type.name}_$i'),
+        child: MarkdownBlockItem(block: block, isStreaming: isStreaming),
+      );
+
+      if (shouldCache) {
+        _blockCache[i] = rendered;
+      }
+
+      children.add(rendered);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
+  }
+}
+
+class _StreamingCaret extends StatelessWidget {
+  const _StreamingCaret();
+
+  @override
+  Widget build(final BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color caretColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+
+    return Container(
+          width: 2.0,
+          height: 14.0,
+          margin: const EdgeInsets.only(top: 2.0, left: 2.0),
+          decoration: BoxDecoration(
+            color: caretColor,
+            borderRadius: BorderRadius.circular(1.0),
+          ),
+        )
+        .animate(
+          onPlay: (final AnimationController c) => c.repeat(reverse: true),
+        )
+        .fadeIn(duration: 530.ms);
   }
 }

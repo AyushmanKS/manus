@@ -7,13 +7,20 @@ import 'package:hive/hive.dart';
 import 'package:manus/core/network/api_client.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/data/repositories/chat_repository.dart';
+import 'package:manus/data/repositories/mock_chat_repository.dart';
 import 'package:manus/data/services/impl/google_llm_service.dart';
 import 'package:uuid/uuid.dart';
 
+const bool kUseMockChat = true;
+
 final Provider<ChatRepository> _chatRepositoryProvider =
-    Provider<ChatRepository>(
-      (final Ref ref) => ChatRepositoryImpl(GoogleLlmService(ApiClient())),
-    );
+    Provider<ChatRepository>((final Ref ref) {
+      if (kUseMockChat) {
+        return MockChatRepository();
+      } else {
+        return ChatRepositoryImpl(GoogleLlmService(ApiClient()));
+      }
+    });
 
 final NotifierProvider<StreamingNotifier, bool> chatIsStreamingProvider =
     NotifierProvider<StreamingNotifier, bool>(StreamingNotifier.new);

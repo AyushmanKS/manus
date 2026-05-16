@@ -77,6 +77,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
 
   void _handleSend(final EditingMessage? editingMessage) {
     HapticFeedback.lightImpact();
+    FocusManager.instance.primaryFocus?.unfocus();
     final String text = _controller.text.trim();
     if (text.isEmpty) return;
 
@@ -134,6 +135,8 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
     });
 
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isEmpty = ref.watch(chatProvider).isEmpty;
+
     final Color bgColor = isDark
         ? AppColors.composerBgDark
         : AppColors.composerBgLight;
@@ -252,10 +255,12 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
                   keyboardType: TextInputType.multiline,
                   textCapitalization: TextCapitalization.sentences,
                   style: Theme.of(context).textTheme.bodyLarge,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: InputBorder.none,
-                    hintText: 'Assign a task or ask anything',
-                    contentPadding: EdgeInsets.symmetric(vertical: 6.0),
+                    hintText: isEmpty
+                        ? 'Assign a task or ask anything'
+                        : 'Message Manus',
+                    contentPadding: const EdgeInsets.symmetric(vertical: 6.0),
                     isDense: true,
                   ),
                 ),
@@ -588,6 +593,7 @@ class _TrayItem extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     final Color bgColor = isDark
         ? AppColors.composerIconBgDark
         : AppColors.composerIconBgLight;

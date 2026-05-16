@@ -98,7 +98,7 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
         ContextMenuButtonItem(
           label: 'Copy',
           onPressed: () {
-            selectableRegionState.copySelection(SelectionChangedCause.toolbar);
+            Actions.invoke(context, CopySelectionTextIntent.copy);
             unawaited(HapticFeedback.lightImpact());
           },
         ),
@@ -169,8 +169,10 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
           ),
         ),
         child: SelectionArea(
-          contextMenuBuilder: (final BuildContext context,
-                  final SelectableRegionState selectableRegionState) =>
+          contextMenuBuilder: (
+            final BuildContext context,
+            final SelectableRegionState selectableRegionState,
+          ) =>
               _buildContextMenu(context, selectableRegionState),
           child: bubbleContentColumn,
         ),
@@ -212,7 +214,7 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
         ContextMenuButtonItem(
           label: 'Copy',
           onPressed: () {
-            selectableRegionState.copySelection(SelectionChangedCause.toolbar);
+            Actions.invoke(context, CopySelectionTextIntent.copy);
             unawaited(HapticFeedback.lightImpact());
           },
         ),
@@ -260,8 +262,10 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
           maxWidth: MediaQuery.sizeOf(context).width * 0.9,
         ),
         child: SelectionArea(
-          contextMenuBuilder: (final BuildContext context,
-                  final SelectableRegionState selectableRegionState) =>
+          contextMenuBuilder: (
+            final BuildContext context,
+            final SelectableRegionState selectableRegionState,
+          ) =>
               _buildContextMenu(context, selectableRegionState),
           child: bubbleContentColumn,
         ),

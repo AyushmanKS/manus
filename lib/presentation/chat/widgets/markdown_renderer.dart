@@ -68,12 +68,12 @@ class _ParagraphBlock extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
+    final Color textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
 
     return MarkdownBody(
       data: block.content,
+      selectable: false,
       styleSheet: MarkdownStyleSheet(
         p: Theme.of(
           context,
@@ -87,7 +87,6 @@ class _ParagraphBlock extends StatelessWidget {
               : AppColors.composerIconBgLight,
         ),
       ),
-      selectable: true,
     );
   }
 }
@@ -130,78 +129,80 @@ class _CodeBlockState extends State<_CodeBlock> {
         : AppColors.composerIconBgLight;
     final String lang = widget.block.language ?? 'code';
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14.0,
-              vertical: 10.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  lang.toUpperCase(),
-                  style: TextStyle(
-                    fontFamily: AppTheme.monoFontFamily,
-                    fontSize: 11.0,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white54 : Colors.black54,
+    return SelectionContainer.disabled(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 14.0,
+                vertical: 10.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    lang.toUpperCase(),
+                    style: TextStyle(
+                      fontFamily: AppTheme.monoFontFamily,
+                      fontSize: 11.0,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white54 : Colors.black54,
+                    ),
                   ),
-                ),
-                GestureDetector(
-                  onTap: _onCopy,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: _copied
-                        ? SvgPicture.asset(
-                            AppAssets.checkSvg,
-                            width: 16,
-                            height: 16,
-                            colorFilter: const ColorFilter.mode(
-                              AppColors.primary,
-                              BlendMode.srcIn,
+                  GestureDetector(
+                    onTap: _onCopy,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: _copied
+                          ? SvgPicture.asset(
+                              AppAssets.checkSvg,
+                              width: 16,
+                              height: 16,
+                              colorFilter: const ColorFilter.mode(
+                                AppColors.primary,
+                                BlendMode.srcIn,
+                              ),
+                              key: const ValueKey<String>('check'),
+                            )
+                          : SvgPicture.asset(
+                              AppAssets.copySvg,
+                              width: 16,
+                              height: 16,
+                              colorFilter: ColorFilter.mode(
+                                isDark ? Colors.white54 : Colors.black54,
+                                BlendMode.srcIn,
+                              ),
+                              key: const ValueKey<String>('copy'),
                             ),
-                            key: const ValueKey<String>('check'),
-                          )
-                        : SvgPicture.asset(
-                            AppAssets.copySvg,
-                            width: 16,
-                            height: 16,
-                            colorFilter: ColorFilter.mode(
-                              isDark ? Colors.white54 : Colors.black54,
-                              BlendMode.srcIn,
-                            ),
-                            key: const ValueKey<String>('copy'),
-                          ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, thickness: 1),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.all(14.0),
-            child: Text(
-              _rawCode,
-              style: TextStyle(
-                fontFamily: AppTheme.monoFontFamily,
-                fontSize: 13.0,
-                height: 1.5,
-                color: isDark ? Colors.white : Colors.black87,
+                ],
               ),
             ),
-          ),
-        ],
+            const Divider(height: 1, thickness: 1),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.all(14.0),
+              child: SelectableText(
+                _rawCode,
+                style: TextStyle(
+                  fontFamily: AppTheme.monoFontFamily,
+                  fontSize: 13.0,
+                  height: 1.5,
+                  color: isDark ? Colors.white : Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -378,6 +379,7 @@ class _TableBlock extends StatelessWidget {
             constraints: BoxConstraints(minWidth: constraints.maxWidth),
             child: MarkdownBody(
               data: block.content,
+              selectable: false,
               styleSheet: MarkdownStyleSheet(
                 p: TextStyle(color: textColor, fontSize: 14.0),
                 tableHead: TextStyle(

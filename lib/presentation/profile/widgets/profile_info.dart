@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 
 class ProfileInfo extends StatelessWidget {
@@ -10,7 +12,7 @@ class ProfileInfo extends StatelessWidget {
 
     return Column(
       children: <Widget>[
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
         Center(
           child: CircleAvatar(
             radius: 40,
@@ -27,11 +29,15 @@ class ProfileInfo extends StatelessWidget {
                   ],
                 ),
               ),
-              child: const Center(
-                child: Icon(
-                  Icons.person_rounded,
-                  size: 40,
-                  color: Colors.white,
+              child: Center(
+                child: SvgPicture.asset(
+                  AppAssets.profileSvg,
+                  width: 32,
+                  height: 32,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),

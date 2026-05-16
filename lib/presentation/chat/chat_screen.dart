@@ -233,7 +233,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               SafeArea(
                 top: false,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
+                  padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
                   child: ChatComposer(
                     controller: _composerController,
                     focusNode: _composerFocusNode,
@@ -273,7 +273,7 @@ class _ChatHeader extends ConsumerWidget {
         : AppColors.textSecondaryLight;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 9),
       child: Row(
         children: <Widget>[
           IconButton(
@@ -339,7 +339,7 @@ class _ChatHeader extends ConsumerWidget {
               }).toList();
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[

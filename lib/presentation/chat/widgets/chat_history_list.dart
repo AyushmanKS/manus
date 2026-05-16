@@ -183,7 +183,7 @@ class ChatHistoryListState extends ConsumerState<ChatHistoryList> {
           physics: const ClampingScrollPhysics(),
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           itemCount: messages.length,
           itemBuilder: (final BuildContext context, final int index) {
             final ChatMessage message = messages[index];

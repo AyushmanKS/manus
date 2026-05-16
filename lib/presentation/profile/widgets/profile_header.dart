@@ -16,7 +16,7 @@ class ProfileHeader extends StatelessWidget {
 
     return Container(
       height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 9),
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[

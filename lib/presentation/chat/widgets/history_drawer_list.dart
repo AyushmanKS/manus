@@ -1,13 +1,12 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/data/models/chat_message.dart' as msg;
 import 'package:manus/data/models/conversation.dart';
-import 'package:manus/presentation/chat/notifiers/drawer_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/widgets/drawer/archived_header.dart';
@@ -85,17 +84,16 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                           ),
                         ),
                         onPressed: () {
-                          ref.read(drawerProvider.notifier).close();
-                          Future<void>.delayed(
-                            const Duration(milliseconds: 300),
-                            () {
-                              if (context.mounted) {
-                                context.go(
-                                  '/chat',
-                                  extra: <String, dynamic>{'fromDrawer': true},
-                                );
-                              }
-                            },
+                          AppLogger.info(
+                            'HistoryDrawerList: starting new conversation from drawer',
+                          );
+                          ref
+                              .read(chatProvider.notifier)
+                              .startNewConversation();
+                          Navigator.pop(context); // Close the drawer
+                          context.go(
+                            '/chat',
+                            extra: <String, dynamic>{'fromDrawer': true},
                           );
                         },
                         tooltip: 'New Chat',

@@ -178,7 +178,7 @@ class _CodeBlockState extends State<_CodeBlock> {
                               width: 16,
                               height: 16,
                               colorFilter: ColorFilter.mode(
-                                isDark ? Colors.white54 : Colors.black54,
+                                isDark ? AppColors.iconDark : Colors.black54,
                                 BlendMode.srcIn,
                               ),
                               key: const ValueKey<String>('copy'),
@@ -268,18 +268,18 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                       AppAssets.plugSvg, // Closest tech icon available
                       width: 16,
                       height: 16,
-                      colorFilter: const ColorFilter.mode(
-                        Colors.blueGrey,
+                      colorFilter: ColorFilter.mode(
+                        isDark ? AppColors.iconDark : Colors.blueGrey,
                         BlendMode.srcIn,
                       ),
                     ),
                   const SizedBox(width: 10),
                   Text(
                     isStreaming ? 'Thinking...' : 'Thought process',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: Colors.blueGrey,
+                      color: isDark ? AppColors.iconDark : Colors.blueGrey,
                     ),
                   ),
                   const Spacer(),
@@ -292,8 +292,8 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                         AppAssets.downArrowSvg,
                         width: 18,
                         height: 18,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.blueGrey,
+                        colorFilter: ColorFilter.mode(
+                          isDark ? AppColors.iconDark : Colors.blueGrey,
                           BlendMode.srcIn,
                         ),
                       ),

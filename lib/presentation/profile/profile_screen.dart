@@ -17,7 +17,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(final BuildContext context, final WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color iconColor = isDark
-        ? AppColors.textPrimaryDark
+        ? AppColors.iconDark
         : AppColors.textPrimaryLight;
 
     final ThemeMode themeMode = ref.watch(themeProvider);
@@ -68,11 +68,14 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
+                      Text(
                         'User',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.iconDark
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -124,16 +127,21 @@ class ProfileScreen extends ConsumerWidget {
                         _buildDivider(isDark),
                         _buildMenuItem(
                           context,
-                          const Icon(Icons.menu_book_outlined, size: 22),
+                          Icon(
+                            Icons.menu_book_outlined,
+                            size: 22,
+                            color: iconColor,
+                          ),
                           'Knowledge',
                           onTap: () => AppLogger.info('Knowledge tapped'),
                         ),
                         _buildDivider(isDark),
                         _buildMenuItem(
                           context,
-                          const Icon(
+                          Icon(
                             Icons.workspace_premium_outlined,
                             size: 22,
+                            color: iconColor,
                           ),
                           'Manus Pro',
                           onTap: () => AppLogger.info('Manus Pro tapped'),
@@ -194,6 +202,11 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildHeader(final BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark
+        ? AppColors.iconDark
+        : AppColors.textPrimaryLight;
+
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -204,12 +217,20 @@ class ProfileScreen extends ConsumerWidget {
             alignment: Alignment.centerLeft,
             child: IconButton(
               onPressed: () => context.pop(),
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+              icon: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 20,
+                color: iconColor,
+              ),
             ),
           ),
-          const Text(
+          Text(
             'Profile',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
+            ),
           ),
         ],
       ),
@@ -299,32 +320,31 @@ class _AppearanceMenu extends ConsumerWidget {
         ref.read(themeProvider.notifier).setThemeMode(mode);
         unawaited(HapticFeedback.mediumImpact());
       },
-      itemBuilder:
-          (final BuildContext context) => <PopupMenuEntry<ThemeMode>>[
-            _buildPopupItem(
-              context,
-              ThemeMode.system,
-              'Follow system',
-              AppAssets.contrastSvg,
-              currentMode == ThemeMode.system,
-            ),
-            _buildDivider(isDark),
-            _buildPopupItem(
-              context,
-              ThemeMode.light,
-              'Light mode',
-              AppAssets.lightModeSvg,
-              currentMode == ThemeMode.light,
-            ),
-            _buildDivider(isDark),
-            _buildPopupItem(
-              context,
-              ThemeMode.dark,
-              'Dark mode',
-              AppAssets.darkModeSvg,
-              currentMode == ThemeMode.dark,
-            ),
-          ],
+      itemBuilder: (final BuildContext context) => <PopupMenuEntry<ThemeMode>>[
+        _buildPopupItem(
+          context,
+          ThemeMode.system,
+          'Follow system',
+          AppAssets.contrastSvg,
+          currentMode == ThemeMode.system,
+        ),
+        _buildDivider(isDark),
+        _buildPopupItem(
+          context,
+          ThemeMode.light,
+          'Light mode',
+          AppAssets.lightModeSvg,
+          currentMode == ThemeMode.light,
+        ),
+        _buildDivider(isDark),
+        _buildPopupItem(
+          context,
+          ThemeMode.dark,
+          'Dark mode',
+          AppAssets.darkModeSvg,
+          currentMode == ThemeMode.dark,
+        ),
+      ],
       child: InkWell(
         onTap: null, // Let PopupMenuButton handle tap
         child: Padding(
@@ -350,10 +370,9 @@ class _AppearanceMenu extends ConsumerWidget {
               Icon(
                 Icons.chevron_right,
                 size: 18,
-                color:
-                    isDark
-                        ? AppColors.textMutedDark
-                        : AppColors.textMutedLight,
+                color: isDark
+                    ? AppColors.textMutedDark
+                    : AppColors.textMutedLight,
               ),
             ],
           ),
@@ -373,6 +392,11 @@ class _AppearanceMenu extends ConsumerWidget {
     final String iconPath,
     final bool isSelected,
   ) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color itemIconColor = isDark
+        ? AppColors.iconDark
+        : Theme.of(context).colorScheme.onSurface;
+
     return PopupMenuItem<ThemeMode>(
       value: mode,
       height: 44,
@@ -381,18 +405,19 @@ class _AppearanceMenu extends ConsumerWidget {
         children: <Widget>[
           SizedBox(
             width: 20,
-            child:
-                isSelected
-                    ? SvgPicture.asset(
-                      AppAssets.checkSvg,
-                      width: 14,
-                      height: 14,
-                      colorFilter: ColorFilter.mode(
-                        Theme.of(context).colorScheme.primary,
-                        BlendMode.srcIn,
-                      ),
-                    )
-                    : null,
+            child: isSelected
+                ? SvgPicture.asset(
+                    AppAssets.checkSvg,
+                    width: 14,
+                    height: 14,
+                    colorFilter: ColorFilter.mode(
+                      isDark
+                          ? AppColors.iconDark
+                          : Theme.of(context).colorScheme.primary,
+                      BlendMode.srcIn,
+                    ),
+                  )
+                : null,
           ),
           const SizedBox(width: 8),
           Text(
@@ -404,10 +429,7 @@ class _AppearanceMenu extends ConsumerWidget {
             iconPath,
             width: 18,
             height: 18,
-            colorFilter: ColorFilter.mode(
-              Theme.of(context).colorScheme.onSurface,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(itemIconColor, BlendMode.srcIn),
           ),
         ],
       ),

@@ -141,7 +141,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
     final Color bgColor = isDark
         ? AppColors.composerBgDark
         : AppColors.composerBgLight;
-    final Color iconColor = isDark ? AppColors.white : AppColors.black;
+    final Color iconColor = isDark ? AppColors.iconDark : AppColors.black;
     final Color secondaryTextColor = isDark
         ? AppColors.textSecondaryDark
         : AppColors.textSecondaryLight;

@@ -107,11 +107,15 @@ class AppTheme {
           fontFamily: _bodyFontFamily,
         ),
         labelMedium: baseTextTheme.labelMedium?.copyWith(
-          color: isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+          color: isDark ? AppColors.iconDark : AppColors.textMutedLight,
           fontSize: 16,
           fontWeight: FontWeight.w600,
           fontFamily: _bodyFontFamily,
         ),
+      ),
+      iconTheme: IconThemeData(
+        color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
+        size: 24,
       ),
     );
   }

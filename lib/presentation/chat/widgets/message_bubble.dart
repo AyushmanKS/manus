@@ -138,7 +138,9 @@ class _UserBubble extends ConsumerWidget {
                     width: 18,
                     height: 18,
                     colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onSurface,
+                      isDark
+                          ? AppColors.iconDark
+                          : Theme.of(context).colorScheme.onSurface,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -160,7 +162,9 @@ class _UserBubble extends ConsumerWidget {
                     width: 18,
                     height: 18,
                     colorFilter: ColorFilter.mode(
-                      Theme.of(context).colorScheme.onSurface,
+                      isDark
+                          ? AppColors.iconDark
+                          : Theme.of(context).colorScheme.onSurface,
                       BlendMode.srcIn,
                     ),
                   ),

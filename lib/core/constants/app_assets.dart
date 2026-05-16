@@ -19,6 +19,7 @@ class AppAssets {
   static const String contrastSvg = 'assets/icons/contrast.svg';
   static const String lightModeSvg = 'assets/icons/light-mode.svg';
   static const String darkModeSvg = 'assets/icons/dark-mode.svg';
+  static const String checkSvg = 'assets/icons/check.svg';
   static const String accountSvg = 'assets/icons/account.svg';
   static const String taskSvg = 'assets/icons/task.svg';
   static const String infoSvg = 'assets/icons/info.svg';
@@ -35,14 +36,14 @@ class AppAssets {
 
   static const String pencilSvg = 'assets/icons/pencil.svg';
   static const String copySvg = 'assets/icons/copy.svg';
-  static const String checkSvg = 'assets/icons/check.svg';
   static const String pinSvg = 'assets/icons/pin.svg';
   static const String archieveSvg = 'assets/icons/archieve.svg';
   static const String deleteSvg = 'assets/icons/delete.svg';
-
+  static const String logoutSvg = 'assets/icons/logout.svg';
   static const String cameraSvg = 'assets/icons/camera.svg';
   static const String pictureSvg = 'assets/icons/picture.svg';
   static const String attachSvg = 'assets/icons/attach.svg';
+  static const String rightArrowSvg = 'assets/icons/right-arrow.svg';
 
   static const String blobSolid = 'assets/illustrations/blob_solid.svg';
   static const String blobHollow = 'assets/illustrations/blob_hollow.svg';

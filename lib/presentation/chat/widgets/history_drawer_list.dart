@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
+import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/data/models/chat_message.dart' as msg;
 import 'package:manus/data/models/conversation.dart';
@@ -45,7 +46,10 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
     final List<msg.ChatMessage> messages = ref.watch<List<msg.ChatMessage>>(
       chatProvider,
     );
-    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark
+        ? AppColors.iconDark
+        : Theme.of(context).colorScheme.onSurface;
 
     final bool isChatEmpty = messages.isEmpty;
 
@@ -75,7 +79,7 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                           width: 22,
                           height: 22,
                           colorFilter: ColorFilter.mode(
-                            onSurface,
+                            iconColor,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -120,7 +124,6 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
 
                     if (activeGroups.isEmpty && archivedGroups.isEmpty) {
                       return _EmptyState(
-                        onSurface: onSurface,
                         isSearching: ref
                             .watch(historySearchProvider)
                             .isNotEmpty,
@@ -205,7 +208,11 @@ class _ArchivedHeader extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark
+        ? AppColors.iconDark
+        : Theme.of(context).colorScheme.onSurface;
+
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -217,7 +224,7 @@ class _ArchivedHeader extends StatelessWidget {
               width: 18,
               height: 18,
               colorFilter: ColorFilter.mode(
-                onSurface.withValues(alpha: 0.6),
+                iconColor.withValues(alpha: 0.6),
                 BlendMode.srcIn,
               ),
             ),
@@ -225,7 +232,7 @@ class _ArchivedHeader extends StatelessWidget {
             Text(
               'Archived',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: onSurface.withValues(alpha: 0.6),
+                color: iconColor.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -238,7 +245,7 @@ class _ArchivedHeader extends StatelessWidget {
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(
-                  onSurface.withValues(alpha: 0.4),
+                  iconColor.withValues(alpha: 0.4),
                   BlendMode.srcIn,
                 ),
               ),
@@ -263,14 +270,17 @@ class _HistorySearchBar extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark
+        ? AppColors.iconDark
+        : Theme.of(context).colorScheme.onSurface;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         height: 40,
         decoration: BoxDecoration(
-          color: onSurface.withValues(alpha: 0.05),
+          color: iconColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(10),
         ),
         child: ManusTextField(
@@ -282,7 +292,7 @@ class _HistorySearchBar extends StatelessWidget {
             hintText: 'Search chats...',
             hintStyle: TextStyle(
               fontSize: 14,
-              color: onSurface.withValues(alpha: 0.4),
+              color: iconColor.withValues(alpha: 0.4),
             ),
             prefixIconConstraints: const BoxConstraints(
               minWidth: 44,
@@ -295,7 +305,7 @@ class _HistorySearchBar extends StatelessWidget {
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(
-                  onSurface.withValues(alpha: 0.4),
+                  iconColor.withValues(alpha: 0.4),
                   BlendMode.srcIn,
                 ),
               ),
@@ -309,7 +319,7 @@ class _HistorySearchBar extends StatelessWidget {
                         width: 16,
                         height: 16,
                         colorFilter: ColorFilter.mode(
-                          onSurface.withValues(alpha: 0.4),
+                          iconColor.withValues(alpha: 0.4),
                           BlendMode.srcIn,
                         ),
                       ),
@@ -369,6 +379,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final double constrainedWidth = (screenWidth * 0.8) - 16.0;
 
@@ -386,7 +397,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
+                  isDark
+                      ? AppColors.iconDark
+                      : Theme.of(context).colorScheme.onSurface,
                   BlendMode.srcIn,
                 ),
               ),
@@ -412,7 +425,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
+                  isDark
+                      ? AppColors.iconDark
+                      : Theme.of(context).colorScheme.onSurface,
                   BlendMode.srcIn,
                 ),
               ),
@@ -437,7 +452,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                  Theme.of(context).colorScheme.onSurface,
+                  isDark
+                      ? AppColors.iconDark
+                      : Theme.of(context).colorScheme.onSurface,
                   BlendMode.srcIn,
                 ),
               ),
@@ -499,13 +516,17 @@ class _HistoryItemWrapper extends ConsumerWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onSurface, this.isSearching = false});
+  const _EmptyState({this.isSearching = false});
 
-  final Color onSurface;
   final bool isSearching;
 
   @override
   Widget build(final BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark
+        ? AppColors.iconDark
+        : Theme.of(context).colorScheme.onSurface;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -515,7 +536,7 @@ class _EmptyState extends StatelessWidget {
             width: 48,
             height: 48,
             colorFilter: ColorFilter.mode(
-              onSurface.withValues(alpha: 0.2),
+              iconColor.withValues(alpha: 0.2),
               BlendMode.srcIn,
             ),
           ),
@@ -523,7 +544,7 @@ class _EmptyState extends StatelessWidget {
           Text(
             isSearching ? 'No chats match your search' : 'No conversations yet',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: onSurface.withValues(alpha: 0.4),
+              color: iconColor.withValues(alpha: 0.4),
             ),
           ),
         ],

@@ -266,7 +266,7 @@ class _ChatHeader extends ConsumerWidget {
     final String selectedModel = ref.watch<String>(selectedModelProvider);
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color iconColor = isDark
-        ? AppColors.textPrimaryDark
+        ? AppColors.iconDark
         : AppColors.textPrimaryLight;
     final Color mutedColor = isDark
         ? AppColors.textSecondaryDark

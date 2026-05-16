@@ -41,6 +41,7 @@ class AppColors {
   static const Color iconDisabled = Color(0xFF676765);
   static const Color sendCircleActiveLight = Color(0xFF000000);
   static const Color sendCircleActiveDark = Color(0xFFFFFFFF);
+  static const Color iconDark = Color(0xFFDADADA);
 
   static const Color surfaceLight = Colors.white;
   static const Color surfaceDark = Color(0xFF1E1E1E);

@@ -12,7 +12,7 @@ class ProfileGroup extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeInOut,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         borderRadius: BorderRadius.circular(16),

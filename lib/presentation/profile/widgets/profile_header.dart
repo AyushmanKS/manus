@@ -14,7 +14,7 @@ class ProfileHeader extends StatelessWidget {
 
     return Container(
       height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
@@ -22,6 +22,7 @@ class ProfileHeader extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: IconButton(
               onPressed: () => context.pop(),
+              padding: EdgeInsets.zero,
               icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: 20,

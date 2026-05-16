@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manus/core/router/app_router.dart';
 import 'package:manus/core/theme/app_theme.dart';
+import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
 
 Future<void> main() async {
@@ -44,24 +45,17 @@ class ManusApp extends ConsumerWidget {
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
-    final bool isDark =
-        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    final ThemeData theme = isDark ? AppTheme.darkTheme : AppTheme.lightTheme;
+    final ThemeMode themeMode = ref.watch(themeProvider);
 
-    return AnimatedTheme(
-      data: theme,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeInOut,
-      child: MaterialApp.router(
-        title: 'Manus',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        themeAnimationDuration: const Duration(milliseconds: 200),
-        themeAnimationCurve: Curves.easeInOutCubic,
-        routerConfig: AppRouter.router,
-      ),
+    return MaterialApp.router(
+      title: 'Manus',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
+      themeAnimationDuration: const Duration(milliseconds: 200),
+      themeAnimationCurve: Curves.easeInOutCubic,
+      routerConfig: AppRouter.router,
     );
   }
 }

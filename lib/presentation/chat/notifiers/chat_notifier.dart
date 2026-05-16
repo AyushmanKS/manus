@@ -108,6 +108,16 @@ activeConversationIdProvider = NotifierProvider<ActiveConvNotifier, String>(
   ActiveConvNotifier.new,
 );
 
+class SelectedModelNotifier extends Notifier<String> {
+  @override
+  String build() => 'Manus 1.6 Lite';
+
+  void set(final String model) => state = model;
+}
+
+final NotifierProvider<SelectedModelNotifier, String> selectedModelProvider =
+    NotifierProvider<SelectedModelNotifier, String>(SelectedModelNotifier.new);
+
 class ActiveConvNotifier extends Notifier<String> {
   @override
   String build() => const Uuid().v4();

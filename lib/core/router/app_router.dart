@@ -6,6 +6,7 @@ import 'package:manus/presentation/auth/auth_screen.dart';
 import 'package:manus/presentation/auth/policy_screen.dart';
 import 'package:manus/presentation/chat/chat_screen.dart';
 import 'package:manus/presentation/home/home_screen.dart';
+import 'package:manus/presentation/profile/profile_screen.dart';
 import 'package:manus/presentation/splash/splash_screen.dart';
 
 class AppRouter {
@@ -14,6 +15,7 @@ class AppRouter {
   static const String home = '/home';
   static const String policy = '/policy';
   static const String chat = '/chat';
+  static const String profile = '/profile';
 
   static Page<dynamic> _buildPage(
     final BuildContext context,
@@ -134,6 +136,12 @@ class AppRouter {
             fromDrawer: fromDrawer,
           );
         },
+      ),
+      GoRoute(
+        path: profile,
+        name: 'profile',
+        pageBuilder: (final BuildContext context, final GoRouterState state) =>
+            _buildPage(context, state, const ProfileScreen()),
       ),
     ],
   );

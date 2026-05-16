@@ -5,6 +5,7 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -30,7 +31,7 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   children: <Widget>[
                     const SizedBox(height: 32),
-                    const Center(
+                    Center(
                       child: CircleAvatar(
                         radius: 40,
                         backgroundColor: Colors.transparent,
@@ -42,11 +43,11 @@ class ProfileScreen extends ConsumerWidget {
                               end: Alignment.bottomRight,
                               colors: <Color>[
                                 AppColors.primary,
-                                Color(0xFF5EAAFF),
+                                Theme.of(context).colorScheme.primary,
                               ],
                             ),
                           ),
-                          child: Center(
+                          child: const Center(
                             child: Icon(
                               Icons.person_rounded,
                               size: 40,
@@ -196,7 +197,7 @@ class ProfileScreen extends ConsumerWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             ),
           ),
@@ -345,7 +346,7 @@ class _AppearanceSheetState extends ConsumerState<_AppearanceSheet> {
     ref.read(themeProvider.notifier).setThemeMode(mode);
     Future<void>.delayed(const Duration(milliseconds: 200), () {
       if (mounted) {
-        Navigator.pop(context);
+        context.pop();
       }
     });
   }

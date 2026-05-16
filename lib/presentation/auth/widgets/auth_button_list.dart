@@ -32,7 +32,7 @@ class _AuthButtonListState extends ConsumerState<AuthButtonList> {
     }
 
     setState(() => _isLoading = false);
-    Navigator.of(context).pop();
+    context.pop();
 
     await ref.read(authProvider.notifier).login();
 

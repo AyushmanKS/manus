@@ -68,8 +68,9 @@ class _ParagraphBlock extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     return MarkdownBody(
       data: block.content,

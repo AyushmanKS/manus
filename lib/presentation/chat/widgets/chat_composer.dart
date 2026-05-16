@@ -8,6 +8,8 @@ import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 
 import 'package:manus/presentation/chat/widgets/chat_empty_state.dart';
+import 'package:manus/presentation/widgets/manus_text_field.dart';
+import 'package:go_router/go_router.dart';
 
 class ChatComposer extends ConsumerStatefulWidget {
   const ChatComposer({
@@ -247,7 +249,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
                         )
                       : const SizedBox.shrink(key: ValueKey<String>('empty')),
                 ),
-                TextField(
+                ManusTextField(
                   controller: _controller,
                   focusNode: _focusNode,
                   minLines: 1,
@@ -693,7 +695,7 @@ class _ModelPickerSheet extends StatelessWidget {
             (final String model) => Column(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: () => context.pop(),
                   behavior: HitTestBehavior.opaque,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 14.0),

@@ -11,22 +11,36 @@ import 'package:manus/presentation/home/home_screen.dart';
 import 'package:manus/presentation/profile/profile_screen.dart';
 import 'package:manus/presentation/splash/splash_screen.dart';
 
-/// A simple Listenable that we can use to notify GoRouter of state changes.
 class RouterRefreshListenable extends ChangeNotifier {
   RouterRefreshListenable(final Ref ref) {
-    // Listen to the auth state and notify listeners whenever it changes.
-    ref.listen(authProvider, (final _, final _) => notifyListeners());
+    _subscription = ref.listen(authProvider, (
+      final bool? prev,
+      final bool next,
+    ) {
+      notifyListeners();
+    });
+  }
+
+  late final ProviderSubscription<bool> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.close();
+    super.dispose();
   }
 }
 
 final Provider<RouterRefreshListenable> routerRefreshProvider =
     Provider<RouterRefreshListenable>((final Ref ref) {
-      return RouterRefreshListenable(ref);
+      final RouterRefreshListenable listenable = RouterRefreshListenable(ref);
+      ref.onDispose(listenable.dispose);
+      return listenable;
     });
 
 final Provider<GoRouter> routerProvider = Provider<GoRouter>((final Ref ref) {
-  final bool isLoggedIn = ref.watch(authProvider);
-  final RouterRefreshListenable refreshListenable = ref.watch(routerRefreshProvider);
+  final RouterRefreshListenable refreshListenable = ref.watch(
+    routerRefreshProvider,
+  );
 
   return GoRouter(
     initialLocation: AppRouter.splash,
@@ -34,17 +48,15 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((final Ref ref) {
     observers: <NavigatorObserver>[AppNavigationObserver()],
     refreshListenable: refreshListenable,
     redirect: (final BuildContext context, final GoRouterState state) {
+      final bool isLoggedIn = ref.read(authProvider);
       final String location = state.uri.path;
-      
-      // Allow splash logic to run.
+
       if (location == AppRouter.splash) return null;
 
-      // Logic for authenticated users.
       if (isLoggedIn && location == AppRouter.auth) {
         return AppRouter.chat;
       }
 
-      // Logic for unauthenticated users.
       if (!isLoggedIn &&
           location != AppRouter.auth &&
           location != AppRouter.policy) {

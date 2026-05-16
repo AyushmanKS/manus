@@ -7,10 +7,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/utils/app_logger.dart';
+import 'package:manus/data/models/chat_message.dart' as msg;
 import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/drawer_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
+import 'package:manus/core/utils/dialog_utils.dart';
+import 'package:manus/presentation/widgets/manus_text_field.dart';
 
 class HistoryDrawerList extends ConsumerStatefulWidget {
   const HistoryDrawerList({super.key});
@@ -40,7 +43,12 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
   Widget build(final BuildContext context) {
     final AsyncValue<HistoryState> historyState = ref.watch(historyProvider);
     final String activeConversationId = ref.watch(activeConversationIdProvider);
+    final List<msg.ChatMessage> messages = ref.watch<List<msg.ChatMessage>>(
+      chatProvider,
+    );
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
+
+    final bool isChatEmpty = messages.isEmpty;
 
     return Material(
       color: Colors.transparent,
@@ -61,30 +69,33 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    IconButton(
-                      icon: SvgPicture.asset(
-                        AppAssets.plusSvg,
-                        width: 22,
-                        height: 22,
-                        colorFilter: ColorFilter.mode(
-                          onSurface,
-                          BlendMode.srcIn,
+                    if (!isChatEmpty)
+                      IconButton(
+                        icon: SvgPicture.asset(
+                          AppAssets.plusSvg,
+                          width: 22,
+                          height: 22,
+                          colorFilter: ColorFilter.mode(
+                            onSurface,
+                            BlendMode.srcIn,
+                          ),
                         ),
-                      ),
-                      onPressed: () {
-                        ref.read(drawerProvider.notifier).close();
-                        Future<void>.delayed(const Duration(milliseconds: 300),
+                        onPressed: () {
+                          ref.read(drawerProvider.notifier).close();
+                          Future<void>.delayed(
+                            const Duration(milliseconds: 300),
                             () {
-                          if (context.mounted) {
-                            context.go(
-                              '/chat',
-                              extra: <String, dynamic>{'fromDrawer': true},
-                            );
-                          }
-                        });
-                      },
-                      tooltip: 'New Chat',
-                    ),
+                              if (context.mounted) {
+                                context.go(
+                                  '/chat',
+                                  extra: <String, dynamic>{'fromDrawer': true},
+                                );
+                              }
+                            },
+                          );
+                        },
+                        tooltip: 'New Chat',
+                      ),
                   ],
                 ),
               ),
@@ -263,7 +274,7 @@ class _HistorySearchBar extends StatelessWidget {
           color: onSurface.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: TextField(
+        child: ManusTextField(
           controller: controller,
           onChanged: onChanged,
           textAlignVertical: TextAlignVertical.center,
@@ -330,24 +341,13 @@ class _HistoryItemWrapper extends ConsumerWidget {
     final BuildContext context,
     final WidgetRef ref,
   ) async {
-    final bool? confirmed = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (final BuildContext context) => CupertinoAlertDialog(
-        title: const Text('Delete Conversation'),
-        content: const Text('This action cannot be undone. Are you sure?'),
-        actions: <CupertinoDialogAction>[
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    final bool? confirmed = await showManusConfirmDialog(
+      context,
+      title: 'Delete Conversation',
+      content: 'This action cannot be undone. Are you sure?',
+      cancelLabel: 'Cancel',
+      confirmLabel: 'Delete',
+      onConfirm: () {},
     );
 
     if (confirmed == true) {
@@ -366,7 +366,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
       actions: <Widget>[
         CupertinoContextMenuAction(
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
             ref.read(renamingChatIdProvider.notifier).set(conversation.id);
           },
           child: Row(
@@ -387,7 +387,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
         ),
         CupertinoContextMenuAction(
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
             ref
                 .read(historyProvider.notifier)
                 .pinConversation(
@@ -413,7 +413,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
         ),
         CupertinoContextMenuAction(
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
             if (conversation.isArchived) {
               ref.read(historyProvider.notifier).unarchiveChat(conversation.id);
             } else {
@@ -439,7 +439,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
         CupertinoContextMenuAction(
           isDestructiveAction: true,
           onPressed: () {
-            Navigator.pop(context);
+            context.pop();
             unawaited(_confirmDelete(context, ref));
           },
           child: Row(
@@ -592,7 +592,7 @@ class _ConversationTileState extends ConsumerState<_ConversationTile> {
         onTap: isCurrentlyRenaming ? null : widget.onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: isCurrentlyRenaming
-            ? TextField(
+            ? ManusTextField(
                 controller: _renameController,
                 autofocus: true,
                 style: Theme.of(context).textTheme.bodyLarge,

@@ -26,15 +26,17 @@ class HistoryStorage {
 
   Future<List<Conversation>> getAllConversations() async {
     final List<Conversation> conversations = _box.values
-        .map((final String data) =>
-            Conversation.fromJson(jsonDecode(data) as Map<String, dynamic>))
+        .map(
+          (final String data) =>
+              Conversation.fromJson(jsonDecode(data) as Map<String, dynamic>),
+        )
         .toList();
-    
+
     conversations.sort((final Conversation a, final Conversation b) {
       if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
       return b.updatedAt.compareTo(a.updatedAt);
     });
-    
+
     return conversations;
   }
 
@@ -42,21 +44,30 @@ class HistoryStorage {
     await _box.delete(id);
   }
 
-  Future<void> renameConversation(final String id, final String newTitle) async {
+  Future<void> renameConversation(
+    final String id,
+    final String newTitle,
+  ) async {
     final Conversation? conv = await getConversation(id);
     if (conv != null) {
       await saveConversation(conv.copyWith(title: newTitle));
     }
   }
 
-  Future<void> pinConversation(final String id, {required final bool pinned}) async {
+  Future<void> pinConversation(
+    final String id, {
+    required final bool pinned,
+  }) async {
     final Conversation? conv = await getConversation(id);
     if (conv != null) {
       await saveConversation(conv.copyWith(isPinned: pinned));
     }
   }
 
-  Future<void> archiveConversation(final String id, {required final bool archived}) async {
+  Future<void> archiveConversation(
+    final String id, {
+    required final bool archived,
+  }) async {
     final Conversation? conv = await getConversation(id);
     if (conv != null) {
       await saveConversation(conv.copyWith(isArchived: archived));
@@ -82,13 +93,18 @@ class HistoryStorage {
     }
   }
 
-  Future<void> saveMessages(final String conversationId, final List<ChatMessage> messages) async {
+  Future<void> saveMessages(
+    final String conversationId,
+    final List<ChatMessage> messages,
+  ) async {
     final Conversation? existing = await getConversation(conversationId);
     if (existing != null) {
       final Conversation updated = existing.copyWith(
         messages: messages,
         updatedAt: DateTime.now(),
-        lastMessage: messages.isNotEmpty ? messages.last.text : existing.lastMessage,
+        lastMessage: messages.isNotEmpty
+            ? messages.last.text
+            : existing.lastMessage,
       );
       await saveConversation(updated);
     } else {

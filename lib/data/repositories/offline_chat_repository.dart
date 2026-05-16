@@ -30,7 +30,9 @@ class OfflineChatRepository implements ChatRepository {
 
     Future<void>.delayed(const Duration(milliseconds: 400), () {
       if (!controller.isClosed) {
-        AppLogger.error('OfflineChatRepository: no connection, closing stream with error');
+        AppLogger.error(
+          'OfflineChatRepository: no connection, closing stream with error',
+        );
         controller.addError(const NoConnectionException());
         unawaited(controller.close());
       }

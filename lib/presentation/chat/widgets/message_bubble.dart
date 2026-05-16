@@ -131,21 +131,18 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text(
-          widget.message.text,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
+        Text(widget.message.text, style: Theme.of(context).textTheme.bodyLarge),
         if (widget.message.isEdited)
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               'edited',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: isDark
-                        ? AppColors.textSecondaryDark
-                        : AppColors.textSecondaryLight,
-                    fontSize: 10,
-                  ),
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+                fontSize: 10,
+              ),
             ),
           ),
       ],
@@ -158,10 +155,7 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.8,
         ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14.0,
-          vertical: 8.0,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
         decoration: BoxDecoration(
           color: colorScheme.secondaryContainer,
           borderRadius: const BorderRadius.only(
@@ -174,11 +168,11 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
         child: SelectionArea(
           key: _selectionKey,
           selectionControls: EmptyTextSelectionControls(),
-          contextMenuBuilder: (
-            final BuildContext context,
-            final SelectableRegionState selectableRegionState,
-          ) =>
-              _buildContextMenu(context, selectableRegionState),
+          contextMenuBuilder:
+              (
+                final BuildContext context,
+                final SelectableRegionState selectableRegionState,
+              ) => _buildContextMenu(context, selectableRegionState),
           child: Material(
             color: Colors.transparent,
             child: GestureDetector(
@@ -187,8 +181,9 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
                 unawaited(HapticFeedback.mediumImpact());
                 WidgetsBinding.instance.addPostFrameCallback((final _) {
                   if (!mounted) return;
-                  _selectionKey.currentState
-                      ?.selectAll(SelectionChangedCause.toolbar);
+                  _selectionKey.currentState?.selectAll(
+                    SelectionChangedCause.toolbar,
+                  );
                 });
               },
               child: bubbleContentColumn,
@@ -285,11 +280,11 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
         child: SelectionArea(
           key: _selectionKey,
           selectionControls: EmptyTextSelectionControls(),
-          contextMenuBuilder: (
-            final BuildContext context,
-            final SelectableRegionState selectableRegionState,
-          ) =>
-              _buildContextMenu(context, selectableRegionState),
+          contextMenuBuilder:
+              (
+                final BuildContext context,
+                final SelectableRegionState selectableRegionState,
+              ) => _buildContextMenu(context, selectableRegionState),
           child: Material(
             color: Colors.transparent,
             child: GestureDetector(
@@ -298,8 +293,9 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
                 unawaited(HapticFeedback.mediumImpact());
                 WidgetsBinding.instance.addPostFrameCallback((final _) {
                   if (!mounted) return;
-                  _selectionKey.currentState
-                      ?.selectAll(SelectionChangedCause.toolbar);
+                  _selectionKey.currentState?.selectAll(
+                    SelectionChangedCause.toolbar,
+                  );
                 });
               },
               child: bubbleContentColumn,
@@ -389,8 +385,9 @@ class _StreamingCaret extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color caretColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color caretColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     return AnimatedContainer(
           duration: const Duration(milliseconds: 200),

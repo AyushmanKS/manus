@@ -57,9 +57,12 @@ class Conversation {
       title: json['title'] as String,
       lastMessage: json['lastMessage'] as String,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
-      messages: (json['messages'] as List<dynamic>?)
-              ?.map((final dynamic m) =>
-                  ChatMessage.fromJson(m as Map<String, dynamic>))
+      messages:
+          (json['messages'] as List<dynamic>?)
+              ?.map(
+                (final dynamic m) =>
+                    ChatMessage.fromJson(m as Map<String, dynamic>),
+              )
               .toList() ??
           const <ChatMessage>[],
       isPinned: json['isPinned'] as bool? ?? false,
@@ -75,8 +78,11 @@ extension ConversationDateGrouping on Conversation {
     final DateTime yesterday = today.subtract(const Duration(days: 1));
     final DateTime sevenDaysAgo = today.subtract(const Duration(days: 7));
 
-    final DateTime updateDate =
-        DateTime(updatedAt.year, updatedAt.month, updatedAt.day);
+    final DateTime updateDate = DateTime(
+      updatedAt.year,
+      updatedAt.month,
+      updatedAt.day,
+    );
 
     if (updateDate == today) {
       return 'Today';

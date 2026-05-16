@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/chat/widgets/chat_composer.dart';
+import 'package:manus/presentation/chat/widgets/chat_empty_state.dart';
 import 'package:manus/presentation/chat/widgets/chat_history_list.dart';
 
 import 'package:manus/presentation/chat/notifiers/drawer_notifier.dart';
@@ -64,7 +66,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     if (convId != null) {
       ref.read(chatProvider.notifier).loadConversation(convId);
     } else {
-      ref.read(chatProvider.notifier).startNewConversation();
+      final List<ChatMessage> currentMessages = ref.read(chatProvider);
+      if (currentMessages.isNotEmpty) {
+        ref.read(chatProvider.notifier).startNewConversation();
+      }
     }
     unawaited(ref.read(historyProvider.notifier).refresh());
 
@@ -122,10 +127,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   @override
   Widget build(final BuildContext context) {
     ref.listen<double>(drawerProvider, (final double? prev, final double next) {
-      if (next > 0) {
-        if (_composerFocusNode.hasFocus) {
-          _composerFocusNode.unfocus();
-        }
+      if (next > 0 && (prev == null || prev == 0)) {
+        FocusManager.instance.primaryFocus?.unfocus();
       } else if (prev != null && prev > 0 && next == 0) {
         Future<void>.delayed(const Duration(milliseconds: 300), () {
           if (mounted &&
@@ -196,7 +199,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         body: Container(
           decoration: bgDecoration,
           child: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            behavior: HitTestBehavior.opaque,
             child: Column(
               children: <Widget>[
                 SafeArea(
@@ -206,7 +210,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                     isDark: isDark,
                   ),
                 ),
-                Expanded(child: ChatHistoryList(key: _listKey)),
+                Expanded(
+                  child: ref.watch(chatProvider).isEmpty
+                      ? ChatEmptyState(
+                          key: ValueKey<String>(activeConvId),
+                          composerController: _composerController,
+                          composerFocusNode: _composerFocusNode,
+                        )
+                      : ChatHistoryList(key: _listKey),
+                ),
                 SafeArea(
                   top: false,
                   child: Padding(

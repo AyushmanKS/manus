@@ -7,6 +7,8 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 
+import 'package:manus/presentation/chat/widgets/chat_empty_state.dart';
+
 class ChatComposer extends ConsumerStatefulWidget {
   const ChatComposer({
     required this.onSend,
@@ -25,10 +27,14 @@ class ChatComposer extends ConsumerStatefulWidget {
   ConsumerState<ChatComposer> createState() => _ChatComposerState();
 }
 
-class _ChatComposerState extends ConsumerState<ChatComposer> {
+class _ChatComposerState extends ConsumerState<ChatComposer>
+    with TickerProviderStateMixin {
   bool _showAttachmentTray = false;
+  late final AnimationController _pulseController;
+  late final Animation<double> _scaleAnimation;
 
   FocusNode get _focusNode => widget.focusNode;
+
   TextEditingController get _controller => widget.controller;
 
   @override
@@ -36,12 +42,30 @@ class _ChatComposerState extends ConsumerState<ChatComposer> {
     super.initState();
     _controller.addListener(_onTextChanged);
     _focusNode.addListener(_onFocusChanged);
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _scaleAnimation =
+        TweenSequence<double>(<TweenSequenceItem<double>>[
+          TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 1.0, end: 1.02),
+            weight: 50,
+          ),
+          TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 1.02, end: 1.0),
+            weight: 50,
+          ),
+        ]).animate(
+          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+        );
   }
 
   @override
   void dispose() {
     _controller.removeListener(_onTextChanged);
     _focusNode.removeListener(_onFocusChanged);
+    _pulseController.dispose();
     super.dispose();
   }
 
@@ -85,6 +109,13 @@ class _ChatComposerState extends ConsumerState<ChatComposer> {
 
   @override
   Widget build(final BuildContext context) {
+    ref.listen<int>(composerPulseProvider, (
+      final int? previous,
+      final int next,
+    ) {
+      _pulseController.forward(from: 0.0);
+    });
+
     final EditingMessage? editingMessage = ref.watch(editingMessageProvider);
 
     ref.listen<EditingMessage?>(editingMessageProvider, (
@@ -125,124 +156,128 @@ class _ChatComposerState extends ConsumerState<ChatComposer> {
         ? AppColors.iconBorderDark
         : AppColors.iconBorderLight;
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(25.0),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          alignment: Alignment.bottomCenter,
-          clipBehavior: Clip.none,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                child: isEditing
-                    ? AnimatedOpacity(
-                        opacity: isEditing ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 300),
-                        child: SizedBox(
-                          height: 28,
-                          child: Row(
-                            children: <Widget>[
-                              SvgPicture.asset(
-                                AppAssets.pencilSvg,
-                                width: 16,
-                                height: 16,
-                                colorFilter: ColorFilter.mode(
-                                  secondaryTextColor,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Editing message',
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: secondaryTextColor),
-                              ),
-                              const Spacer(),
-                              IconButton(
-                                icon: Transform.rotate(
-                                  angle: math.pi / 4,
-                                  child: SvgPicture.asset(
-                                    AppAssets.plusSvg,
-                                    width: 18,
-                                    height: 18,
-                                    colorFilter: ColorFilter.mode(
-                                      secondaryTextColor,
-                                      BlendMode.srcIn,
-                                    ),
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(25.0),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.bottomCenter,
+            clipBehavior: Clip.none,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  child: isEditing
+                      ? AnimatedOpacity(
+                          opacity: isEditing ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: SizedBox(
+                            height: 28,
+                            child: Row(
+                              children: <Widget>[
+                                SvgPicture.asset(
+                                  AppAssets.pencilSvg,
+                                  width: 16,
+                                  height: 16,
+                                  colorFilter: ColorFilter.mode(
+                                    secondaryTextColor,
+                                    BlendMode.srcIn,
                                   ),
                                 ),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: () {
-                                  _controller.clear();
-                                  ref
-                                      .read(editingMessageProvider.notifier)
-                                      .cancelEditing();
-                                },
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Editing message',
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: secondaryTextColor),
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  icon: Transform.rotate(
+                                    angle: math.pi / 4,
+                                    child: SvgPicture.asset(
+                                      AppAssets.plusSvg,
+                                      width: 18,
+                                      height: 18,
+                                      colorFilter: ColorFilter.mode(
+                                        secondaryTextColor,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: () {
+                                    _controller.clear();
+                                    ref
+                                        .read(editingMessageProvider.notifier)
+                                        .cancelEditing();
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: _slideTransition,
-                child: _showAttachmentTray
-                    ? Padding(
-                        key: const ValueKey<String>('tray'),
-                        padding: const EdgeInsets.only(bottom: 12.0),
-                        child: _AttachmentTray(iconColor: iconColor),
-                      )
-                    : const SizedBox.shrink(key: ValueKey<String>('empty')),
-              ),
-              TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                minLines: 1,
-                maxLines: 6,
-                keyboardType: TextInputType.multiline,
-                textCapitalization: TextCapitalization.sentences,
-                style: Theme.of(context).textTheme.bodyLarge,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Assign a task or ask anything',
-                  contentPadding: EdgeInsets.symmetric(vertical: 6.0),
-                  isDense: true,
+                        )
+                      : const SizedBox.shrink(),
                 ),
-              ),
-              const SizedBox(height: 16.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  _buildLeftActions(iconFilter),
-                  _buildRightActions(
-                    iconFilter,
-                    borderColor,
-                    hasText,
-                    isDark,
-                    activeSendCircle,
-                    inactiveSendCircle,
-                    editingMessage,
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: _slideTransition,
+                  child: _showAttachmentTray
+                      ? Padding(
+                          key: const ValueKey<String>('tray'),
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: _AttachmentTray(iconColor: iconColor),
+                        )
+                      : const SizedBox.shrink(key: ValueKey<String>('empty')),
+                ),
+                TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  minLines: 1,
+                  maxLines: 6,
+                  keyboardType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Assign a task or ask anything',
+                    contentPadding: EdgeInsets.symmetric(vertical: 6.0),
+                    isDense: true,
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    _buildLeftActions(iconFilter),
+                    _buildRightActions(
+                      iconFilter,
+                      borderColor,
+                      hasText,
+                      isDark,
+                      activeSendCircle,
+                      inactiveSendCircle,
+                      editingMessage,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -319,37 +354,37 @@ class _ChatComposerState extends ConsumerState<ChatComposer> {
         Consumer(
           builder:
               (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
-            final bool isStreaming = ref.watch(chatIsStreamingProvider);
-            final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
+                final bool isStreaming = ref.watch(chatIsStreamingProvider);
+                final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
 
-            bool canTap;
-            if (editingMessage != null) {
-              canTap =
-                  _controller.text.trim().isNotEmpty &&
-                  _controller.text.trim() != editingMessage.originalText;
-            } else {
-              canTap = hasText || isStreaming;
-            }
+                bool canTap;
+                if (editingMessage != null) {
+                  canTap =
+                      _controller.text.trim().isNotEmpty &&
+                      _controller.text.trim() != editingMessage.originalText;
+                } else {
+                  canTap = hasText || isStreaming;
+                }
 
-            void onTap() {
-              if (isStreaming) {
-                HapticFeedback.mediumImpact();
-                ref.read(chatProvider.notifier).stopStream();
-              } else if (!isSubmitting) {
-                _handleSend(editingMessage);
-              }
-            }
+                void onTap() {
+                  if (isStreaming) {
+                    HapticFeedback.mediumImpact();
+                    ref.read(chatProvider.notifier).stopStream();
+                  } else if (!isSubmitting) {
+                    _handleSend(editingMessage);
+                  }
+                }
 
-            return _SendButton(
-              hasText: hasText,
-              isStreaming: isStreaming,
-              isSubmitting: isSubmitting,
-              onTap: canTap ? onTap : null,
-              isDark: isDark,
-              activeSendCircle: activeSendCircle,
-              inactiveSendCircle: inactiveSendCircle,
-            );
-          },
+                return _SendButton(
+                  hasText: hasText,
+                  isStreaming: isStreaming,
+                  isSubmitting: isSubmitting,
+                  onTap: canTap ? onTap : null,
+                  isDark: isDark,
+                  activeSendCircle: activeSendCircle,
+                  inactiveSendCircle: inactiveSendCircle,
+                );
+              },
         ),
       ],
     );
@@ -560,7 +595,8 @@ class _TrayItem extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             width: 52.0,
             height: 52.0,
             decoration: BoxDecoration(
@@ -608,7 +644,8 @@ class _ModelPickerSheet extends StatelessWidget {
         ? AppColors.dividerDark
         : AppColors.dividerLight;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
@@ -704,7 +741,8 @@ class _ActionIcon extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         clipBehavior: Clip.none,
         padding: EdgeInsets.all(padding),
         decoration: decoration,

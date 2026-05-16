@@ -43,104 +43,125 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
 
     return Material(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    'History',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+      color: Colors.transparent,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        color: Theme.of(context).scaffoldBackgroundColor,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      'History',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  IconButton(
-                    icon: SvgPicture.asset(
-                      AppAssets.plusSvg,
-                      width: 22,
-                      height: 22,
-                      colorFilter: ColorFilter.mode(onSurface, BlendMode.srcIn),
+                    IconButton(
+                      icon: SvgPicture.asset(
+                        AppAssets.plusSvg,
+                        width: 22,
+                        height: 22,
+                        colorFilter: ColorFilter.mode(
+                          onSurface,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      onPressed: () async {
+                        ref.read(drawerProvider.notifier).close();
+                        await Future<void>.delayed(
+                          const Duration(milliseconds: 150),
+                        );
+                        if (context.mounted) {
+                          context.go(
+                            '/chat',
+                            extra: <String, dynamic>{'fromDrawer': true},
+                          );
+                        }
+                      },
+                      tooltip: 'New Chat',
                     ),
-                    onPressed: () async {
-                      ref.read(drawerProvider.notifier).close();
-                      await Future<void>.delayed(
-                        const Duration(milliseconds: 150),
-                      );
-                      if (context.mounted) {
-                        context.go('/chat');
-                      }
-                    },
-                    tooltip: 'New Chat',
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            _HistorySearchBar(
-              controller: _searchController,
-              onChanged: (final String val) =>
-                  ref.read(historySearchProvider.notifier).set(val),
-              onClear: () {
-                _searchController.clear();
-                ref.read(historySearchProvider.notifier).clear();
-              },
-            ),
-            Expanded(
-              child: historyState.when(
-                data: (final _) {
-                  final Map<String, List<Conversation>> activeGroups = ref
-                      .watch(groupedHistoryProvider);
-                  final Map<String, List<Conversation>> archivedGroups = ref
-                      .watch(groupedArchivedHistoryProvider);
-                  final bool isArchivedVisible = ref.watch(
-                    isArchivedViewVisibleProvider,
-                  );
-
-                  if (activeGroups.isEmpty && archivedGroups.isEmpty) {
-                    return _EmptyState(
-                      onSurface: onSurface,
-                      isSearching: ref.watch(historySearchProvider).isNotEmpty,
-                    );
-                  }
-
-                  return ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    children: <Widget>[
-                      ..._buildGroupedList(activeGroups, activeConversationId),
-                      if (archivedGroups.isNotEmpty) ...<Widget>[
-                        _ArchivedHeader(
-                          isOpen: isArchivedVisible,
-                          onTap: () => ref
-                              .read(isArchivedViewVisibleProvider.notifier)
-                              .toggle(),
-                        ),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeOutCubic,
-                          alignment: Alignment.topCenter,
-                          child: isArchivedVisible
-                              ? Column(
-                                  children: _buildGroupedList(
-                                    archivedGroups,
-                                    activeConversationId,
-                                  ),
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ],
-                    ],
-                  );
+              _HistorySearchBar(
+                controller: _searchController,
+                onChanged: (final String val) =>
+                    ref.read(historySearchProvider.notifier).set(val),
+                onClear: () {
+                  _searchController.clear();
+                  ref.read(historySearchProvider.notifier).clear();
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (final Object err, final _) =>
-                    Center(child: Text('Error: $err')),
               ),
-            ),
-          ],
+              Expanded(
+                child: historyState.when(
+                  data: (final HistoryState _) {
+                    final Map<String, List<Conversation>> activeGroups = ref
+                        .watch(groupedHistoryProvider);
+                    final Map<String, List<Conversation>> archivedGroups = ref
+                        .watch(groupedArchivedHistoryProvider);
+                    final bool isArchivedVisible = ref.watch(
+                      isArchivedViewVisibleProvider,
+                    );
+
+                    if (activeGroups.isEmpty && archivedGroups.isEmpty) {
+                      return _EmptyState(
+                        onSurface: onSurface,
+                        isSearching: ref
+                            .watch(historySearchProvider)
+                            .isNotEmpty,
+                      );
+                    }
+
+                    return RefreshIndicator(
+                      color: Theme.of(context).disabledColor,
+                      strokeWidth: 1.5,
+                      onRefresh: () =>
+                          ref.read(historyProvider.notifier).refresh(),
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        children: <Widget>[
+                          ..._buildGroupedList(
+                            activeGroups,
+                            activeConversationId,
+                          ),
+                          if (archivedGroups.isNotEmpty) ...<Widget>[
+                            _ArchivedHeader(
+                              isOpen: isArchivedVisible,
+                              onTap: () => ref
+                                  .read(isArchivedViewVisibleProvider.notifier)
+                                  .toggle(),
+                            ),
+                            AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutCubic,
+                              alignment: Alignment.topCenter,
+                              child: isArchivedVisible
+                                  ? Column(
+                                      children: _buildGroupedList(
+                                        archivedGroups,
+                                        activeConversationId,
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                          ],
+                        ],
+                      ),
+                    );
+                  },
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (final Object err, final StackTrace _) =>
+                      Center(child: Text('Error: $err')),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -450,7 +471,10 @@ class _HistoryItemWrapper extends ConsumerWidget {
               onTap: () {
                 ref.read(drawerProvider.notifier).close();
                 AppLogger.info('Loading conversation: ${conversation.id}');
-                context.go('/chat/${conversation.id}');
+                context.go(
+                  '/chat/${conversation.id}',
+                  extra: <String, dynamic>{'fromDrawer': true},
+                );
               },
             ),
           ),
@@ -552,7 +576,8 @@ class _ConversationTileState extends ConsumerState<_ConversationTile> {
     final String? renamingId = ref.watch(renamingChatIdProvider);
     final bool isCurrentlyRenaming = renamingId == widget.conversation.id;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       decoration: BoxDecoration(
         color: widget.isActive
             ? colorScheme.primary.withValues(alpha: 0.08)

@@ -1,6 +1,6 @@
 enum MessageRole { user, assistant }
 
-enum MessageStatus { sending, streamed, stopped, error }
+enum MessageStatus { sending, streamed, stopped, error, interrupted }
 
 class ChatMessage {
   const ChatMessage({

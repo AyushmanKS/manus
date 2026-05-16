@@ -332,6 +332,27 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
     return 'Sorry, something went wrong. Please try again.';
   }
 
+  Future<void> deleteMessage(final String messageId) async {
+    state = state.where((final ChatMessage m) => m.id != messageId).toList();
+    await _persist();
+  }
+
+  Future<void> regenerate(final String messageId) async {
+    final int index = state.indexWhere(
+      (final ChatMessage m) => m.id == messageId,
+    );
+    if (index == -1) return;
+
+    state = state.sublist(0, index);
+    final int lastUserIdx = state.lastIndexWhere(
+      (final ChatMessage m) => m.role == MessageRole.user,
+    );
+    if (lastUserIdx == -1) return;
+
+    final String prompt = state[lastUserIdx].text;
+    await sendMessage(prompt);
+  }
+
   Future<void> _persist() async {
     final String convId = _conversationId;
     await ref.read(historyStorageProvider).saveMessages(convId, state);

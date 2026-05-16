@@ -130,7 +130,8 @@ class _CodeBlockState extends State<_CodeBlock> {
         : AppColors.composerIconBgLight;
     final String lang = widget.block.language ?? 'code';
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
         color: bg,
@@ -165,14 +166,20 @@ class _CodeBlockState extends State<_CodeBlock> {
                             AppAssets.checkSvg,
                             width: 16,
                             height: 16,
-                            colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.primary,
+                              BlendMode.srcIn,
+                            ),
                             key: const ValueKey<String>('check'),
                           )
                         : SvgPicture.asset(
                             AppAssets.copySvg,
                             width: 16,
                             height: 16,
-                            colorFilter: ColorFilter.mode(isDark ? Colors.white54 : Colors.black54, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                              isDark ? Colors.white54 : Colors.black54,
+                              BlendMode.srcIn,
+                            ),
                             key: const ValueKey<String>('copy'),
                           ),
                   ),
@@ -231,7 +238,8 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isStreaming = !widget.block.isComplete;
 
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(vertical: 6.0),
       decoration: BoxDecoration(
         color: isDark
@@ -258,7 +266,10 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                       AppAssets.plugSvg, // Closest tech icon available
                       width: 16,
                       height: 16,
-                      colorFilter: const ColorFilter.mode(Colors.blueGrey, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(
+                        Colors.blueGrey,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   const SizedBox(width: 10),
                   Text(
@@ -279,7 +290,10 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                         AppAssets.downArrowSvg,
                         width: 18,
                         height: 18,
-                        colorFilter: const ColorFilter.mode(Colors.blueGrey, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.blueGrey,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                 ],
@@ -313,7 +327,8 @@ class _PulsingDot extends StatelessWidget {
         ? AppColors.textSecondaryDark
         : AppColors.textSecondaryLight;
 
-    return Container(
+    return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           width: 8,
           height: 8,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),

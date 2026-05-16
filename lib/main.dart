@@ -23,7 +23,7 @@ Future<void> main() async {
   );
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  
+
   try {
     await dotenv.load(fileName: '.env');
   } catch (e) {
@@ -44,15 +44,24 @@ class ManusApp extends ConsumerWidget {
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
-    return MaterialApp.router(
-      title: 'Manus',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      themeAnimationDuration: const Duration(milliseconds: 200),
-      themeAnimationCurve: Curves.easeInOutCubic,
-      routerConfig: AppRouter.router,
+    final bool isDark =
+        MediaQuery.platformBrightnessOf(context) == Brightness.dark;
+    final ThemeData theme = isDark ? AppTheme.darkTheme : AppTheme.lightTheme;
+
+    return AnimatedTheme(
+      data: theme,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      child: MaterialApp.router(
+        title: 'Manus',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        themeAnimationDuration: const Duration(milliseconds: 200),
+        themeAnimationCurve: Curves.easeInOutCubic,
+        routerConfig: AppRouter.router,
+      ),
     );
   }
 }

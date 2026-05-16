@@ -90,7 +90,7 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                           ref
                               .read(chatProvider.notifier)
                               .startNewConversation();
-                          Navigator.pop(context); // Close the drawer
+                          Navigator.pop(context);
                           context.go(
                             '/chat',
                             extra: <String, dynamic>{'fromDrawer': true},

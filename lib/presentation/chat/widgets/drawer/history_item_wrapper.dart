@@ -9,6 +9,7 @@ import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
+import 'package:manus/presentation/widgets/haptic_listener.dart';
 import 'package:manus/presentation/chat/widgets/drawer/conversation_tile.dart';
 
 class HistoryItemWrapper extends ConsumerWidget {
@@ -167,17 +168,19 @@ class HistoryItemWrapper extends ConsumerWidget {
           width: constrainedWidth,
           child: Material(
             color: Colors.transparent,
-            child: ConversationTile(
-              conversation: conversation,
-              isActive: isActive,
-              onTap: () {
-                Navigator.pop(context); // Close the drawer immediately
-                AppLogger.info('Loading conversation: ${conversation.id}');
-                context.go(
-                  '/chat/${conversation.id}',
-                  extra: <String, dynamic>{'fromDrawer': true},
-                );
-              },
+            child: HapticListener(
+              child: ConversationTile(
+                conversation: conversation,
+                isActive: isActive,
+                onTap: () {
+                  Navigator.pop(context);
+                  AppLogger.info('Loading conversation: ${conversation.id}');
+                  context.go(
+                    '/chat/${conversation.id}',
+                    extra: <String, dynamic>{'fromDrawer': true},
+                  );
+                },
+              ),
             ),
           ),
         ),

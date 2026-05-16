@@ -7,11 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/core/services/haptic_service.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/core/utils/markdown_segmenter.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/widgets/markdown_renderer.dart';
+import 'package:manus/presentation/widgets/haptic_listener.dart';
 import 'package:share_plus/share_plus.dart';
 
 class MessageBubble extends ConsumerStatefulWidget {
@@ -153,7 +155,7 @@ class _UserBubble extends ConsumerWidget {
               onPressed: () {
                 Navigator.pop(context);
                 unawaited(Clipboard.setData(ClipboardData(text: message.text)));
-                unawaited(HapticFeedback.lightImpact());
+                unawaited(HapticService.light());
               },
               child: Row(
                 children: <Widget>[
@@ -174,7 +176,9 @@ class _UserBubble extends ConsumerWidget {
               ),
             ),
           ],
-          child: bubbleContent,
+          child: HapticListener(
+            child: bubbleContent,
+          ),
         ),
       ),
     );
@@ -217,7 +221,7 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
           label: 'Copy',
           onPressed: () {
             Actions.invoke(context, CopySelectionTextIntent.copy);
-            unawaited(HapticFeedback.lightImpact());
+            unawaited(HapticService.light());
           },
         ),
         ContextMenuButtonItem(
@@ -276,7 +280,7 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onLongPress: () {
-                unawaited(HapticFeedback.mediumImpact());
+                unawaited(HapticService.medium());
                 WidgetsBinding.instance.addPostFrameCallback((final _) {
                   if (!mounted) return;
                   _selectionKey.currentState?.selectAll(

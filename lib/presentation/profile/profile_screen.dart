@@ -179,14 +179,23 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ]),
                       const SizedBox(height: 24),
-                      TextButton(
-                        onPressed: () =>
-                            ref.read(authProvider.notifier).logout(),
-                        child: const Text(
-                          'Sign Out',
-                          style: TextStyle(color: Colors.red, fontSize: 16),
+                      _buildGroup(context, <Widget>[
+                        _buildMenuItem(
+                          context,
+                          SvgPicture.asset(
+                            AppAssets.logoutSvg,
+                            width: 22,
+                            height: 22,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.red,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          'Logout',
+                          titleColor: Colors.red,
+                          onTap: () => ref.read(authProvider.notifier).logout(),
                         ),
-                      ),
+                      ]),
                       const SizedBox(height: 32),
                     ],
                   ),
@@ -257,6 +266,7 @@ class ProfileScreen extends ConsumerWidget {
     final Widget leading,
     final String title, {
     required final VoidCallback onTap,
+    final Color? titleColor,
   }) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color mutedColor = isDark
@@ -271,7 +281,12 @@ class ProfileScreen extends ConsumerWidget {
           children: <Widget>[
             SizedBox(width: 22, height: 22, child: Center(child: leading)),
             const SizedBox(width: 12),
-            Expanded(child: Text(title, style: const TextStyle(fontSize: 15))),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(fontSize: 15, color: titleColor),
+              ),
+            ),
             SvgPicture.asset(
               AppAssets.rightArrowSvg,
               width: 14,

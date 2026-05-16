@@ -17,6 +17,8 @@ class AppAssets {
   static const String menuSvg = 'assets/icons/menu.svg';
   static const String profileSvg = 'assets/icons/profile.svg';
   static const String contrastSvg = 'assets/icons/contrast.svg';
+  static const String lightModeSvg = 'assets/icons/light-mode.svg';
+  static const String darkModeSvg = 'assets/icons/dark-mode.svg';
   static const String accountSvg = 'assets/icons/account.svg';
   static const String taskSvg = 'assets/icons/task.svg';
   static const String infoSvg = 'assets/icons/info.svg';

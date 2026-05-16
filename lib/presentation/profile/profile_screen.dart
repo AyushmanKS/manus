@@ -20,6 +20,13 @@ class ProfileScreen extends ConsumerWidget {
         ? AppColors.textPrimaryDark
         : AppColors.textPrimaryLight;
 
+    final ThemeMode themeMode = ref.watch(themeProvider);
+    final (String, String) themeInfo = switch (themeMode) {
+      ThemeMode.system => ('Follow system', AppAssets.contrastSvg),
+      ThemeMode.light => ('Light mode', AppAssets.lightModeSvg),
+      ThemeMode.dark => ('Dark mode', AppAssets.darkModeSvg),
+    };
+
     return Scaffold(
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -80,19 +87,9 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 32),
                       _buildGroup(context, <Widget>[
-                        _buildMenuItem(
-                          context,
-                          SvgPicture.asset(
-                            AppAssets.contrastSvg,
-                            width: 22,
-                            height: 22,
-                            colorFilter: ColorFilter.mode(
-                              iconColor,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          'Appearance',
-                          onTap: () => _showAppearanceSheet(context),
+                        _AppearanceMenu(
+                          iconColor: iconColor,
+                          themeInfo: themeInfo,
                         ),
                         _buildDivider(isDark),
                         _buildMenuItem(
@@ -273,152 +270,146 @@ class ProfileScreen extends ConsumerWidget {
       color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
     );
   }
+}
 
-  void _showAppearanceSheet(final BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+class _AppearanceMenu extends ConsumerWidget {
+  const _AppearanceMenu({required this.iconColor, required this.themeInfo});
+
+  final Color iconColor;
+  final (String, String) themeInfo;
+
+  @override
+  Widget build(final BuildContext context, final WidgetRef ref) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final ThemeMode currentMode = ref.watch(themeProvider);
+
+    return PopupMenuButton<ThemeMode>(
+      offset: const Offset(1000, 48),
+      elevation: 0.5,
+      tooltip: '',
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isDark ? AppColors.dividerDark : AppColors.dividerLight,
+          width: 0.5,
+        ),
       ),
-      builder: (final BuildContext context) => const _AppearanceSheet(),
+      color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+      onSelected: (final ThemeMode mode) {
+        ref.read(themeProvider.notifier).setThemeMode(mode);
+        unawaited(HapticFeedback.mediumImpact());
+      },
+      itemBuilder:
+          (final BuildContext context) => <PopupMenuEntry<ThemeMode>>[
+            _buildPopupItem(
+              context,
+              ThemeMode.system,
+              'Follow system',
+              AppAssets.contrastSvg,
+              currentMode == ThemeMode.system,
+            ),
+            _buildDivider(isDark),
+            _buildPopupItem(
+              context,
+              ThemeMode.light,
+              'Light mode',
+              AppAssets.lightModeSvg,
+              currentMode == ThemeMode.light,
+            ),
+            _buildDivider(isDark),
+            _buildPopupItem(
+              context,
+              ThemeMode.dark,
+              'Dark mode',
+              AppAssets.darkModeSvg,
+              currentMode == ThemeMode.dark,
+            ),
+          ],
+      child: InkWell(
+        onTap: null, // Let PopupMenuButton handle tap
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: <Widget>[
+              SizedBox(
+                width: 22,
+                height: 22,
+                child: Center(
+                  child: SvgPicture.asset(
+                    themeInfo.$2,
+                    width: 22,
+                    height: 22,
+                    colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(themeInfo.$1, style: const TextStyle(fontSize: 15)),
+              ),
+              Icon(
+                Icons.chevron_right,
+                size: 18,
+                color:
+                    isDark
+                        ? AppColors.textMutedDark
+                        : AppColors.textMutedLight,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
-}
 
-class _AppearanceSheet extends ConsumerStatefulWidget {
-  const _AppearanceSheet();
+  PopupMenuEntry<ThemeMode> _buildDivider(final bool isDark) {
+    return const PopupMenuDivider(height: 1);
+  }
 
-  @override
-  ConsumerState<_AppearanceSheet> createState() => _AppearanceSheetState();
-}
-
-class _AppearanceSheetState extends ConsumerState<_AppearanceSheet> {
-  @override
-  Widget build(final BuildContext context) {
-    final ThemeMode currentMode = ref.watch(themeProvider);
-    final double cardWidth = (MediaQuery.of(context).size.width - 80) / 3;
-
-    return SafeArea(
-      child: Column(
+  PopupMenuItem<ThemeMode> _buildPopupItem(
+    final BuildContext context,
+    final ThemeMode mode,
+    final String label,
+    final String iconPath,
+    final bool isSelected,
+  ) {
+    return PopupMenuItem<ThemeMode>(
+      value: mode,
+      height: 44,
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const SizedBox(height: 8),
-          Container(
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Theme.of(context).dividerColor,
-              borderRadius: BorderRadius.circular(2),
+          SizedBox(
+            width: 20,
+            child:
+                isSelected
+                    ? SvgPicture.asset(
+                      AppAssets.checkSvg,
+                      width: 14,
+                      height: 14,
+                      colorFilter: ColorFilter.mode(
+                        Theme.of(context).colorScheme.primary,
+                        BlendMode.srcIn,
+                      ),
+                    )
+                    : null,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+          ),
+          const SizedBox(width: 32),
+          SvgPicture.asset(
+            iconPath,
+            width: 18,
+            height: 18,
+            colorFilter: ColorFilter.mode(
+              Theme.of(context).colorScheme.onSurface,
+              BlendMode.srcIn,
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Appearance',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                _AppearanceCard(
-                  width: cardWidth,
-                  label: 'Light',
-                  icon: Icons.light_mode,
-                  isSelected: currentMode == ThemeMode.light,
-                  onTap: () => _updateTheme(ThemeMode.light),
-                ),
-                _AppearanceCard(
-                  width: cardWidth,
-                  label: 'System',
-                  icon: Icons.brightness_auto,
-                  isSelected: currentMode == ThemeMode.system,
-                  onTap: () => _updateTheme(ThemeMode.system),
-                ),
-                _AppearanceCard(
-                  width: cardWidth,
-                  label: 'Dark',
-                  icon: Icons.dark_mode,
-                  isSelected: currentMode == ThemeMode.dark,
-                  onTap: () => _updateTheme(ThemeMode.dark),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
         ],
-      ),
-    );
-  }
-
-  void _updateTheme(final ThemeMode mode) {
-    ref.read(themeProvider.notifier).setThemeMode(mode);
-    unawaited(HapticFeedback.lightImpact());
-    if (mounted) {
-      Navigator.of(context).pop();
-    }
-  }
-}
-
-class _AppearanceCard extends StatelessWidget {
-  const _AppearanceCard({
-    required this.width,
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final double width;
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(final BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        width: width,
-        height: 88,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.primary
-                : Theme.of(context).dividerColor,
-            width: 1.5,
-          ),
-        ),
-        child: Stack(
-          children: <Widget>[
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(icon, size: 24),
-                  const SizedBox(height: 8),
-                  Text(label, style: const TextStyle(fontSize: 12)),
-                ],
-              ),
-            ),
-            if (isSelected)
-              const Positioned(
-                top: 6,
-                right: 6,
-                child: Icon(
-                  Icons.check_circle,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
-              ),
-          ],
-        ),
       ),
     );
   }

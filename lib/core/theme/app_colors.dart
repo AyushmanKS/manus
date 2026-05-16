@@ -5,14 +5,14 @@ class AppColors {
 
   static const Color primary = Color(0xFF007AFF);
 
-  static const Color backgroundDark = Color(0xFF050505);
+  static const Color backgroundDark = Color(0xFF1C1C1C);
   static const Color dotIdleDark = Color(0xFF131313);
   static const Color activeBigCircleDark = Color(0xFF213645);
   static const Color activeSmallCircleDark = Color(0xFF4B412D);
   static const Color activeHollowCircleDark = Color(0xFF274946);
   static const Color activeTriangleDark = Color(0xFF593D3E);
 
-  static const Color backgroundLight = Color(0xFFF5F5F5);
+  static const Color backgroundLight = Color(0xFFF0F0F0);
   static const Color dotIdleLight = Color(0xFFE0E0E0);
   static const Color activeBigCircleLight = Color(0xFFD1E4F0);
   static const Color activeSmallCircleLight = Color(0xFFE8E2D0);

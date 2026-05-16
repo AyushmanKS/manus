@@ -178,11 +178,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           )
         : const BoxDecoration(color: AppColors.chatBgLight);
 
+    final double drawerValue = ref.watch(drawerProvider);
+
     return CustomDrawerLayout(
       drawer: const HistoryDrawerList(),
       child: Scaffold(
         backgroundColor: bgColor,
-        resizeToAvoidBottomInset: true,
+        resizeToAvoidBottomInset: drawerValue == 0,
         body: Container(
           decoration: bgDecoration,
           child: GestureDetector(

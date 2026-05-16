@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
@@ -11,10 +13,14 @@ class ProfileScreen extends ConsumerWidget {
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color iconColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     return Scaffold(
-      backgroundColor:
-          isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      backgroundColor: isDark
+          ? AppColors.backgroundDark
+          : AppColors.backgroundLight,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -53,8 +59,10 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 12),
                     const Text(
                       'User',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -70,35 +78,59 @@ class ProfileScreen extends ConsumerWidget {
                     _buildGroup(context, <Widget>[
                       _buildMenuItem(
                         context,
-                        Icons.palette_outlined,
+                        SvgPicture.asset(
+                          AppAssets.contrastSvg,
+                          width: 22,
+                          height: 22,
+                          colorFilter: ColorFilter.mode(
+                            iconColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         'Appearance',
                         onTap: () => _showAppearanceSheet(context),
                       ),
                       _buildDivider(isDark),
                       _buildMenuItem(
                         context,
-                        Icons.manage_accounts_outlined,
+                        SvgPicture.asset(
+                          AppAssets.accountSvg,
+                          width: 22,
+                          height: 22,
+                          colorFilter: ColorFilter.mode(
+                            iconColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         'Account',
                         onTap: () => AppLogger.info('Account tapped'),
                       ),
                       _buildDivider(isDark),
                       _buildMenuItem(
                         context,
-                        Icons.task_alt_outlined,
+                        SvgPicture.asset(
+                          AppAssets.taskSvg,
+                          width: 22,
+                          height: 22,
+                          colorFilter: ColorFilter.mode(
+                            iconColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         'Scheduled Tasks',
                         onTap: () => AppLogger.info('Scheduled Tasks tapped'),
                       ),
                       _buildDivider(isDark),
                       _buildMenuItem(
                         context,
-                        Icons.menu_book_outlined,
+                        const Icon(Icons.menu_book_outlined, size: 22),
                         'Knowledge',
                         onTap: () => AppLogger.info('Knowledge tapped'),
                       ),
                       _buildDivider(isDark),
                       _buildMenuItem(
                         context,
-                        Icons.workspace_premium_outlined,
+                        const Icon(Icons.workspace_premium_outlined, size: 22),
                         'Manus Pro',
                         onTap: () => AppLogger.info('Manus Pro tapped'),
                       ),
@@ -107,14 +139,30 @@ class ProfileScreen extends ConsumerWidget {
                     _buildGroup(context, <Widget>[
                       _buildMenuItem(
                         context,
-                        Icons.help_outline_rounded,
+                        SvgPicture.asset(
+                          AppAssets.helpSvg,
+                          width: 22,
+                          height: 22,
+                          colorFilter: ColorFilter.mode(
+                            iconColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         'Help and Support',
                         onTap: () => AppLogger.info('Help and Support tapped'),
                       ),
                       _buildDivider(isDark),
                       _buildMenuItem(
                         context,
-                        Icons.info_outline_rounded,
+                        SvgPicture.asset(
+                          AppAssets.infoSvg,
+                          width: 22,
+                          height: 22,
+                          colorFilter: ColorFilter.mode(
+                            iconColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                         'About',
                         onTap: () => AppLogger.info('About tapped'),
                       ),
@@ -178,7 +226,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildMenuItem(
     final BuildContext context,
-    final IconData icon,
+    final Widget leading,
     final String title, {
     required final VoidCallback onTap,
   }) {
@@ -189,14 +237,15 @@ class ProfileScreen extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
           children: <Widget>[
-            Icon(icon, size: 22),
+            SizedBox(width: 22, height: 22, child: Center(child: leading)),
             const SizedBox(width: 12),
             Expanded(child: Text(title, style: const TextStyle(fontSize: 15))),
             Icon(
               Icons.chevron_right,
               size: 18,
-              color:
-                  isDark ? AppColors.textMutedDark : AppColors.textMutedLight,
+              color: isDark
+                  ? AppColors.textMutedDark
+                  : AppColors.textMutedLight,
             ),
           ],
         ),

@@ -208,7 +208,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           ref.read<DrawerNotifier>(drawerProvider.notifier).close();
         }
       },
-      body: Container(
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
         decoration: bgDecoration,
         child: GestureDetector(
           onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

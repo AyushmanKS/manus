@@ -80,7 +80,9 @@ class _UserBubble extends ConsumerWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final Widget bubbleContent = Container(
+    final Widget bubbleContent = AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
       constraints: BoxConstraints(
         maxWidth: MediaQuery.sizeOf(context).width * 0.8,
       ),
@@ -98,10 +100,7 @@ class _UserBubble extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(
-            message.text,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+          Text(message.text, style: Theme.of(context).textTheme.bodyLarge),
           if (message.isEdited)
             Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -151,9 +150,7 @@ class _UserBubble extends ConsumerWidget {
             CupertinoContextMenuAction(
               onPressed: () {
                 Navigator.pop(context);
-                unawaited(
-                  Clipboard.setData(ClipboardData(text: message.text)),
-                );
+                unawaited(Clipboard.setData(ClipboardData(text: message.text)));
                 unawaited(HapticFeedback.lightImpact());
               },
               child: Row(
@@ -390,4 +387,3 @@ class _StreamingCaret extends StatelessWidget {
         .fadeIn(duration: 530.ms);
   }
 }
-

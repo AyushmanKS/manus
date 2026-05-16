@@ -47,7 +47,6 @@ class ManusApp extends ConsumerWidget {
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
-    final ThemeMode themeMode = ref.watch(themeProvider);
     final GoRouter router = ref.watch(routerProvider);
 
     return MaterialApp.router(
@@ -55,9 +54,9 @@ class ManusApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: themeMode,
+      themeMode: ref.watch(themeProvider),
       themeAnimationDuration: const Duration(milliseconds: 200),
-      themeAnimationCurve: Curves.easeInOutCubic,
+      themeAnimationCurve: Curves.easeInOut,
       routerConfig: router,
     );
   }

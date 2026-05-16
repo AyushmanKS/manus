@@ -131,7 +131,9 @@ class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
                   },
                   child: GestureDetector(
                     onTap: () => _onChipTap(index),
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,

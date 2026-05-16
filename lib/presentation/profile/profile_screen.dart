@@ -21,169 +21,176 @@ class ProfileScreen extends ConsumerWidget {
         : AppColors.textPrimaryLight;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            _buildHeader(context),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    const SizedBox(height: 32),
-                    Center(
-                      child: CircleAvatar(
-                        radius: 40,
-                        backgroundColor: Colors.transparent,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: <Color>[
-                                AppColors.primary,
-                                Theme.of(context).colorScheme.primary,
-                              ],
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+        child: SafeArea(
+          child: Column(
+            children: <Widget>[
+              _buildHeader(context),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      const SizedBox(height: 32),
+                      Center(
+                        child: CircleAvatar(
+                          radius: 40,
+                          backgroundColor: Colors.transparent,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: <Color>[
+                                  AppColors.primary,
+                                  Theme.of(context).colorScheme.primary,
+                                ],
+                              ),
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.person_rounded,
+                                size: 40,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.person_rounded,
-                              size: 40,
-                              color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'User',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'user@example.com',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      _buildGroup(context, <Widget>[
+                        _buildMenuItem(
+                          context,
+                          SvgPicture.asset(
+                            AppAssets.contrastSvg,
+                            width: 22,
+                            height: 22,
+                            colorFilter: ColorFilter.mode(
+                              iconColor,
+                              BlendMode.srcIn,
                             ),
                           ),
+                          'Appearance',
+                          onTap: () => _showAppearanceSheet(context),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'User',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'user@example.com',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark
-                            ? AppColors.textSecondaryDark
-                            : AppColors.textSecondaryLight,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    _buildGroup(context, <Widget>[
-                      _buildMenuItem(
-                        context,
-                        SvgPicture.asset(
-                          AppAssets.contrastSvg,
-                          width: 22,
-                          height: 22,
-                          colorFilter: ColorFilter.mode(
-                            iconColor,
-                            BlendMode.srcIn,
+                        _buildDivider(isDark),
+                        _buildMenuItem(
+                          context,
+                          SvgPicture.asset(
+                            AppAssets.accountSvg,
+                            width: 22,
+                            height: 22,
+                            colorFilter: ColorFilter.mode(
+                              iconColor,
+                              BlendMode.srcIn,
+                            ),
                           ),
+                          'Account',
+                          onTap: () => AppLogger.info('Account tapped'),
                         ),
-                        'Appearance',
-                        onTap: () => _showAppearanceSheet(context),
-                      ),
-                      _buildDivider(isDark),
-                      _buildMenuItem(
-                        context,
-                        SvgPicture.asset(
-                          AppAssets.accountSvg,
-                          width: 22,
-                          height: 22,
-                          colorFilter: ColorFilter.mode(
-                            iconColor,
-                            BlendMode.srcIn,
+                        _buildDivider(isDark),
+                        _buildMenuItem(
+                          context,
+                          SvgPicture.asset(
+                            AppAssets.taskSvg,
+                            width: 22,
+                            height: 22,
+                            colorFilter: ColorFilter.mode(
+                              iconColor,
+                              BlendMode.srcIn,
+                            ),
                           ),
+                          'Scheduled Tasks',
+                          onTap: () => AppLogger.info('Scheduled Tasks tapped'),
                         ),
-                        'Account',
-                        onTap: () => AppLogger.info('Account tapped'),
-                      ),
-                      _buildDivider(isDark),
-                      _buildMenuItem(
-                        context,
-                        SvgPicture.asset(
-                          AppAssets.taskSvg,
-                          width: 22,
-                          height: 22,
-                          colorFilter: ColorFilter.mode(
-                            iconColor,
-                            BlendMode.srcIn,
+                        _buildDivider(isDark),
+                        _buildMenuItem(
+                          context,
+                          const Icon(Icons.menu_book_outlined, size: 22),
+                          'Knowledge',
+                          onTap: () => AppLogger.info('Knowledge tapped'),
+                        ),
+                        _buildDivider(isDark),
+                        _buildMenuItem(
+                          context,
+                          const Icon(
+                            Icons.workspace_premium_outlined,
+                            size: 22,
                           ),
+                          'Manus Pro',
+                          onTap: () => AppLogger.info('Manus Pro tapped'),
                         ),
-                        'Scheduled Tasks',
-                        onTap: () => AppLogger.info('Scheduled Tasks tapped'),
-                      ),
-                      _buildDivider(isDark),
-                      _buildMenuItem(
-                        context,
-                        const Icon(Icons.menu_book_outlined, size: 22),
-                        'Knowledge',
-                        onTap: () => AppLogger.info('Knowledge tapped'),
-                      ),
-                      _buildDivider(isDark),
-                      _buildMenuItem(
-                        context,
-                        const Icon(Icons.workspace_premium_outlined, size: 22),
-                        'Manus Pro',
-                        onTap: () => AppLogger.info('Manus Pro tapped'),
-                      ),
-                    ]),
-                    const SizedBox(height: 24),
-                    _buildGroup(context, <Widget>[
-                      _buildMenuItem(
-                        context,
-                        SvgPicture.asset(
-                          AppAssets.helpSvg,
-                          width: 22,
-                          height: 22,
-                          colorFilter: ColorFilter.mode(
-                            iconColor,
-                            BlendMode.srcIn,
+                      ]),
+                      const SizedBox(height: 24),
+                      _buildGroup(context, <Widget>[
+                        _buildMenuItem(
+                          context,
+                          SvgPicture.asset(
+                            AppAssets.helpSvg,
+                            width: 22,
+                            height: 22,
+                            colorFilter: ColorFilter.mode(
+                              iconColor,
+                              BlendMode.srcIn,
+                            ),
                           ),
+                          'Help and Support',
+                          onTap: () =>
+                              AppLogger.info('Help and Support tapped'),
                         ),
-                        'Help and Support',
-                        onTap: () => AppLogger.info('Help and Support tapped'),
-                      ),
-                      _buildDivider(isDark),
-                      _buildMenuItem(
-                        context,
-                        SvgPicture.asset(
-                          AppAssets.infoSvg,
-                          width: 22,
-                          height: 22,
-                          colorFilter: ColorFilter.mode(
-                            iconColor,
-                            BlendMode.srcIn,
+                        _buildDivider(isDark),
+                        _buildMenuItem(
+                          context,
+                          SvgPicture.asset(
+                            AppAssets.infoSvg,
+                            width: 22,
+                            height: 22,
+                            colorFilter: ColorFilter.mode(
+                              iconColor,
+                              BlendMode.srcIn,
+                            ),
                           ),
+                          'About',
+                          onTap: () => AppLogger.info('About tapped'),
                         ),
-                        'About',
-                        onTap: () => AppLogger.info('About tapped'),
+                      ]),
+                      const SizedBox(height: 24),
+                      TextButton(
+                        onPressed: () =>
+                            ref.read(authProvider.notifier).logout(),
+                        child: const Text(
+                          'Sign Out',
+                          style: TextStyle(color: Colors.red, fontSize: 16),
+                        ),
                       ),
-                    ]),
-                    const SizedBox(height: 24),
-                    TextButton(
-                      onPressed: () => ref.read(authProvider.notifier).logout(),
-                      child: const Text(
-                        'Sign Out',
-                        style: TextStyle(color: Colors.red, fontSize: 16),
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -214,7 +221,9 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildGroup(final BuildContext context, final List<Widget> children) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
@@ -372,7 +381,9 @@ class _AppearanceCard extends StatelessWidget {
   Widget build(final BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
         width: width,
         height: 88,
         decoration: BoxDecoration(

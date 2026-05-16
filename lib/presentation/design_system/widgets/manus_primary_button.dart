@@ -57,7 +57,9 @@ class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
           duration: const Duration(milliseconds: 100),
           curve: Curves.easeInOutCubic,
           opacity: _isPressed ? 0.7 : 1.0,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
             width: double.infinity,
             height: 48,
             decoration: BoxDecoration(

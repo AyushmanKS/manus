@@ -446,7 +446,9 @@ class _SkeletonRow extends StatelessWidget {
       children: List<Widget>.generate(4, (final int i) {
         return Expanded(
           child:
-              Container(
+              AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
                     height: isHeader ? 20.0 : 16.0,
                     margin: const EdgeInsets.symmetric(horizontal: 4.0),
                     decoration: BoxDecoration(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -23,10 +25,11 @@ class ProfileHeader extends StatelessWidget {
             child: IconButton(
               onPressed: () => context.pop(),
               padding: EdgeInsets.zero,
-              icon: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 20,
-                color: iconColor,
+              icon: SvgPicture.asset(
+                AppAssets.arrowBackSvg,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
               ),
             ),
           ),

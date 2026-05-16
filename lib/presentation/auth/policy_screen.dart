@@ -85,8 +85,8 @@ class _PolicyScreenState extends State<PolicyScreen> {
             constraints: const BoxConstraints(),
             icon: SvgPicture.asset(
               AppAssets.arrowBackSvg,
-              width: 20,
-              height: 20,
+              width: 18,
+              height: 18,
               colorFilter: ColorFilter.mode(
                 Theme.of(context).iconTheme.color ?? Colors.black,
                 BlendMode.srcIn,

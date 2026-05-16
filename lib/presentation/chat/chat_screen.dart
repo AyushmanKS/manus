@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manus/core/router/app_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/data/models/chat_message.dart';
@@ -360,7 +361,7 @@ class _ChatHeader extends ConsumerWidget {
           ),
           const Spacer(),
           IconButton(
-            onPressed: () => context.push('/profile'),
+            onPressed: () => context.push(AppRouter.profile),
             icon: SvgPicture.asset(
               AppAssets.profileSvg,
               width: 24,

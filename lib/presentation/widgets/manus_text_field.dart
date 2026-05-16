@@ -5,46 +5,46 @@ class ManusTextField extends StatelessWidget {
     super.key,
     this.controller,
     this.focusNode,
-    this.minLines,
-    this.maxLines,
+    this.decoration,
+    this.style,
+    this.onChanged,
+    this.onSubmitted,
     this.keyboardType,
     this.textCapitalization = TextCapitalization.none,
-    this.style,
-    this.decoration,
-    this.onChanged,
     this.textAlignVertical,
+    this.minLines,
+    this.maxLines = 1,
     this.autofocus = false,
-    this.onSubmitted,
   });
 
   final TextEditingController? controller;
   final FocusNode? focusNode;
-  final int? minLines;
-  final int? maxLines;
+  final InputDecoration? decoration;
+  final TextStyle? style;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final TextInputType? keyboardType;
   final TextCapitalization textCapitalization;
-  final TextStyle? style;
-  final InputDecoration? decoration;
-  final ValueChanged<String>? onChanged;
   final TextAlignVertical? textAlignVertical;
+  final int? minLines;
+  final int? maxLines;
   final bool autofocus;
-  final ValueChanged<String>? onSubmitted;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(final BuildContext context) {
     return TextField(
       controller: controller,
       focusNode: focusNode,
-      minLines: minLines,
-      maxLines: maxLines,
+      decoration: decoration,
+      style: style,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
       keyboardType: keyboardType,
       textCapitalization: textCapitalization,
-      style: style,
-      decoration: decoration,
-      onChanged: onChanged,
       textAlignVertical: textAlignVertical,
+      minLines: minLines,
+      maxLines: maxLines,
       autofocus: autofocus,
-      onSubmitted: onSubmitted,
     );
   }
 }

@@ -12,7 +12,6 @@ import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/drawer_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
-import 'package:manus/core/utils/dialog_utils.dart';
 import 'package:manus/presentation/widgets/manus_text_field.dart';
 
 class HistoryDrawerList extends ConsumerStatefulWidget {
@@ -341,13 +340,24 @@ class _HistoryItemWrapper extends ConsumerWidget {
     final BuildContext context,
     final WidgetRef ref,
   ) async {
-    final bool? confirmed = await showManusConfirmDialog(
-      context,
-      title: 'Delete Conversation',
-      content: 'This action cannot be undone. Are you sure?',
-      cancelLabel: 'Cancel',
-      confirmLabel: 'Delete',
-      onConfirm: () {},
+    final bool? confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (final BuildContext context) => CupertinoAlertDialog(
+        title: const Text('Delete Conversation'),
+        content: const Text('This action cannot be undone. Are you sure?'),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -366,7 +376,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
       actions: <Widget>[
         CupertinoContextMenuAction(
           onPressed: () {
-            context.pop();
+            Navigator.pop(context);
             ref.read(renamingChatIdProvider.notifier).set(conversation.id);
           },
           child: Row(
@@ -387,7 +397,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
         ),
         CupertinoContextMenuAction(
           onPressed: () {
-            context.pop();
+            Navigator.pop(context);
             ref
                 .read(historyProvider.notifier)
                 .pinConversation(
@@ -413,7 +423,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
         ),
         CupertinoContextMenuAction(
           onPressed: () {
-            context.pop();
+            Navigator.pop(context);
             if (conversation.isArchived) {
               ref.read(historyProvider.notifier).unarchiveChat(conversation.id);
             } else {
@@ -439,7 +449,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
         CupertinoContextMenuAction(
           isDestructiveAction: true,
           onPressed: () {
-            context.pop();
+            Navigator.pop(context);
             unawaited(_confirmDelete(context, ref));
           },
           child: Row(

@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/core/utils/markdown_segmenter.dart';
@@ -67,128 +70,110 @@ class _MessageBubbleState extends ConsumerState<MessageBubble> {
   }
 }
 
-class _UserBubble extends ConsumerStatefulWidget {
+class _UserBubble extends ConsumerWidget {
   const _UserBubble({required this.message});
 
   final ChatMessage message;
 
   @override
-  ConsumerState<_UserBubble> createState() => _UserBubbleState();
-}
-
-class _UserBubbleState extends ConsumerState<_UserBubble> {
-  final GlobalKey<SelectableRegionState> _selectionKey =
-      GlobalKey<SelectableRegionState>();
-
-  void _shareMessage(final BuildContext context) {
-    unawaited(Share.share(widget.message.text));
-  }
-
-  Widget _buildContextMenu(
-    final BuildContext context,
-    final SelectableRegionState selectableRegionState,
-  ) {
-    return AdaptiveTextSelectionToolbar.buttonItems(
-      anchors: selectableRegionState.contextMenuAnchors,
-      buttonItems: <ContextMenuButtonItem>[
-        ContextMenuButtonItem(
-          label: 'Share',
-          onPressed: () {
-            selectableRegionState.hideToolbar();
-            _shareMessage(context);
-          },
-        ),
-        ContextMenuButtonItem(
-          label: 'Copy',
-          onPressed: () {
-            Actions.invoke(context, CopySelectionTextIntent.copy);
-            unawaited(HapticFeedback.lightImpact());
-          },
-        ),
-        ContextMenuButtonItem(
-          label: 'Select text',
-          onPressed: () {
-            selectableRegionState.selectAll(SelectionChangedCause.toolbar);
-          },
-        ),
-        ContextMenuButtonItem(
-          label: 'Report',
-          onPressed: () {
-            AppLogger.info('Report message: ${widget.message.id}');
-            selectableRegionState.hideToolbar();
-          },
-        ),
-      ],
-    );
-  }
-
-  @override
-  Widget build(final BuildContext context) {
+  Widget build(final BuildContext context, final WidgetRef ref) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final Widget bubbleContentColumn = Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(widget.message.text, style: Theme.of(context).textTheme.bodyLarge),
-        if (widget.message.isEdited)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              'edited',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
-                fontSize: 10,
+    final Widget bubbleContent = Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.sizeOf(context).width * 0.8,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
+          bottomLeft: Radius.circular(20.0),
+          bottomRight: Radius.circular(4.0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            message.text,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          if (message.isEdited)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                'edited',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
+                  fontSize: 10,
+                ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
 
     return Align(
       alignment: Alignment.centerRight,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.8,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
-        decoration: BoxDecoration(
-          color: colorScheme.secondaryContainer,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20.0),
-            topRight: Radius.circular(20.0),
-            bottomLeft: Radius.circular(20.0),
-            bottomRight: Radius.circular(4.0),
-          ),
-        ),
-        child: SelectionArea(
-          key: _selectionKey,
-          selectionControls: EmptyTextSelectionControls(),
-          contextMenuBuilder:
-              (
-                final BuildContext context,
-                final SelectableRegionState selectableRegionState,
-              ) => _buildContextMenu(context, selectableRegionState),
-          child: Material(
-            color: Colors.transparent,
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onLongPress: () {
-                unawaited(HapticFeedback.mediumImpact());
-                WidgetsBinding.instance.addPostFrameCallback((final _) {
-                  if (!mounted) return;
-                  _selectionKey.currentState?.selectAll(
-                    SelectionChangedCause.toolbar,
-                  );
-                });
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: CupertinoContextMenu(
+          actions: <Widget>[
+            CupertinoContextMenuAction(
+              onPressed: () {
+                Navigator.pop(context);
+                ref
+                    .read(editingMessageProvider.notifier)
+                    .startEditing(message.id, message.text);
               },
-              child: bubbleContentColumn,
+              child: Row(
+                children: <Widget>[
+                  SvgPicture.asset(
+                    AppAssets.pencilSvg,
+                    width: 18,
+                    height: 18,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurface,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text('Edit'),
+                ],
+              ),
             ),
-          ),
+            CupertinoContextMenuAction(
+              onPressed: () {
+                Navigator.pop(context);
+                unawaited(
+                  Clipboard.setData(ClipboardData(text: message.text)),
+                );
+                unawaited(HapticFeedback.lightImpact());
+              },
+              child: Row(
+                children: <Widget>[
+                  SvgPicture.asset(
+                    AppAssets.copySvg,
+                    width: 18,
+                    height: 18,
+                    colorFilter: ColorFilter.mode(
+                      Theme.of(context).colorScheme.onSurface,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text('Copy'),
+                ],
+              ),
+            ),
+          ],
+          child: bubbleContent,
         ),
       ),
     );
@@ -405,3 +390,4 @@ class _StreamingCaret extends StatelessWidget {
         .fadeIn(duration: 530.ms);
   }
 }
+

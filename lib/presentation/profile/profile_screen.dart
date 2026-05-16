@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
-import 'package:go_router/go_router.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -344,11 +346,10 @@ class _AppearanceSheetState extends ConsumerState<_AppearanceSheet> {
 
   void _updateTheme(final ThemeMode mode) {
     ref.read(themeProvider.notifier).setThemeMode(mode);
-    Future<void>.delayed(const Duration(milliseconds: 200), () {
-      if (mounted) {
-        context.pop();
-      }
-    });
+    unawaited(HapticFeedback.lightImpact());
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
   }
 }
 

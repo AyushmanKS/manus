@@ -98,6 +98,7 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Align(
       alignment: Alignment.centerRight,
@@ -110,12 +111,17 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
               maxWidth: MediaQuery.sizeOf(context).width * 0.8,
             ),
             padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 10.0,
+              horizontal: 14.0,
+              vertical: 8.0,
             ),
             decoration: BoxDecoration(
-              color: isDark ? AppColors.socialButtonBgDark : AppColors.greyF2,
-              borderRadius: BorderRadius.circular(20.0),
+              color: colorScheme.secondaryContainer,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+                bottomLeft: Radius.circular(20.0),
+                bottomRight: Radius.circular(4.0),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,

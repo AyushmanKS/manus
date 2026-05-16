@@ -540,30 +540,36 @@ class _AttachmentTray extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: _TrayItem(
-            iconAsset: AppAssets.cameraSvg,
-            label: 'Camera',
-            iconColor: iconColor,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Expanded(
+            child: _TrayItem(
+              iconAsset: AppAssets.cameraSvg,
+              label: 'Camera',
+              iconColor: iconColor,
+            ),
           ),
-        ),
-        Expanded(
-          child: _TrayItem(
-            iconAsset: AppAssets.pictureSvg,
-            label: 'Picture',
-            iconColor: iconColor,
+          const SizedBox(width: 12.0),
+          Expanded(
+            child: _TrayItem(
+              iconAsset: AppAssets.pictureSvg,
+              label: 'Picture',
+              iconColor: iconColor,
+            ),
           ),
-        ),
-        Expanded(
-          child: _TrayItem(
-            iconAsset: AppAssets.attachSvg,
-            label: 'File',
-            iconColor: iconColor,
+          const SizedBox(width: 12.0),
+          Expanded(
+            child: _TrayItem(
+              iconAsset: AppAssets.attachSvg,
+              label: 'File',
+              iconColor: iconColor,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

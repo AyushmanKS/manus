@@ -138,7 +138,7 @@ class _ManusAnimatedBackgroundState extends State<ManusAnimatedBackground>
           bgColor: colorScheme.surface,
           idleDotColor: colorScheme.outlineVariant,
           activeBigCircle: colorScheme.primaryContainer,
-          activeSmallCircle: colorScheme.secondaryContainer,
+          activeSmallCircle: colorScheme.secondary,
           activeHollowCircle: colorScheme.tertiaryContainer,
           activeTriangle: colorScheme.errorContainer,
         ),

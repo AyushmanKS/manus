@@ -11,7 +11,7 @@ class ManusLoader extends StatelessWidget {
       width: 100.0,
       height: 100.0,
       decoration: BoxDecoration(
-        color: AppColors.loaderBackground,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24.0),
       ),
       child: const Center(

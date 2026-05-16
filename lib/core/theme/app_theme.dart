@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import 'package:manus/core/theme/app_colors.dart';
 
 class AppTheme {
   AppTheme._();
@@ -46,6 +46,9 @@ class AppTheme {
             ? AppColors.activeBigCircleDark
             : AppColors.activeBigCircleLight,
         secondaryContainer: isDark
+            ? AppColors.msgBubbleBgDark
+            : AppColors.msgBubbleBgLight,
+        secondary: isDark
             ? AppColors.activeSmallCircleDark
             : AppColors.activeSmallCircleLight,
         tertiaryContainer: isDark
@@ -54,6 +57,9 @@ class AppTheme {
         errorContainer: isDark
             ? AppColors.activeTriangleDark
             : AppColors.activeTriangleLight,
+        surfaceContainerHigh: isDark
+            ? AppColors.loaderBgDark
+            : AppColors.loaderBgLight,
       ),
       textTheme: baseTextTheme.copyWith(
         displaySmall: baseTextTheme.displaySmall?.copyWith(

@@ -270,7 +270,7 @@ class _ChatHeader extends ConsumerWidget {
         : AppColors.textSecondaryLight;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Row(
         children: <Widget>[
           IconButton(
@@ -281,10 +281,9 @@ class _ChatHeader extends ConsumerWidget {
               height: 22,
               colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
             ),
-            constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+            constraints: const BoxConstraints.tightFor(width: 36, height: 44),
             padding: EdgeInsets.zero,
           ),
-          const SizedBox(width: 8),
           PopupMenuButton<String>(
             offset: const Offset(0, 40),
             onSelected: (final String model) {
@@ -337,7 +336,7 @@ class _ChatHeader extends ConsumerWidget {
               }).toList();
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -368,7 +367,7 @@ class _ChatHeader extends ConsumerWidget {
               height: 24,
               colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
             ),
-            constraints: const BoxConstraints.tightFor(width: 44, height: 44),
+            constraints: const BoxConstraints.tightFor(width: 36, height: 44),
             padding: EdgeInsets.zero,
           ),
         ],

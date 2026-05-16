@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
+import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -169,7 +169,7 @@ class ProfileScreen extends ConsumerWidget {
                     ]),
                     const SizedBox(height: 24),
                     TextButton(
-                      onPressed: () => context.go('/auth'),
+                      onPressed: () => ref.read(authProvider.notifier).logout(),
                       child: const Text(
                         'Sign Out',
                         style: TextStyle(color: Colors.red, fontSize: 16),
@@ -196,7 +196,7 @@ class ProfileScreen extends ConsumerWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: IconButton(
-              onPressed: () => context.pop(),
+              onPressed: () => Navigator.of(context).pop(),
               icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
             ),
           ),

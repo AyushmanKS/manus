@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:manus/core/router/app_router.dart';
 import 'package:manus/core/theme/app_theme.dart';
@@ -34,6 +35,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox<String>('chat_history');
   await Hive.openBox<String>('conversations');
+  await Hive.openBox<bool>('auth');
 
   AppLogger.info('Application Started');
 
@@ -46,6 +48,7 @@ class ManusApp extends ConsumerWidget {
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final ThemeMode themeMode = ref.watch(themeProvider);
+    final GoRouter router = ref.watch(routerProvider);
 
     return MaterialApp.router(
       title: 'Manus',
@@ -55,7 +58,7 @@ class ManusApp extends ConsumerWidget {
       themeMode: themeMode,
       themeAnimationDuration: const Duration(milliseconds: 200),
       themeAnimationCurve: Curves.easeInOutCubic,
-      routerConfig: AppRouter.router,
+      routerConfig: router,
     );
   }
 }

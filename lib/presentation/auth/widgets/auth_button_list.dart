@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
+import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/design_system/widgets/manus_primary_button.dart';
 import 'package:manus/presentation/design_system/widgets/manus_loader.dart';
 
@@ -32,7 +33,12 @@ class _AuthButtonListState extends ConsumerState<AuthButtonList> {
 
     setState(() => _isLoading = false);
     Navigator.of(context).pop();
-    context.go('/chat');
+
+    await ref.read(authProvider.notifier).login();
+
+    if (context.mounted) {
+      context.go('/chat');
+    }
   }
 
   @override

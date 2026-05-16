@@ -1,69 +1,26 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-class AuthNotifier extends Notifier<AsyncValue<void>> {
+class AuthNotifier extends Notifier<bool> {
+  late final Box<bool> _authBox;
+
   @override
-  AsyncValue<void> build() {
-    return const AsyncValue<void>.data(null);
+  bool build() {
+    _authBox = Hive.box<bool>('auth');
+    return _authBox.get('isLoggedIn', defaultValue: false) ?? false;
   }
 
-  Future<void> signInWithFacebook() async {
-    state = const AsyncValue<void>.loading();
-    try {
-      await Future<void>.delayed(const Duration(seconds: 2));
-      state = const AsyncValue<void>.data(null);
-    } catch (e, st) {
-      state = AsyncValue<void>.error(e, st);
-    }
+  Future<void> login() async {
+    await _authBox.put('isLoggedIn', true);
+    state = true;
   }
 
-  Future<void> signInWithGoogle() async {
-    state = const AsyncValue<void>.loading();
-    try {
-      await Future<void>.delayed(const Duration(seconds: 2));
-      state = const AsyncValue<void>.data(null);
-    } catch (e, st) {
-      state = AsyncValue<void>.error(e, st);
-    }
-  }
-
-  Future<void> signInWithMicrosoft() async {
-    state = const AsyncValue<void>.loading();
-    try {
-      await Future<void>.delayed(const Duration(seconds: 2));
-      state = const AsyncValue<void>.data(null);
-    } catch (e, st) {
-      state = AsyncValue<void>.error(e, st);
-    }
-  }
-
-  Future<void> signInWithApple() async {
-    state = const AsyncValue<void>.loading();
-    try {
-      await Future<void>.delayed(const Duration(seconds: 2));
-      state = const AsyncValue<void>.data(null);
-    } catch (e, st) {
-      state = AsyncValue<void>.error(e, st);
-    }
-  }
-
-  Future<void> signInWithEmail() async {
-    state = const AsyncValue<void>.loading();
-    await Future<void>.delayed(const Duration(seconds: 1));
-    state = const AsyncValue<void>.data(null);
-  }
-
-  Future<void> loginWithEmail(final String email, final String password) async {
-    state = const AsyncValue<void>.loading();
-    await Future<void>.delayed(const Duration(seconds: 1));
-
-    if (email == 'error@manus.ai') {
-      state = AsyncValue<void>.error('Invalid credentials', StackTrace.current);
-    } else {
-      state = const AsyncValue<void>.data(null);
-    }
+  Future<void> logout() async {
+    await _authBox.put('isLoggedIn', false);
+    state = false;
   }
 
   void navigateToPolicy(
@@ -78,5 +35,5 @@ class AuthNotifier extends Notifier<AsyncValue<void>> {
   }
 }
 
-final NotifierProvider<AuthNotifier, AsyncValue<void>> authProvider =
-    NotifierProvider<AuthNotifier, AsyncValue<void>>(AuthNotifier.new);
+final NotifierProvider<AuthNotifier, bool> authProvider =
+    NotifierProvider<AuthNotifier, bool>(AuthNotifier.new);

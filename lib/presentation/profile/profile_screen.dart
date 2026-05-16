@@ -73,9 +73,7 @@ class ProfileScreen extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.iconDark
-                              : AppColors.textPrimaryLight,
+                          color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -261,6 +259,10 @@ class ProfileScreen extends ConsumerWidget {
     required final VoidCallback onTap,
   }) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color mutedColor = isDark
+        ? AppColors.textMutedDark
+        : AppColors.textMutedLight;
+
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -270,12 +272,11 @@ class ProfileScreen extends ConsumerWidget {
             SizedBox(width: 22, height: 22, child: Center(child: leading)),
             const SizedBox(width: 12),
             Expanded(child: Text(title, style: const TextStyle(fontSize: 15))),
-            Icon(
-              Icons.chevron_right,
-              size: 18,
-              color: isDark
-                  ? AppColors.textMutedDark
-                  : AppColors.textMutedLight,
+            SvgPicture.asset(
+              AppAssets.rightArrowSvg,
+              width: 14,
+              height: 14,
+              colorFilter: ColorFilter.mode(mutedColor, BlendMode.srcIn),
             ),
           ],
         ),
@@ -303,6 +304,9 @@ class _AppearanceMenu extends ConsumerWidget {
   Widget build(final BuildContext context, final WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final ThemeMode currentMode = ref.watch(themeProvider);
+    final Color mutedColor = isDark
+        ? AppColors.textMutedDark
+        : AppColors.textMutedLight;
 
     return PopupMenuButton<ThemeMode>(
       offset: const Offset(1000, 48),
@@ -320,31 +324,32 @@ class _AppearanceMenu extends ConsumerWidget {
         ref.read(themeProvider.notifier).setThemeMode(mode);
         unawaited(HapticFeedback.mediumImpact());
       },
-      itemBuilder: (final BuildContext context) => <PopupMenuEntry<ThemeMode>>[
-        _buildPopupItem(
-          context,
-          ThemeMode.system,
-          'Follow system',
-          AppAssets.contrastSvg,
-          currentMode == ThemeMode.system,
-        ),
-        _buildDivider(isDark),
-        _buildPopupItem(
-          context,
-          ThemeMode.light,
-          'Light mode',
-          AppAssets.lightModeSvg,
-          currentMode == ThemeMode.light,
-        ),
-        _buildDivider(isDark),
-        _buildPopupItem(
-          context,
-          ThemeMode.dark,
-          'Dark mode',
-          AppAssets.darkModeSvg,
-          currentMode == ThemeMode.dark,
-        ),
-      ],
+      itemBuilder:
+          (final BuildContext context) => <PopupMenuEntry<ThemeMode>>[
+            _buildPopupItem(
+              context,
+              ThemeMode.system,
+              'Follow system',
+              AppAssets.contrastSvg,
+              currentMode == ThemeMode.system,
+            ),
+            _buildDivider(isDark),
+            _buildPopupItem(
+              context,
+              ThemeMode.light,
+              'Light mode',
+              AppAssets.lightModeSvg,
+              currentMode == ThemeMode.light,
+            ),
+            _buildDivider(isDark),
+            _buildPopupItem(
+              context,
+              ThemeMode.dark,
+              'Dark mode',
+              AppAssets.darkModeSvg,
+              currentMode == ThemeMode.dark,
+            ),
+          ],
       child: InkWell(
         onTap: null, // Let PopupMenuButton handle tap
         child: Padding(
@@ -367,12 +372,11 @@ class _AppearanceMenu extends ConsumerWidget {
               Expanded(
                 child: Text(themeInfo.$1, style: const TextStyle(fontSize: 15)),
               ),
-              Icon(
-                Icons.chevron_right,
-                size: 18,
-                color: isDark
-                    ? AppColors.textMutedDark
-                    : AppColors.textMutedLight,
+              SvgPicture.asset(
+                AppAssets.rightArrowSvg,
+                width: 14,
+                height: 14,
+                colorFilter: ColorFilter.mode(mutedColor, BlendMode.srcIn),
               ),
             ],
           ),
@@ -393,9 +397,7 @@ class _AppearanceMenu extends ConsumerWidget {
     final bool isSelected,
   ) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color itemIconColor = isDark
-        ? AppColors.iconDark
-        : Theme.of(context).colorScheme.onSurface;
+    final Color itemIconColor = isDark ? AppColors.iconDark : Theme.of(context).colorScheme.onSurface;
 
     return PopupMenuItem<ThemeMode>(
       value: mode,
@@ -405,26 +407,29 @@ class _AppearanceMenu extends ConsumerWidget {
         children: <Widget>[
           SizedBox(
             width: 20,
-            child: isSelected
-                ? SvgPicture.asset(
-                    AppAssets.checkSvg,
-                    width: 14,
-                    height: 14,
-                    colorFilter: ColorFilter.mode(
-                      isDark
-                          ? AppColors.iconDark
-                          : Theme.of(context).colorScheme.primary,
-                      BlendMode.srcIn,
-                    ),
-                  )
-                : null,
+            child:
+                isSelected
+                    ? SvgPicture.asset(
+                      AppAssets.checkSvg,
+                      width: 14,
+                      height: 14,
+                      colorFilter: ColorFilter.mode(
+                        isDark
+                            ? AppColors.iconDark
+                            : Theme.of(context).colorScheme.onSurface,
+                        BlendMode.srcIn,
+                      ),
+                    )
+                    : null,
           ),
           const SizedBox(width: 8),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+            ),
           ),
-          const SizedBox(width: 32),
+          const SizedBox(width: 16),
           SvgPicture.asset(
             iconPath,
             width: 18,

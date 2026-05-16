@@ -262,7 +262,10 @@ class _HistoryItemWrapper extends ConsumerWidget {
     return CupertinoContextMenu(
       actions: <Widget>[
         CupertinoContextMenuAction(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context);
+            ref.read(renamingChatIdProvider.notifier).set(conversation.id);
+          },
           child: Row(
             children: <Widget>[
               SvgPicture.asset(
@@ -300,7 +303,10 @@ class _HistoryItemWrapper extends ConsumerWidget {
           ),
         ),
         CupertinoContextMenuAction(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context);
+            ref.read(historyProvider.notifier).archiveChat(conversation.id);
+          },
           child: Row(
             children: <Widget>[
               SvgPicture.asset(
@@ -412,7 +418,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _ConversationTile extends StatelessWidget {
+class _ConversationTile extends ConsumerStatefulWidget {
   const _ConversationTile({
     required this.conversation,
     required this.onTap,
@@ -424,37 +430,80 @@ class _ConversationTile extends StatelessWidget {
   final bool isActive;
 
   @override
+  ConsumerState<_ConversationTile> createState() => _ConversationTileState();
+}
+
+class _ConversationTileState extends ConsumerState<_ConversationTile> {
+  late final TextEditingController _renameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _renameController = TextEditingController(text: widget.conversation.title);
+  }
+
+  @override
+  void dispose() {
+    _renameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(final BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final String? renamingId = ref.watch(renamingChatIdProvider);
+    final bool isCurrentlyRenaming = renamingId == widget.conversation.id;
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive
+        color: widget.isActive
             ? colorScheme.primary.withValues(alpha: 0.08)
             : colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        onTap: onTap,
+        onTap: isCurrentlyRenaming ? null : widget.onTap,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Text(
-          conversation.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                color: isActive ? colorScheme.primary : colorScheme.onSurface,
+        title: isCurrentlyRenaming
+            ? TextField(
+                controller: _renameController,
+                autofocus: true,
+                style: Theme.of(context).textTheme.bodyLarge,
+                decoration: const InputDecoration(
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                  border: InputBorder.none,
+                ),
+                onSubmitted: (final String newName) async {
+                  if (newName.isNotEmpty &&
+                      newName != widget.conversation.title) {
+                    await ref
+                        .read(historyProvider.notifier)
+                        .renameChat(widget.conversation.id, newName);
+                  }
+                  ref.read(renamingChatIdProvider.notifier).set(null);
+                },
+              )
+            : Text(
+                widget.conversation.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight:
+                          widget.isActive ? FontWeight.w600 : FontWeight.normal,
+                      color:
+                          widget.isActive ? colorScheme.primary : colorScheme.onSurface,
+                    ),
               ),
-        ),
         subtitle: Text(
-          conversation.lastMessage,
+          widget.conversation.lastMessage,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
         ),
-        trailing: conversation.isPinned
+        trailing: widget.conversation.isPinned
             ? SvgPicture.asset(
                 AppAssets.pinSvg,
                 width: 14,

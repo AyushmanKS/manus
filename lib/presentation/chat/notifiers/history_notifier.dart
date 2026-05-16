@@ -14,6 +14,16 @@ class HistorySearchNotifier extends Notifier<String> {
 final NotifierProvider<HistorySearchNotifier, String> historySearchProvider =
     NotifierProvider<HistorySearchNotifier, String>(HistorySearchNotifier.new);
 
+class RenamingChatIdNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(final String? id) => state = id;
+}
+
+final NotifierProvider<RenamingChatIdNotifier, String?> renamingChatIdProvider =
+    NotifierProvider<RenamingChatIdNotifier, String?>(RenamingChatIdNotifier.new);
+
 class HistoryNotifier extends AsyncNotifier<List<Conversation>> {
   @override
   FutureOr<List<Conversation>> build() async {
@@ -34,8 +44,13 @@ class HistoryNotifier extends AsyncNotifier<List<Conversation>> {
     await refresh();
   }
 
-  Future<void> renameConversation(final String id, final String newTitle) async {
-    await ref.read(historyStorageProvider).renameConversation(id, newTitle);
+  Future<void> renameChat(final String chatId, final String newName) async {
+    await ref.read(historyStorageProvider).renameConversation(chatId, newName);
+    await refresh();
+  }
+
+  Future<void> archiveChat(final String chatId) async {
+    await ref.read(historyStorageProvider).archiveConversation(chatId, archived: true);
     await refresh();
   }
 
@@ -55,7 +70,8 @@ final AsyncNotifierProvider<HistoryNotifier, List<Conversation>> historyProvider
 
 final Provider<Map<String, List<Conversation>>> groupedHistoryProvider =
     Provider<Map<String, List<Conversation>>>((final Ref ref) {
-  final List<Conversation> list = ref.watch(historyProvider).value ?? <Conversation>[];
+  final List<Conversation> list =
+      ref.watch(historyProvider).value ?? <Conversation>[];
   final String query = ref.watch(historySearchProvider).toLowerCase();
 
   final Map<String, List<Conversation>> groups = <String, List<Conversation>>{};

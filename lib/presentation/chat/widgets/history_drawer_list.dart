@@ -14,17 +14,13 @@ import 'package:manus/presentation/chat/widgets/drawer/history_empty_state.dart'
 import 'package:manus/presentation/chat/widgets/drawer/history_item_wrapper.dart';
 import 'package:manus/presentation/chat/widgets/drawer/history_search_bar.dart';
 import 'package:manus/presentation/chat/widgets/drawer/history_section_header.dart';
-
 class HistoryDrawerList extends ConsumerStatefulWidget {
   const HistoryDrawerList({super.key});
-
   @override
   ConsumerState<HistoryDrawerList> createState() => _HistoryDrawerListState();
 }
-
 class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
   late final TextEditingController _searchController;
-
   @override
   void initState() {
     super.initState();
@@ -32,13 +28,11 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
       text: ref.read(historySearchProvider),
     );
   }
-
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(final BuildContext context) {
     final AsyncValue<HistoryState> historyState = ref.watch(historyProvider);
@@ -50,9 +44,7 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
     final Color iconColor = isDark
         ? AppColors.iconDark
         : Theme.of(context).colorScheme.onSurface;
-
     final bool isChatEmpty = messages.isEmpty;
-
     return Material(
       color: Colors.transparent,
       child: AnimatedContainer(
@@ -120,7 +112,6 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                     final bool isArchivedVisible = ref.watch(
                       isArchivedViewVisibleProvider,
                     );
-
                     if (activeGroups.isEmpty && archivedGroups.isEmpty) {
                       return HistoryEmptyState(
                         isSearching: ref
@@ -128,7 +119,6 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                             .isNotEmpty,
                       );
                     }
-
                     return RefreshIndicator(
                       color: Theme.of(context).disabledColor,
                       strokeWidth: 1.5,
@@ -178,7 +168,6 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
       ),
     );
   }
-
   List<Widget> _buildGroupedList(
     final Map<String, List<Conversation>> groups,
     final String activeConversationId,
@@ -188,7 +177,6 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
     final Color dividerColor = isDark
         ? AppColors.dividerDark
         : AppColors.dividerLight;
-
     for (final MapEntry<String, List<Conversation>> entry in groups.entries) {
       children.add(HistorySectionHeader(title: entry.key));
       final List<Conversation> groupConversations = entry.value;

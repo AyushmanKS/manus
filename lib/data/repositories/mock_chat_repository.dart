@@ -250,7 +250,7 @@ class MockChatRepository implements ChatRepository {
     final Random rng = Random();
 
     while (i < graphemes.length) {
-      final int size = 1 + rng.nextInt(6); // Slightly larger chunks for volume
+      final int size = 1 + rng.nextInt(6);
       final int end = min(i + size, graphemes.length);
       chunks.add(graphemes.sublist(i, end).join());
       i = end;
@@ -265,7 +265,7 @@ class MockChatRepository implements ChatRepository {
 
     if (last == '.' || last == '!' || last == '?') return 60 + jitter;
     if (last == '\n') return 40 + jitter;
-    return 15 + jitter; // Faster streaming for volume
+    return 15 + jitter;
   }
 
   String _selectResponse(final String prompt) {
@@ -285,4 +285,4 @@ class MockChatRepository implements ChatRepository {
     }
     return _longMarkdownResponse;
   }
-}
+}

@@ -8,14 +8,11 @@ import 'package:manus/core/theme/app_spacing.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/auth/widgets/auth_button_list.dart';
 import 'package:manus/presentation/design_system/widgets/manus_animated_background.dart';
-
 class AuthScreen extends ConsumerWidget {
   const AuthScreen({super.key});
-
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
-
     return Scaffold(
       backgroundColor: AppColors.transparent,
       extendBody: true,
@@ -72,10 +69,8 @@ class AuthScreen extends ConsumerWidget {
     );
   }
 }
-
 class LegalFooter extends ConsumerWidget {
   const LegalFooter({super.key});
-
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
@@ -88,7 +83,6 @@ class LegalFooter extends ConsumerWidget {
     final TextStyle linkStyle = baseStyle.copyWith(
       decoration: TextDecoration.underline,
     );
-
     return Semantics(
       label: 'Legal Information',
       child: RichText(

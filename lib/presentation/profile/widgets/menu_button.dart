@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
-
 class MenuButton extends StatefulWidget {
   const MenuButton({
     required this.leading,
@@ -11,26 +10,21 @@ class MenuButton extends StatefulWidget {
     this.showArrow = true,
     super.key,
   });
-
   final Widget leading;
   final String title;
   final VoidCallback onTap;
   final bool showArrow;
-
   @override
   State<MenuButton> createState() => _MenuButtonState();
 }
-
 class _MenuButtonState extends State<MenuButton> {
   bool _isPressed = false;
-
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color mutedColor = isDark
         ? AppColors.textMutedDark
         : AppColors.textMutedLight;
-
     return GestureDetector(
       onTapDown: (final _) => setState(() => _isPressed = true),
       onTapUp: (final _) => setState(() => _isPressed = false),

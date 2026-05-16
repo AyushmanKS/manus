@@ -151,4 +151,4 @@ Map<String, List<Conversation>> _groupList(
     groups.putIfAbsent(header, () => <Conversation>[]).add(conv);
   }
   return groups;
-}
+}

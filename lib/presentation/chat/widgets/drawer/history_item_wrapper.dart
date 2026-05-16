@@ -11,17 +11,14 @@ import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/widgets/haptic_listener.dart';
 import 'package:manus/presentation/chat/widgets/drawer/conversation_tile.dart';
-
 class HistoryItemWrapper extends ConsumerWidget {
   const HistoryItemWrapper({
     required this.conversation,
     required this.isActive,
     super.key,
   });
-
   final Conversation conversation;
   final bool isActive;
-
   Future<void> _confirmDelete(
     final BuildContext context,
     final WidgetRef ref,
@@ -45,20 +42,17 @@ class HistoryItemWrapper extends ConsumerWidget {
         ],
       ),
     );
-
     if (confirmed == true) {
       await ref
           .read(historyProvider.notifier)
           .deleteConversation(conversation.id);
     }
   }
-
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final double constrainedWidth = (screenWidth * 0.8) - 16.0;
-
     return CupertinoContextMenu(
       actions: <Widget>[
         CupertinoContextMenuAction(

@@ -1,21 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:manus/core/theme/app_colors.dart';
-
 class AppTheme {
   AppTheme._();
-
   static String get _bodyFontFamily => Platform.isIOS ? '.SF UI Text' : 'Inter';
-
   static String get _displayFontFamily =>
       Platform.isIOS ? '.SF UI Display' : 'Inter';
-
   static String get monoFontFamily => Platform.isIOS ? 'SF Mono' : 'monospace';
-
   static ThemeData get lightTheme => _buildTheme(Brightness.light);
-
   static ThemeData get darkTheme => _buildTheme(Brightness.dark);
-
   static ThemeData _buildTheme(final Brightness brightness) {
     final bool isDark = brightness == Brightness.dark;
     final Color onSurface = isDark
@@ -24,9 +17,7 @@ class AppTheme {
     final Color secondaryText = isDark
         ? AppColors.textSecondaryDark
         : AppColors.textSecondaryLight;
-
     final TextTheme baseTextTheme = ThemeData(brightness: brightness).textTheme;
-
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,

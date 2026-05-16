@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:manus/core/theme/app_colors.dart';
-
 class ManusLoader extends StatelessWidget {
   const ManusLoader({super.key});
-
   @override
   Widget build(final BuildContext context) {
     return Container(
@@ -29,13 +27,10 @@ class ManusLoader extends StatelessWidget {
     );
   }
 }
-
 class _Dot extends StatelessWidget {
   final int index;
   final Color color;
-
   const _Dot({required this.index, required this.color});
-
   @override
   Widget build(final BuildContext context) {
     return Container(
@@ -63,7 +58,6 @@ class _Dot extends StatelessWidget {
         );
   }
 }
-
 Future<void> showManusLoader(
   final BuildContext context, {
   final bool barrierDismissible = true,

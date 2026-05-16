@@ -6,4 +6,4 @@ abstract class LlmService {
     final List<ChatMessage> history,
     final CancelToken cancelToken,
   );
-}
+}

@@ -2,20 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
-
 class ArchivedHeader extends StatelessWidget {
   const ArchivedHeader({required this.isOpen, required this.onTap, super.key});
-
   final bool isOpen;
   final VoidCallback onTap;
-
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color iconColor = isDark
         ? AppColors.iconDark
         : Theme.of(context).colorScheme.onSurface;
-
     return InkWell(
       onTap: onTap,
       child: Padding(

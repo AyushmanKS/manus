@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/widgets/manus_text_field.dart';
-
 class HistorySearchBar extends StatelessWidget {
   const HistorySearchBar({
     required this.controller,
@@ -12,18 +11,15 @@ class HistorySearchBar extends StatelessWidget {
     required this.onClear,
     super.key,
   });
-
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
-
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color iconColor = isDark
         ? AppColors.iconDark
         : Theme.of(context).colorScheme.onSurface;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(

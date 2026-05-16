@@ -16,36 +16,9 @@ import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/data/services/impl/google_llm_service.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
+
 const bool kUseMockChat = true;
-
-class EditingMessage {
-  const EditingMessage({required this.messageId, required this.originalText});
-
-  final String messageId;
-  final String originalText;
-}
-
-final NotifierProvider<EditingNotifier, EditingMessage?>
-editingMessageProvider = NotifierProvider<EditingNotifier, EditingMessage?>(
-  EditingNotifier.new,
-);
-
-class EditingNotifier extends Notifier<EditingMessage?> {
-  @override
-  EditingMessage? build() => null;
-
-  void startEditing(final String messageId, final String originalText) {
-    state = EditingMessage(messageId: messageId, originalText: originalText);
-  }
-
-  void cancelEditing() {
-    state = null;
-  }
-
-  void confirmEditing() {
-    state = null;
-  }
-}
 
 final Provider<ChatRepository> _chatRepositoryProvider =
     Provider<ChatRepository>((final Ref ref) {
@@ -70,26 +43,6 @@ Future<ChatRepository> _resolveRepository(final Ref ref) async {
   return ref.read(_chatRepositoryProvider);
 }
 
-final NotifierProvider<StreamingNotifier, bool> chatIsStreamingProvider =
-    NotifierProvider<StreamingNotifier, bool>(StreamingNotifier.new);
-
-class StreamingNotifier extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void setStreaming(final bool value) => state = value;
-}
-
-final NotifierProvider<SubmittingNotifier, bool> chatIsSubmittingProvider =
-    NotifierProvider<SubmittingNotifier, bool>(SubmittingNotifier.new);
-
-class SubmittingNotifier extends Notifier<bool> {
-  @override
-  bool build() => false;
-
-  void setSubmitting(final bool value) => state = value;
-}
-
 Provider<ChatMessage?> chatMessageByIdProvider(final String id) =>
     Provider<ChatMessage?>((final Ref ref) {
       final List<ChatMessage> messages = ref.watch(chatProvider);
@@ -107,16 +60,6 @@ final NotifierProvider<ActiveConvNotifier, String>
 activeConversationIdProvider = NotifierProvider<ActiveConvNotifier, String>(
   ActiveConvNotifier.new,
 );
-
-class SelectedModelNotifier extends Notifier<String> {
-  @override
-  String build() => 'Manus 1.6 Lite';
-
-  void set(final String model) => state = model;
-}
-
-final NotifierProvider<SelectedModelNotifier, String> selectedModelProvider =
-    NotifierProvider<SelectedModelNotifier, String>(SelectedModelNotifier.new);
 
 class ActiveConvNotifier extends Notifier<String> {
   @override
@@ -394,4 +337,4 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
         ? clean
         : '${clean.substring(0, maxLength)}...';
   }
-}
+}

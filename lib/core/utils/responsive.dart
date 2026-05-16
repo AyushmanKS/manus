@@ -24,4 +24,4 @@ class Responsive {
     if ((isStandardPhone || isLargePhone) && standard != null) return standard;
     return small;
   }
-}
+}

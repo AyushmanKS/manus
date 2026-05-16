@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 class ManusTextField extends StatelessWidget {
   const ManusTextField({
     super.key,
@@ -16,7 +15,6 @@ class ManusTextField extends StatelessWidget {
     this.maxLines = 1,
     this.autofocus = false,
   });
-
   final TextEditingController? controller;
   final FocusNode? focusNode;
   final InputDecoration? decoration;
@@ -29,7 +27,6 @@ class ManusTextField extends StatelessWidget {
   final int? minLines;
   final int? maxLines;
   final bool autofocus;
-
   @override
   Widget build(final BuildContext context) {
     return TextField(

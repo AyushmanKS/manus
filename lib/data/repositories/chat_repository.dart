@@ -24,4 +24,4 @@ class ChatRepositoryImpl implements ChatRepository {
   ) {
     return _llmService.streamCompletion(history, cancelToken);
   }
-}
+}

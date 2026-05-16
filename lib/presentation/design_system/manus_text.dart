@@ -39,4 +39,4 @@ class ManusText extends StatelessWidget {
         return theme.bodySmall!;
     }
   }
-}
+}

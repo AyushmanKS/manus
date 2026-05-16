@@ -40,4 +40,4 @@ class OfflineChatRepository implements ChatRepository {
 
     return controller.stream;
   }
-}
+}

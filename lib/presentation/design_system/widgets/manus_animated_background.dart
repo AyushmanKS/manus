@@ -237,4 +237,4 @@ class ManusBackgroundPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant final ManusBackgroundPainter oldDelegate) =>
       true;
-}
+}

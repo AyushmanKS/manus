@@ -307,4 +307,4 @@ class _JumpToLatestPill extends StatelessWidget {
       ),
     );
   }
-}
+}

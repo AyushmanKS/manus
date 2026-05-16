@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
+import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
+import 'package:manus/presentation/chat/notifiers/editing_notifier.dart';
 import 'package:manus/presentation/chat/widgets/chat_empty_state.dart';
 import 'package:manus/presentation/widgets/manus_text_field.dart';
 
@@ -803,4 +805,4 @@ class _ActionIcon extends StatelessWidget {
       ),
     );
   }
-}
+}

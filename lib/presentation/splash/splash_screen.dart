@@ -5,46 +5,37 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/presentation/design_system/widgets/meta_attribution.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
-
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(vsync: this);
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FlutterNativeSplash.remove();
       _controller.forward();
     });
-
     Future<void>.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         context.go('/chat');
       }
     });
   }
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   @override
   Widget build(final BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color foregroundColor = theme.colorScheme.onSurface;
-
     return Scaffold(
       body: Stack(
         children: <Widget>[

@@ -14,4 +14,4 @@ final StreamProvider<bool> connectivityProvider = StreamProvider<bool>((
 ) {
   final ConnectivityService service = ref.watch(connectivityServiceProvider);
   return service.onConnectivityChanged;
-});
+});

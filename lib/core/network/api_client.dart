@@ -24,4 +24,4 @@ class ApiClient {
       cancelToken: cancelToken,
     );
   }
-}
+}

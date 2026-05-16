@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-
 class HistorySectionHeader extends StatelessWidget {
   const HistorySectionHeader({required this.title, super.key});
-
   final String title;
-
   @override
   Widget build(final BuildContext context) {
     final Color onSurface = Theme.of(context).colorScheme.onSurface;

@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:manus/core/utils/app_logger.dart';
-
 class HapticService {
   HapticService._();
-
   static Future<void> light() async {
     try {
       if (Platform.isAndroid) {
@@ -16,7 +14,6 @@ class HapticService {
       AppLogger.error('HapticService: failed to trigger light haptic', e);
     }
   }
-
   static Future<void> medium() async {
     try {
       await HapticFeedback.mediumImpact();
@@ -24,7 +21,6 @@ class HapticService {
       AppLogger.error('HapticService: failed to trigger medium haptic', e);
     }
   }
-
   static Future<void> selection() async {
     try {
       if (Platform.isAndroid) {
@@ -36,7 +32,6 @@ class HapticService {
       AppLogger.error('HapticService: failed to trigger selection haptic', e);
     }
   }
-
   static Future<void> heavy() async {
     try {
       await HapticFeedback.heavyImpact();

@@ -5,7 +5,6 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/widgets/manus_text_field.dart';
-
 class ConversationTile extends ConsumerStatefulWidget {
   const ConversationTile({
     required this.conversation,
@@ -13,36 +12,29 @@ class ConversationTile extends ConsumerStatefulWidget {
     required this.isActive,
     super.key,
   });
-
   final Conversation conversation;
   final VoidCallback onTap;
   final bool isActive;
-
   @override
   ConsumerState<ConversationTile> createState() => _ConversationTileState();
 }
-
 class _ConversationTileState extends ConsumerState<ConversationTile> {
   late final TextEditingController _renameController;
-
   @override
   void initState() {
     super.initState();
     _renameController = TextEditingController(text: widget.conversation.title);
   }
-
   @override
   void dispose() {
     _renameController.dispose();
     super.dispose();
   }
-
   @override
   Widget build(final BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final String? renamingId = ref.watch(renamingChatIdProvider);
     final bool isCurrentlyRenaming = renamingId == widget.conversation.id;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: AnimatedContainer(

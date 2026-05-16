@@ -6,47 +6,35 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/design_system/widgets/manus_primary_button.dart';
 import 'package:manus/presentation/design_system/widgets/manus_loader.dart';
-
 class AuthButtonList extends ConsumerStatefulWidget {
   const AuthButtonList({super.key});
-
   @override
   ConsumerState<AuthButtonList> createState() => _AuthButtonListState();
 }
-
 class _AuthButtonListState extends ConsumerState<AuthButtonList> {
   bool _isLoading = false;
-
   Future<void> handleAuthAction(final BuildContext context) async {
     if (_isLoading) {
       return;
     }
-
     setState(() => _isLoading = true);
     unawaited(showManusLoader(context));
-
     await Future<void>.delayed(const Duration(seconds: 2));
-
     if (!context.mounted) {
       return;
     }
-
     setState(() => _isLoading = false);
     context.pop();
-
     await ref.read(authProvider.notifier).login();
-
     if (context.mounted) {
       context.go('/chat');
     }
   }
-
   @override
   Widget build(final BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final Color dividerColor = theme.dividerColor;
     final TextStyle? mutedTextStyle = theme.textTheme.labelMedium;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[

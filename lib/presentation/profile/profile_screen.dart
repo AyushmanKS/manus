@@ -11,24 +11,20 @@ import 'package:manus/presentation/profile/widgets/profile_group.dart';
 import 'package:manus/presentation/profile/widgets/profile_header.dart';
 import 'package:manus/presentation/profile/widgets/profile_info.dart';
 import 'package:manus/presentation/profile/widgets/theme_selector_item.dart';
-
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
-
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color iconColor = isDark
         ? AppColors.iconDark
         : AppColors.textPrimaryLight;
-
     final ThemeMode themeMode = ref.watch(themeProvider);
     final (String, String) themeInfo = switch (themeMode) {
       ThemeMode.system => ('Follow system', AppAssets.contrastSvg),
       ThemeMode.light => ('Light mode', AppAssets.lightModeSvg),
       ThemeMode.dark => ('Dark mode', AppAssets.darkModeSvg),
     };
-
     return Scaffold(
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

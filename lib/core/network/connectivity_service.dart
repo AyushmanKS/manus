@@ -29,4 +29,4 @@ class ConnectivityService {
 
   static bool _hasConnection(final List<ConnectivityResult> results) =>
       results.any((final ConnectivityResult r) => r != ConnectivityResult.none);
-}
+}

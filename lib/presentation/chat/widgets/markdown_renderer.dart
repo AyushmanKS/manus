@@ -265,7 +265,7 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                     const _PulsingDot()
                   else
                     SvgPicture.asset(
-                      AppAssets.plugSvg, // Closest tech icon available
+                      AppAssets.plugSvg,
                       width: 16,
                       height: 16,
                       colorFilter: ColorFilter.mode(
@@ -482,4 +482,4 @@ class _SkeletonRow extends StatelessWidget {
       }),
     );
   }
-}
+}

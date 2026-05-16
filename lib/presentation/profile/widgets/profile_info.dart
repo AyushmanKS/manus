@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
-
 class ProfileInfo extends StatelessWidget {
   const ProfileInfo({super.key});
-
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Column(
       children: <Widget>[
         const SizedBox(height: 24),

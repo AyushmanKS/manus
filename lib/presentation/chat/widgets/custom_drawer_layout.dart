@@ -48,12 +48,9 @@ class _CustomDrawerLayoutState extends ConsumerState<CustomDrawerLayout>
   void _onHorizontalDragStart(final DragStartDetails details) {
     _dragStartX = details.globalPosition.dx;
 
-    // Exclusion zone (0-40px) to allow system back gesture.
-    // If the drawer is already open, dragging should always be allowed to close it.
     _canDrag = _dragStartX >= 40.0 || _controller.value > 0;
 
     if (_canDrag) {
-      // Smoothly dismiss keyboard as drawer starts to open
       FocusManager.instance.primaryFocus?.unfocus();
     }
   }
@@ -72,7 +69,6 @@ class _CustomDrawerLayoutState extends ConsumerState<CustomDrawerLayout>
     final double velocity =
         details.primaryVelocity! / (width * _drawerWidthFactor);
 
-    // mass: 1.0, stiffness: 250.0, damping: 25.0 to match iOS native sheets
     const SpringDescription spring = SpringDescription(
       mass: 1.0,
       stiffness: 250.0,
@@ -104,7 +100,6 @@ class _CustomDrawerLayoutState extends ConsumerState<CustomDrawerLayout>
     ref.listen<double>(drawerProvider, (final double? prev, final double next) {
       if (next != _controller.value && !_controller.isAnimating) {
         if (next == 0.0) {
-          // Explicitly animate to 0.0 to ensure it closes fully
           _controller.animateTo(
             0.0,
             duration: const Duration(milliseconds: 250),
@@ -167,4 +162,4 @@ class _CustomDrawerLayoutState extends ConsumerState<CustomDrawerLayout>
       ],
     );
   }
-}
+}

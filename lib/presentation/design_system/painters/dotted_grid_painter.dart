@@ -25,4 +25,4 @@ class DottedGridPainter extends CustomPainter {
   bool shouldRepaint(covariant final DottedGridPainter oldDelegate) {
     return oldDelegate.dotColor != dotColor || oldDelegate.spacing != spacing;
   }
-}
+}

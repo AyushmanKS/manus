@@ -162,7 +162,11 @@ class ChatHistoryListState extends ConsumerState<ChatHistoryList> {
         WidgetsBinding.instance.addPostFrameCallback((final _) {
           _animateToBottom();
           WidgetsBinding.instance.addPostFrameCallback((final _) {
-            _checkAndEngageAutoScroll();
+            _animateToBottom();
+            WidgetsBinding.instance.addPostFrameCallback((final _) {
+              _animateToBottom();
+              _checkAndEngageAutoScroll();
+            });
           });
         });
       }

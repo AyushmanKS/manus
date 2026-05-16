@@ -229,6 +229,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
                       onKeyboardOpen: () =>
                           _listKey.currentState?.doubleFrameScrollToBottom(),
                       onSend: (final String text) {
+                        _listKey.currentState?.forceScrollToBottom();
                         ref.read(chatProvider.notifier).sendMessage(text);
                       },
                     ),

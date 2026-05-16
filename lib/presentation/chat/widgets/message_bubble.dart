@@ -77,6 +77,9 @@ class _UserBubble extends ConsumerStatefulWidget {
 }
 
 class _UserBubbleState extends ConsumerState<_UserBubble> {
+  final GlobalKey<SelectableRegionState> _selectionKey =
+      GlobalKey<SelectableRegionState>();
+
   void _shareMessage(final BuildContext context) {
     unawaited(Share.share(widget.message.text));
   }
@@ -169,12 +172,28 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
           ),
         ),
         child: SelectionArea(
+          key: _selectionKey,
+          selectionControls: EmptyTextSelectionControls(),
           contextMenuBuilder: (
             final BuildContext context,
             final SelectableRegionState selectableRegionState,
           ) =>
               _buildContextMenu(context, selectableRegionState),
-          child: bubbleContentColumn,
+          child: Material(
+            color: Colors.transparent,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onLongPress: () {
+                unawaited(HapticFeedback.mediumImpact());
+                WidgetsBinding.instance.addPostFrameCallback((final _) {
+                  if (!mounted) return;
+                  _selectionKey.currentState
+                      ?.selectAll(SelectionChangedCause.toolbar);
+                });
+              },
+              child: bubbleContentColumn,
+            ),
+          ),
         ),
       ),
     );
@@ -191,6 +210,8 @@ class _AssistantBubble extends StatefulWidget {
 }
 
 class _AssistantBubbleState extends State<_AssistantBubble> {
+  final GlobalKey<SelectableRegionState> _selectionKey =
+      GlobalKey<SelectableRegionState>();
   final Map<int, Widget> _blockCache = <int, Widget>{};
 
   void _shareMessage(final BuildContext context) {
@@ -262,12 +283,28 @@ class _AssistantBubbleState extends State<_AssistantBubble> {
           maxWidth: MediaQuery.sizeOf(context).width * 0.9,
         ),
         child: SelectionArea(
+          key: _selectionKey,
+          selectionControls: EmptyTextSelectionControls(),
           contextMenuBuilder: (
             final BuildContext context,
             final SelectableRegionState selectableRegionState,
           ) =>
               _buildContextMenu(context, selectableRegionState),
-          child: bubbleContentColumn,
+          child: Material(
+            color: Colors.transparent,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onLongPress: () {
+                unawaited(HapticFeedback.mediumImpact());
+                WidgetsBinding.instance.addPostFrameCallback((final _) {
+                  if (!mounted) return;
+                  _selectionKey.currentState
+                      ?.selectAll(SelectionChangedCause.toolbar);
+                });
+              },
+              child: bubbleContentColumn,
+            ),
+          ),
         ),
       ),
     );

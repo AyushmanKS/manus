@@ -3,6 +3,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
@@ -291,10 +293,11 @@ class _JumpToLatestPill extends StatelessWidget {
             ),
           ],
         ),
-        child: Icon(
-          Icons.keyboard_arrow_down_rounded,
-          size: 20.0,
-          color: textColor,
+        child: SvgPicture.asset(
+          AppAssets.downArrowSvg,
+          width: 20.0,
+          height: 20.0,
+          colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn),
         ),
       ),
     );

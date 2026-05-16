@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/app_theme.dart';
 import 'package:manus/core/utils/markdown_segmenter.dart';
@@ -159,25 +161,20 @@ class _CodeBlockState extends State<_CodeBlock> {
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
                     child: _copied
-                        ? const Icon(
-                            Icons.check_rounded,
-                            size: 16,
-                            color: AppColors.primary,
-                            key: ValueKey<String>('check'),
+                        ? SvgPicture.asset(
+                            AppAssets.checkSvg,
+                            width: 16,
+                            height: 16,
+                            colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+                            key: const ValueKey<String>('check'),
                           )
-                        : (isDark
-                              ? const Icon(
-                                  Icons.copy_rounded,
-                                  size: 16,
-                                  color: Colors.white54,
-                                  key: ValueKey<String>('copy'),
-                                )
-                              : const Icon(
-                                  Icons.copy_rounded,
-                                  size: 16,
-                                  color: Colors.black54,
-                                  key: ValueKey<String>('copy'),
-                                )),
+                        : SvgPicture.asset(
+                            AppAssets.copySvg,
+                            width: 16,
+                            height: 16,
+                            colorFilter: ColorFilter.mode(isDark ? Colors.white54 : Colors.black54, BlendMode.srcIn),
+                            key: const ValueKey<String>('copy'),
+                          ),
                   ),
                 ),
               ],
@@ -257,10 +254,11 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                   if (isStreaming)
                     const _PulsingDot()
                   else
-                    const Icon(
-                      Icons.lightbulb_outline_rounded,
-                      size: 16,
-                      color: Colors.blueGrey,
+                    SvgPicture.asset(
+                      AppAssets.plugSvg, // Closest tech icon available
+                      width: 16,
+                      height: 16,
+                      colorFilter: const ColorFilter.mode(Colors.blueGrey, BlendMode.srcIn),
                     ),
                   const SizedBox(width: 10),
                   Text(
@@ -277,10 +275,11 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
                       turns: _expanded ? 0.5 : 0.0,
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeOutCubic,
-                      child: const Icon(
-                        Icons.expand_more_rounded,
-                        size: 18,
-                        color: Colors.blueGrey,
+                      child: SvgPicture.asset(
+                        AppAssets.downArrowSvg,
+                        width: 18,
+                        height: 18,
+                        colorFilter: const ColorFilter.mode(Colors.blueGrey, BlendMode.srcIn),
                       ),
                     ),
                 ],

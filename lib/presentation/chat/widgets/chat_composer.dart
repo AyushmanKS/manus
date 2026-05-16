@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -170,10 +171,20 @@ class _ChatComposerState extends ConsumerState<ChatComposer> {
                               ),
                               const Spacer(),
                               IconButton(
-                                icon: const Icon(Icons.close, size: 18),
+                                icon: Transform.rotate(
+                                  angle: math.pi / 4,
+                                  child: SvgPicture.asset(
+                                    AppAssets.plusSvg,
+                                    width: 18,
+                                    height: 18,
+                                    colorFilter: ColorFilter.mode(
+                                      secondaryTextColor,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                ),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
-                                color: secondaryTextColor,
                                 onPressed: () {
                                   _controller.clear();
                                   ref

@@ -98,103 +98,114 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
 
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     const double menuWidth = 114.0;
+    bool copied = false;
 
     _overlayEntry = OverlayEntry(
       builder: (final BuildContext context) {
-        return Stack(
-          children: <Widget>[
-            GestureDetector(
-              onTap: _removeOverlay,
-              behavior: HitTestBehavior.opaque,
-              child: Container(color: Colors.transparent),
-            ),
-            Positioned(
-              width: menuWidth,
-              child: CompositedTransformFollower(
-                link: _layerLink,
-                showWhenUnlinked: false,
-                targetAnchor: Alignment.bottomRight,
-                followerAnchor: Alignment.topRight,
-                offset: const Offset(0.0, 6.0),
-                child: Material(
-                  color: Colors.transparent,
-                  child:
-                      Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: isDark
-                                  ? AppColors.composerBgDark
-                                  : AppColors.composerBgLight,
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  blurRadius: 15,
-                                  spreadRadius: 0,
-                                  color: Colors.black.withValues(alpha: 0.15),
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 8,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                _ContextMenuItem(
-                                  label: 'Copy',
-                                  asset: AppAssets.copySvg,
-                                  onTap: () {
-                                    unawaited(
-                                      Clipboard.setData(
-                                        ClipboardData(
-                                          text: widget.message.text,
+        return StatefulBuilder(
+          builder:
+              (final BuildContext context, final StateSetter setOverlayState) {
+                return Stack(
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: _removeOverlay,
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(color: Colors.transparent),
+                    ),
+                    Positioned(
+                      width: menuWidth,
+                      child: CompositedTransformFollower(
+                        link: _layerLink,
+                        showWhenUnlinked: false,
+                        targetAnchor: Alignment.bottomRight,
+                        followerAnchor: Alignment.topRight,
+                        offset: const Offset(0.0, 6.0),
+                        child: Material(
+                          color: Colors.transparent,
+                          child:
+                              Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      color: isDark
+                                          ? AppColors.composerBgDark
+                                          : AppColors.composerBgLight,
+                                      boxShadow: <BoxShadow>[
+                                        BoxShadow(
+                                          blurRadius: 15,
+                                          spreadRadius: 0,
+                                          color: Colors.black.withValues(
+                                            alpha: 0.15,
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Copied'),
-                                        duration: Duration(milliseconds: 1500),
-                                      ),
-                                    );
-                                    _removeOverlay();
-                                  },
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 24,
-                                  color: AppColors.textSecondaryDark.withValues(
-                                    alpha: 0.15,
+                                      ],
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 8,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        _ContextMenuItem(
+                                          label: copied ? 'Copied' : 'Copy',
+                                          asset: copied
+                                              ? AppAssets.checkSvg
+                                              : AppAssets.copySvg,
+                                          onTap: () async {
+                                            if (copied) return;
+                                            await Clipboard.setData(
+                                              ClipboardData(
+                                                text: widget.message.text,
+                                              ),
+                                            );
+                                            setOverlayState(
+                                              () => copied = true,
+                                            );
+                                            await Future<void>.delayed(
+                                              const Duration(milliseconds: 600),
+                                            );
+                                            _removeOverlay();
+                                          },
+                                        ),
+                                        Container(
+                                          width: 1,
+                                          height: 24,
+                                          color: AppColors.textSecondaryDark
+                                              .withValues(alpha: 0.15),
+                                        ),
+                                        _ContextMenuItem(
+                                          label: 'Edit',
+                                          asset: AppAssets.pencilSvg,
+                                          onTap: () {
+                                            ref
+                                                .read(
+                                                  editingMessageProvider
+                                                      .notifier,
+                                                )
+                                                .startEditing(
+                                                  widget.message.id,
+                                                  widget.message.text,
+                                                );
+                                            _removeOverlay();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  .animate()
+                                  .fadeIn(duration: 150.ms)
+                                  .scaleXY(
+                                    begin: 0.85,
+                                    end: 1.0,
+                                    curve: Curves.easeOutCubic,
+                                    alignment: Alignment.topRight,
                                   ),
-                                ),
-                                _ContextMenuItem(
-                                  label: 'Edit',
-                                  asset: AppAssets.pencilSvg,
-                                  onTap: () {
-                                    ref
-                                        .read(editingMessageProvider.notifier)
-                                        .startEditing(
-                                          widget.message.id,
-                                          widget.message.text,
-                                        );
-                                    _removeOverlay();
-                                  },
-                                ),
-                              ],
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(duration: 150.ms)
-                          .scaleXY(
-                            begin: 0.85,
-                            end: 1.0,
-                            curve: Curves.easeOutCubic,
-                            alignment: Alignment.topRight,
-                          ),
-                ),
-              ),
-            ),
-          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
         );
       },
     );
@@ -400,7 +411,14 @@ class _StoppedBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(Icons.stop_rounded, size: 12, color: color),
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(1.5),
+            ),
+          ),
           const SizedBox(width: 4),
           Text(
             'Generation stopped',

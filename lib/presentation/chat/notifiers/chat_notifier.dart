@@ -1,17 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 import 'package:manus/core/network/api_client.dart';
 import 'package:manus/core/network/connectivity_provider.dart';
 import 'package:manus/core/network/connectivity_service.dart';
 import 'package:manus/core/utils/app_logger.dart';
+import 'package:manus/data/local/history_storage_provider.dart';
 import 'package:manus/data/models/chat_message.dart';
+import 'package:manus/data/models/conversation.dart';
 import 'package:manus/data/repositories/chat_repository.dart';
 import 'package:manus/data/repositories/mock_chat_repository.dart';
 import 'package:manus/data/repositories/offline_chat_repository.dart';
+import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/data/services/impl/google_llm_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -56,11 +57,14 @@ final Provider<ChatRepository> _chatRepositoryProvider =
     });
 
 Future<ChatRepository> _resolveRepository(final Ref ref) async {
-  final ConnectivityService connectivity =
-      ref.read(connectivityServiceProvider);
+  final ConnectivityService connectivity = ref.read(
+    connectivityServiceProvider,
+  );
   final bool online = await connectivity.isConnected;
   if (!online) {
-    AppLogger.warning('ChatNotifier: device is offline, using OfflineChatRepository');
+    AppLogger.warning(
+      'ChatNotifier: device is offline, using OfflineChatRepository',
+    );
     return const OfflineChatRepository();
   }
   return ref.read(_chatRepositoryProvider);
@@ -99,12 +103,41 @@ Provider<ChatMessage?> chatMessageByIdProvider(final String id) =>
 final NotifierProvider<ChatNotifier, List<ChatMessage>> chatProvider =
     NotifierProvider<ChatNotifier, List<ChatMessage>>(ChatNotifier.new);
 
+final NotifierProvider<ActiveConvNotifier, String>
+activeConversationIdProvider = NotifierProvider<ActiveConvNotifier, String>(
+  ActiveConvNotifier.new,
+);
+
+class ActiveConvNotifier extends Notifier<String> {
+  @override
+  String build() => const Uuid().v4();
+
+  void set(final String id) => state = id;
+}
+
 class ChatNotifier extends Notifier<List<ChatMessage>> {
   CancelToken? _cancelToken;
   String? _activeAssistantId;
 
+  String get _conversationId => ref.read(activeConversationIdProvider);
+
   @override
   List<ChatMessage> build() => <ChatMessage>[];
+
+  Future<void> loadConversation(final String conversationId) async {
+    AppLogger.info('ChatNotifier: loading conversation $conversationId');
+    ref.read(activeConversationIdProvider.notifier).set(conversationId);
+    final List<ChatMessage> messages = await ref
+        .read(historyStorageProvider)
+        .loadMessages(conversationId);
+    state = messages;
+  }
+
+  void startNewConversation() {
+    AppLogger.info('ChatNotifier: starting new conversation');
+    ref.read(activeConversationIdProvider.notifier).set(const Uuid().v4());
+    state = <ChatMessage>[];
+  }
 
   Future<void> sendMessage(
     final String text, {
@@ -300,10 +333,34 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
   }
 
   Future<void> _persist() async {
-    final Box<String> box = Hive.box<String>('conversations');
-    final String encoded = jsonEncode(
-      state.map((final ChatMessage m) => m.toJson()).toList(),
+    final String convId = _conversationId;
+    await ref.read(historyStorageProvider).saveMessages(convId, state);
+    await _upsertConversation(convId);
+    unawaited(ref.read(historyProvider.notifier).refresh());
+  }
+
+  Future<void> _upsertConversation(final String convId) async {
+    if (state.isEmpty) return;
+    final ChatMessage first = state.first;
+    final ChatMessage last = state.last;
+    final String title = first.role == MessageRole.user
+        ? _truncate(first.text, 40)
+        : 'Conversation';
+    final String preview = _truncate(last.text, 60);
+    final Conversation conversation = Conversation(
+      id: convId,
+      title: title,
+      lastMessage: preview,
+      updatedAt: last.timestamp,
     );
-    await box.put('messages', encoded);
+    await ref.read(historyStorageProvider).upsertConversation(conversation);
+    AppLogger.debug('ChatNotifier: upserted conversation $convId');
+  }
+
+  String _truncate(final String text, final int maxLength) {
+    final String clean = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return clean.length <= maxLength
+        ? clean
+        : '${clean.substring(0, maxLength)}...';
   }
 }

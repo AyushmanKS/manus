@@ -70,6 +70,35 @@ class AppRouter {
         },
       ),
       GoRoute(
+        path: '/chat/:conversationId',
+        name: 'chat_detail',
+        pageBuilder: (final BuildContext context, final GoRouterState state) {
+          final String? conversationId = state.pathParameters['conversationId'];
+          return CustomTransitionPage<void>(
+            key: state.pageKey,
+            child: ChatScreen(conversationId: conversationId),
+            transitionDuration: const Duration(milliseconds: 350),
+            transitionsBuilder:
+                (
+                  final BuildContext context,
+                  final Animation<double> animation,
+                  final Animation<double> secondaryAnimation,
+                  final Widget child,
+                ) {
+                  return SlideTransition(
+                    position: animation.drive(
+                      Tween<Offset>(
+                        begin: const Offset(1.0, 0.0),
+                        end: Offset.zero,
+                      ).chain(CurveTween(curve: Curves.easeOutCubic)),
+                    ),
+                    child: child,
+                  );
+                },
+          );
+        },
+      ),
+      GoRoute(
         path: chat,
         name: 'chat',
         pageBuilder: (final BuildContext context, final GoRouterState state) {

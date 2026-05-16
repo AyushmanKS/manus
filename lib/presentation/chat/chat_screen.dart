@@ -1,13 +1,23 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
+import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/chat/widgets/chat_composer.dart';
 import 'package:manus/presentation/chat/widgets/chat_history_list.dart';
 
+import 'package:manus/presentation/chat/notifiers/drawer_notifier.dart';
+import 'package:manus/presentation/chat/widgets/custom_drawer_layout.dart';
+import 'package:manus/presentation/chat/widgets/history_drawer_list.dart';
+
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({this.conversationId, super.key});
+
+  final String? conversationId;
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -36,12 +46,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     });
 
     WidgetsBinding.instance.addPostFrameCallback((final _) {
+      _loadConversationIfNeeded();
       if (_initialFocusRequested) return;
       _initialFocusRequested = true;
       Future<void>.delayed(const Duration(milliseconds: 400), () {
         if (mounted) _composerFocusNode.requestFocus();
       });
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant final ChatScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.conversationId != oldWidget.conversationId) {
+      _loadConversationIfNeeded();
+    }
+  }
+
+  void _loadConversationIfNeeded() {
+    final String? convId = widget.conversationId;
+    if (convId != null) {
+      ref.read(chatProvider.notifier).loadConversation(convId);
+    } else {
+      ref.read(chatProvider.notifier).startNewConversation();
+    }
+    unawaited(ref.read(historyProvider.notifier).refresh());
   }
 
   @override
@@ -104,21 +133,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
           )
         : const BoxDecoration(color: AppColors.chatBgLight);
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      resizeToAvoidBottomInset: true,
-      body: Container(
+    return CustomDrawerLayout(
+      drawer: const HistoryDrawerList(),
+      child: Scaffold(
+        backgroundColor: bgColor,
+        resizeToAvoidBottomInset: true,
+        body: Container(
           decoration: bgDecoration,
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             child: Column(
               children: <Widget>[
-                Expanded(
-                  child: SafeArea(
-                    bottom: false,
-                    child: ChatHistoryList(key: _listKey),
+                SafeArea(
+                  bottom: false,
+                  child: _ChatTopBar(
+                    onMenuTap: () => ref.read(drawerProvider.notifier).open(),
+                    isDark: isDark,
                   ),
                 ),
+                Expanded(child: ChatHistoryList(key: _listKey)),
                 SafeArea(
                   top: false,
                   child: Padding(
@@ -137,6 +170,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatTopBar extends StatelessWidget {
+  const _ChatTopBar({required this.onMenuTap, required this.isDark});
+
+  final VoidCallback onMenuTap;
+  final bool isDark;
+
+  @override
+  Widget build(final BuildContext context) {
+    final Color iconColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: Row(
+        children: <Widget>[
+          IconButton(
+            icon: SvgPicture.asset(
+              AppAssets.menuSvg,
+              width: 22,
+              height: 22,
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+            ),
+            onPressed: onMenuTap,
+            splashRadius: 20,
+          ),
+        ],
       ),
     );
   }

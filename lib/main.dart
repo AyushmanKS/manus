@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -22,9 +23,17 @@ Future<void> main() async {
   );
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await dotenv.load(fileName: '.env');
+  
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    AppLogger.warning('Failed to load .env file: $e');
+  }
+
   await Hive.initFlutter();
+  await Hive.openBox<String>('chat_history');
   await Hive.openBox<String>('conversations');
+
   AppLogger.info('Application Started');
 
   runApp(const ProviderScope(child: ManusApp()));

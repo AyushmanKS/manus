@@ -14,15 +14,19 @@ class AppAssets {
   static const String emailSvg = 'assets/icons/email.svg';
 
   static const String arrowBackSvg = 'assets/icons/arrow-back.svg';
+  static const String menuSvg = 'assets/icons/menu.svg';
 
   static const String plusSvg = 'assets/icons/plus.svg';
   static const String plugSvg = 'assets/icons/plug.svg';
   static const String chatSvg = 'assets/icons/chat.svg';
+  static const String chatBubbleSvg = 'assets/icons/chat-bubble.svg';
   static const String micSvg = 'assets/icons/mic.svg';
   static const String upArrowSvg = 'assets/icons/up-arrow.svg';
+  static const String downArrowSvg = 'assets/icons/down-arrow.svg';
 
   static const String pencilSvg = 'assets/icons/pencil.svg';
   static const String copySvg = 'assets/icons/copy.svg';
+  static const String checkSvg = 'assets/icons/check.svg';
 
   static const String blobSolid = 'assets/illustrations/blob_solid.svg';
   static const String blobHollow = 'assets/illustrations/blob_hollow.svg';

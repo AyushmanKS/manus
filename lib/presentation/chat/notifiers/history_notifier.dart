@@ -8,6 +8,7 @@ class HistorySearchNotifier extends Notifier<String> {
   String build() => '';
 
   void set(final String query) => state = query;
+
   void clear() => state = '';
 }
 
@@ -22,19 +23,49 @@ class RenamingChatIdNotifier extends Notifier<String?> {
 }
 
 final NotifierProvider<RenamingChatIdNotifier, String?> renamingChatIdProvider =
-    NotifierProvider<RenamingChatIdNotifier, String?>(RenamingChatIdNotifier.new);
+    NotifierProvider<RenamingChatIdNotifier, String?>(
+      RenamingChatIdNotifier.new,
+    );
 
-class HistoryNotifier extends AsyncNotifier<List<Conversation>> {
+class ArchivedViewVisibleNotifier extends Notifier<bool> {
   @override
-  FutureOr<List<Conversation>> build() async {
-    return ref.read(historyStorageProvider).getAllConversations();
+  bool build() => false;
+
+  void toggle() => state = !state;
+}
+
+final NotifierProvider<ArchivedViewVisibleNotifier, bool>
+isArchivedViewVisibleProvider =
+    NotifierProvider<ArchivedViewVisibleNotifier, bool>(
+      ArchivedViewVisibleNotifier.new,
+    );
+
+class HistoryState {
+  const HistoryState({required this.activeChats, required this.archivedChats});
+
+  final List<Conversation> activeChats;
+  final List<Conversation> archivedChats;
+}
+
+class HistoryNotifier extends AsyncNotifier<HistoryState> {
+  @override
+  FutureOr<HistoryState> build() async {
+    return _loadHistory();
+  }
+
+  Future<HistoryState> _loadHistory() async {
+    final List<Conversation> all = await ref
+        .read(historyStorageProvider)
+        .getAllConversations();
+    return HistoryState(
+      activeChats: all.where((final Conversation c) => !c.isArchived).toList(),
+      archivedChats: all.where((final Conversation c) => c.isArchived).toList(),
+    );
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue<List<Conversation>>.loading();
-    state = await AsyncValue.guard(
-      () => ref.read(historyStorageProvider).getAllConversations(),
-    );
+    state = const AsyncValue<HistoryState>.loading();
+    state = await AsyncValue.guard(() => _loadHistory());
   }
 
   Future<void> reload() => refresh();
@@ -50,35 +81,65 @@ class HistoryNotifier extends AsyncNotifier<List<Conversation>> {
   }
 
   Future<void> archiveChat(final String chatId) async {
-    await ref.read(historyStorageProvider).archiveConversation(chatId, archived: true);
+    await ref
+        .read(historyStorageProvider)
+        .archiveConversation(chatId, archived: true);
     await refresh();
   }
 
-  Future<void> pinConversation(final String id, {required final bool pinned}) async {
+  Future<void> unarchiveChat(final String chatId) async {
+    await ref
+        .read(historyStorageProvider)
+        .archiveConversation(chatId, archived: false);
+    await refresh();
+  }
+
+  Future<void> pinConversation(
+    final String id, {
+    required final bool pinned,
+  }) async {
     await ref.read(historyStorageProvider).pinConversation(id, pinned: pinned);
     await refresh();
   }
 
-  Future<void> archiveConversation(final String id, {required final bool archived}) async {
-    await ref.read(historyStorageProvider).archiveConversation(id, archived: archived);
+  Future<void> archiveConversation(
+    final String id, {
+    required final bool archived,
+  }) async {
+    await ref
+        .read(historyStorageProvider)
+        .archiveConversation(id, archived: archived);
     await refresh();
   }
 }
 
-final AsyncNotifierProvider<HistoryNotifier, List<Conversation>> historyProvider =
-    AsyncNotifierProvider<HistoryNotifier, List<Conversation>>(HistoryNotifier.new);
+final AsyncNotifierProvider<HistoryNotifier, HistoryState> historyProvider =
+    AsyncNotifierProvider<HistoryNotifier, HistoryState>(HistoryNotifier.new);
 
 final Provider<Map<String, List<Conversation>>> groupedHistoryProvider =
     Provider<Map<String, List<Conversation>>>((final Ref ref) {
-  final List<Conversation> list =
-      ref.watch(historyProvider).value ?? <Conversation>[];
-  final String query = ref.watch(historySearchProvider).toLowerCase();
+      final AsyncValue<HistoryState> history = ref.watch(historyProvider);
+      final List<Conversation> list =
+          history.value?.activeChats ?? <Conversation>[];
+      return _groupList(ref, list);
+    });
 
+final Provider<Map<String, List<Conversation>>> groupedArchivedHistoryProvider =
+    Provider<Map<String, List<Conversation>>>((final Ref ref) {
+      final AsyncValue<HistoryState> history = ref.watch(historyProvider);
+      final List<Conversation> list =
+          history.value?.archivedChats ?? <Conversation>[];
+      return _groupList(ref, list);
+    });
+
+Map<String, List<Conversation>> _groupList(
+  final Ref ref,
+  final List<Conversation> list,
+) {
+  final String query = ref.watch(historySearchProvider).toLowerCase();
   final Map<String, List<Conversation>> groups = <String, List<Conversation>>{};
 
   for (final Conversation conv in list) {
-    if (conv.isArchived) continue;
-
     if (query.isNotEmpty) {
       if (!conv.title.toLowerCase().contains(query) &&
           !conv.lastMessage.toLowerCase().contains(query)) {
@@ -90,4 +151,4 @@ final Provider<Map<String, List<Conversation>>> groupedHistoryProvider =
     groups.putIfAbsent(header, () => <Conversation>[]).add(conv);
   }
   return groups;
-});
+}

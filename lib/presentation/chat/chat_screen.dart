@@ -138,18 +138,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     });
 
     final String activeConvId = ref.watch(activeConversationIdProvider);
-    ref.listen<AsyncValue<List<Conversation>>>(historyProvider, (
-      final AsyncValue<List<Conversation>>? previous,
-      final AsyncValue<List<Conversation>> next,
+    ref.listen<AsyncValue<HistoryState>>(historyProvider, (
+      final AsyncValue<HistoryState>? previous,
+      final AsyncValue<HistoryState> next,
     ) {
-      if (next is AsyncData<List<Conversation>>) {
-        final List<Conversation> nextList = next.value;
-        final List<Conversation> prevList = previous?.value ?? <Conversation>[];
+      if (next is AsyncData<HistoryState>) {
+        final List<Conversation> nextAll = <Conversation>[
+          ...next.value.activeChats,
+          ...next.value.archivedChats,
+        ];
+        final List<Conversation> prevAll = previous?.value != null
+            ? <Conversation>[
+                ...previous!.value!.activeChats,
+                ...previous.value!.archivedChats,
+              ]
+            : <Conversation>[];
 
-        final bool wasPresent = prevList.any(
+        final bool wasPresent = prevAll.any(
           (final Conversation c) => c.id == activeConvId,
         );
-        final bool isPresent = nextList.any(
+        final bool isPresent = nextAll.any(
           (final Conversation c) => c.id == activeConvId,
         );
 

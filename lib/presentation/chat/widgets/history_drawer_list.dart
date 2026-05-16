@@ -38,8 +38,7 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
 
   @override
   Widget build(final BuildContext context) {
-    final AsyncValue<List<Conversation>> historyState =
-        ref.watch(historyProvider);
+    final AsyncValue<HistoryState> historyState = ref.watch(historyProvider);
     final String activeConversationId = ref.watch(activeConversationIdProvider);
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
 
@@ -57,8 +56,8 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                   Text(
                     'History',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   IconButton(
                     icon: SvgPicture.asset(
@@ -70,7 +69,8 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                     onPressed: () async {
                       ref.read(drawerProvider.notifier).close();
                       await Future<void>.delayed(
-                          const Duration(milliseconds: 150));
+                        const Duration(milliseconds: 150),
+                      );
                       if (context.mounted) {
                         context.go('/chat');
                       }
@@ -92,44 +92,124 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
             Expanded(
               child: historyState.when(
                 data: (final _) {
-                  final Map<String, List<Conversation>> groups =
-                      ref.watch(groupedHistoryProvider);
+                  final Map<String, List<Conversation>> activeGroups = ref
+                      .watch(groupedHistoryProvider);
+                  final Map<String, List<Conversation>> archivedGroups = ref
+                      .watch(groupedArchivedHistoryProvider);
+                  final bool isArchivedVisible = ref.watch(
+                    isArchivedViewVisibleProvider,
+                  );
 
-                  if (groups.isEmpty) {
+                  if (activeGroups.isEmpty && archivedGroups.isEmpty) {
                     return _EmptyState(
                       onSurface: onSurface,
                       isSearching: ref.watch(historySearchProvider).isNotEmpty,
                     );
                   }
 
-                  final List<String> headers = groups.keys.toList();
-
-                  return ListView.builder(
+                  return ListView(
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    itemCount: headers.length,
-                    itemBuilder: (final BuildContext context, final int index) {
-                      final String header = headers[index];
-                      final List<Conversation> items = groups[header]!;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          _SectionHeader(title: header),
-                          ...items.map(
-                            (final Conversation conversation) =>
-                                _HistoryItemWrapper(
-                              conversation: conversation,
-                              isActive: conversation.id == activeConversationId,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                    children: <Widget>[
+                      ..._buildGroupedList(activeGroups, activeConversationId),
+                      if (archivedGroups.isNotEmpty) ...<Widget>[
+                        _ArchivedHeader(
+                          isOpen: isArchivedVisible,
+                          onTap: () => ref
+                              .read(isArchivedViewVisibleProvider.notifier)
+                              .toggle(),
+                        ),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOutCubic,
+                          alignment: Alignment.topCenter,
+                          child: isArchivedVisible
+                              ? Column(
+                                  children: _buildGroupedList(
+                                    archivedGroups,
+                                    activeConversationId,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ],
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (final Object err, final _) =>
                     Center(child: Text('Error: $err')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildGroupedList(
+    final Map<String, List<Conversation>> groups,
+    final String activeConversationId,
+  ) {
+    final List<Widget> children = <Widget>[];
+    for (final MapEntry<String, List<Conversation>> entry in groups.entries) {
+      children.add(_SectionHeader(title: entry.key));
+      children.addAll(
+        entry.value.map(
+          (final Conversation conversation) => _HistoryItemWrapper(
+            conversation: conversation,
+            isActive: conversation.id == activeConversationId,
+          ),
+        ),
+      );
+    }
+    return children;
+  }
+}
+
+class _ArchivedHeader extends StatelessWidget {
+  const _ArchivedHeader({required this.isOpen, required this.onTap});
+
+  final bool isOpen;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(final BuildContext context) {
+    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: <Widget>[
+            SvgPicture.asset(
+              AppAssets.archieveSvg,
+              width: 18,
+              height: 18,
+              colorFilter: ColorFilter.mode(
+                onSurface.withValues(alpha: 0.6),
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Archived',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: onSurface.withValues(alpha: 0.6),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            AnimatedRotation(
+              turns: isOpen ? 0.5 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: SvgPicture.asset(
+                AppAssets.downArrowSvg,
+                width: 16,
+                height: 16,
+                colorFilter: ColorFilter.mode(
+                  onSurface.withValues(alpha: 0.4),
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ],
@@ -226,7 +306,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
   final bool isActive;
 
   Future<void> _confirmDelete(
-      final BuildContext context, final WidgetRef ref) async {
+    final BuildContext context,
+    final WidgetRef ref,
+  ) async {
     final bool? confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (final BuildContext context) => CupertinoAlertDialog(
@@ -273,7 +355,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn),
+                  Theme.of(context).colorScheme.onSurface,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 12),
               const Text('Rename'),
@@ -283,7 +367,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
         CupertinoContextMenuAction(
           onPressed: () {
             Navigator.pop(context);
-            ref.read(historyProvider.notifier).pinConversation(
+            ref
+                .read(historyProvider.notifier)
+                .pinConversation(
                   conversation.id,
                   pinned: !conversation.isPinned,
                 );
@@ -295,7 +381,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn),
+                  Theme.of(context).colorScheme.onSurface,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 12),
               Text(conversation.isPinned ? 'Unpin' : 'Pin'),
@@ -305,7 +393,11 @@ class _HistoryItemWrapper extends ConsumerWidget {
         CupertinoContextMenuAction(
           onPressed: () {
             Navigator.pop(context);
-            ref.read(historyProvider.notifier).archiveChat(conversation.id);
+            if (conversation.isArchived) {
+              ref.read(historyProvider.notifier).unarchiveChat(conversation.id);
+            } else {
+              ref.read(historyProvider.notifier).archiveChat(conversation.id);
+            }
           },
           child: Row(
             children: <Widget>[
@@ -314,10 +406,12 @@ class _HistoryItemWrapper extends ConsumerWidget {
                 width: 18,
                 height: 18,
                 colorFilter: ColorFilter.mode(
-                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn),
+                  Theme.of(context).colorScheme.onSurface,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 12),
-              const Text('Archive'),
+              Text(conversation.isArchived ? 'Unarchive' : 'Archive'),
             ],
           ),
         ),
@@ -334,7 +428,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
                 width: 18,
                 height: 18,
                 colorFilter: const ColorFilter.mode(
-                    CupertinoColors.destructiveRed, BlendMode.srcIn),
+                  CupertinoColors.destructiveRed,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 12),
               const Text('Delete'),
@@ -366,6 +462,7 @@ class _HistoryItemWrapper extends ConsumerWidget {
 
 class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.onSurface, this.isSearching = false});
+
   final Color onSurface;
   final bool isSearching;
 
@@ -388,8 +485,8 @@ class _EmptyState extends StatelessWidget {
           Text(
             isSearching ? 'No chats match your search' : 'No conversations yet',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: onSurface.withValues(alpha: 0.4),
-                ),
+              color: onSurface.withValues(alpha: 0.4),
+            ),
           ),
         ],
       ),
@@ -399,6 +496,7 @@ class _EmptyState extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title});
+
   final String title;
 
   @override
@@ -409,10 +507,10 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: onSurface.withValues(alpha: 0.5),
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.1,
-            ),
+          color: onSurface.withValues(alpha: 0.5),
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.1,
+        ),
       ),
     );
   }
@@ -489,26 +587,30 @@ class _ConversationTileState extends ConsumerState<_ConversationTile> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight:
-                          widget.isActive ? FontWeight.w600 : FontWeight.normal,
-                      color:
-                          widget.isActive ? colorScheme.primary : colorScheme.onSurface,
-                    ),
+                  fontWeight: widget.isActive
+                      ? FontWeight.w600
+                      : FontWeight.normal,
+                  color: widget.isActive
+                      ? colorScheme.primary
+                      : colorScheme.onSurface,
+                ),
               ),
         subtitle: Text(
           widget.conversation.lastMessage,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
+            color: colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
         trailing: widget.conversation.isPinned
             ? SvgPicture.asset(
                 AppAssets.pinSvg,
                 width: 14,
-                colorFilter:
-                    ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
               )
             : null,
       ),

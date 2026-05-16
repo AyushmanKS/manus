@@ -43,65 +43,77 @@ class _ConversationTileState extends ConsumerState<ConversationTile> {
     final String? renamingId = ref.watch(renamingChatIdProvider);
     final bool isCurrentlyRenaming = renamingId == widget.conversation.id;
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      color: widget.isActive
-          ? colorScheme.primary.withValues(alpha: 0.08)
-          : Colors.transparent,
-      child: ListTile(
-        onTap: isCurrentlyRenaming ? null : widget.onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        title: isCurrentlyRenaming
-            ? ManusTextField(
-                controller: _renameController,
-                autofocus: true,
-                style: Theme.of(context).textTheme.bodyLarge,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 8),
-                  border: InputBorder.none,
-                ),
-                onSubmitted: (final String newName) async {
-                  if (newName.isNotEmpty &&
-                      newName != widget.conversation.title) {
-                    await ref
-                        .read(historyProvider.notifier)
-                        .renameChat(widget.conversation.id, newName);
-                  }
-                  ref.read(renamingChatIdProvider.notifier).set(null);
-                },
-              )
-            : Text(
-                widget.conversation.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: widget.isActive
-                      ? FontWeight.w600
-                      : FontWeight.normal,
-                  color: widget.isActive
-                      ? colorScheme.primary
-                      : colorScheme.onSurface,
-                ),
-              ),
-        subtitle: Text(
-          widget.conversation.lastMessage,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 240),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: widget.isActive
+              ? colorScheme.primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
         ),
-        trailing: widget.conversation.isPinned
-            ? SvgPicture.asset(
-                AppAssets.pinSvg,
-                width: 14,
-                colorFilter: ColorFilter.mode(
-                  colorScheme.primary,
-                  BlendMode.srcIn,
+        child: ListTile(
+          onTap: isCurrentlyRenaming ? null : widget.onTap,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          title: isCurrentlyRenaming
+              ? ManusTextField(
+                  controller: _renameController,
+                  autofocus: true,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  decoration: const InputDecoration(
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                    border: InputBorder.none,
+                  ),
+                  onSubmitted: (final String newName) async {
+                    if (newName.isNotEmpty &&
+                        newName != widget.conversation.title) {
+                      await ref
+                          .read(historyProvider.notifier)
+                          .renameChat(widget.conversation.id, newName);
+                    }
+                    ref.read(renamingChatIdProvider.notifier).set(null);
+                  },
+                )
+              : Text(
+                  widget.conversation.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: widget.isActive
+                        ? FontWeight.w600
+                        : FontWeight.w500,
+                    color: widget.isActive
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.9),
+                  ),
                 ),
-              )
-            : null,
+          subtitle: Text(
+            widget.conversation.lastMessage,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: widget.isActive
+                  ? colorScheme.primary.withValues(alpha: 0.7)
+                  : colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
+          ),
+          trailing: widget.conversation.isPinned
+              ? SvgPicture.asset(
+                  AppAssets.pinSvg,
+                  width: 14,
+                  colorFilter: ColorFilter.mode(
+                    widget.isActive
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.4),
+                    BlendMode.srcIn,
+                  ),
+                )
+              : null,
+        ),
       ),
     );
   }

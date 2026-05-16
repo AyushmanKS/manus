@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/chat/widgets/chat_composer.dart';
@@ -47,11 +48,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((final _) {
       _loadConversationIfNeeded();
-      if (_initialFocusRequested) return;
-      _initialFocusRequested = true;
-      Future<void>.delayed(const Duration(milliseconds: 400), () {
-        if (mounted) _composerFocusNode.requestFocus();
-      });
     });
   }
 
@@ -71,6 +67,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
       ref.read(chatProvider.notifier).startNewConversation();
     }
     unawaited(ref.read(historyProvider.notifier).refresh());
+
+    // Only request focus if the drawer is closed
+    if (ref.read(drawerProvider) == 0) {
+      if (_initialFocusRequested) return;
+      _initialFocusRequested = true;
+      Future<void>.delayed(const Duration(milliseconds: 400), () {
+        if (mounted && ref.read(drawerProvider) == 0) {
+          _composerFocusNode.requestFocus();
+        }
+      });
+    }
   }
 
   @override
@@ -114,6 +121,44 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
 
   @override
   Widget build(final BuildContext context) {
+    ref.listen<double>(drawerProvider, (final double? prev, final double next) {
+      if (next > 0) {
+        if (_composerFocusNode.hasFocus) {
+          _composerFocusNode.unfocus();
+        }
+      } else if (prev != null && prev > 0 && next == 0) {
+        Future<void>.delayed(const Duration(milliseconds: 300), () {
+          if (mounted &&
+              !_composerFocusNode.hasFocus &&
+              ref.read(drawerProvider) == 0) {
+            _composerFocusNode.requestFocus();
+          }
+        });
+      }
+    });
+
+    final String activeConvId = ref.watch(activeConversationIdProvider);
+    ref.listen<AsyncValue<List<Conversation>>>(historyProvider, (
+      final AsyncValue<List<Conversation>>? previous,
+      final AsyncValue<List<Conversation>> next,
+    ) {
+      if (next is AsyncData<List<Conversation>>) {
+        final List<Conversation> nextList = next.value;
+        final List<Conversation> prevList = previous?.value ?? <Conversation>[];
+
+        final bool wasPresent = prevList.any(
+          (final Conversation c) => c.id == activeConvId,
+        );
+        final bool isPresent = nextList.any(
+          (final Conversation c) => c.id == activeConvId,
+        );
+
+        if (wasPresent && !isPresent) {
+          ref.read(chatProvider.notifier).startNewConversation();
+        }
+      }
+    });
+
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     final Color bgColor = isDark

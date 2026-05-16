@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,12 +12,34 @@ import 'package:manus/presentation/chat/notifiers/drawer_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 
-class HistoryDrawerList extends ConsumerWidget {
+class HistoryDrawerList extends ConsumerStatefulWidget {
   const HistoryDrawerList({super.key});
 
   @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
-    final AsyncValue<List<Conversation>> historyState = ref.watch(historyProvider);
+  ConsumerState<HistoryDrawerList> createState() => _HistoryDrawerListState();
+}
+
+class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
+  late final TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(
+      text: ref.read(historySearchProvider),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(final BuildContext context) {
+    final AsyncValue<List<Conversation>> historyState =
+        ref.watch(historyProvider);
     final String activeConversationId = ref.watch(activeConversationIdProvider);
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
 
@@ -46,7 +69,8 @@ class HistoryDrawerList extends ConsumerWidget {
                     ),
                     onPressed: () async {
                       ref.read(drawerProvider.notifier).close();
-                      await Future<void>.delayed(const Duration(milliseconds: 150));
+                      await Future<void>.delayed(
+                          const Duration(milliseconds: 150));
                       if (context.mounted) {
                         context.go('/chat');
                       }
@@ -56,37 +80,47 @@ class HistoryDrawerList extends ConsumerWidget {
                 ],
               ),
             ),
+            _HistorySearchBar(
+              controller: _searchController,
+              onChanged: (final String val) =>
+                  ref.read(historySearchProvider.notifier).set(val),
+              onClear: () {
+                _searchController.clear();
+                ref.read(historySearchProvider.notifier).clear();
+              },
+            ),
             Expanded(
               child: historyState.when(
-                data: (final List<Conversation> conversations) {
-                  if (conversations.isEmpty) {
-                    return _EmptyState(onSurface: onSurface);
+                data: (final _) {
+                  final Map<String, List<Conversation>> groups =
+                      ref.watch(groupedHistoryProvider);
+
+                  if (groups.isEmpty) {
+                    return _EmptyState(
+                      onSurface: onSurface,
+                      isSearching: ref.watch(historySearchProvider).isNotEmpty,
+                    );
                   }
+
+                  final List<String> headers = groups.keys.toList();
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    itemCount: conversations.length,
+                    itemCount: headers.length,
                     itemBuilder: (final BuildContext context, final int index) {
-                      final Conversation conversation = conversations[index];
-                      final String header = conversation.groupHeader;
-
-                      bool showHeader = false;
-                      if (index == 0) {
-                        showHeader = true;
-                      } else {
-                        final Conversation prev = conversations[index - 1];
-                        if (prev.groupHeader != header) {
-                          showHeader = true;
-                        }
-                      }
+                      final String header = headers[index];
+                      final List<Conversation> items = groups[header]!;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          if (showHeader) _SectionHeader(title: header),
-                          _HistoryItemWrapper(
-                            conversation: conversation,
-                            isActive: conversation.id == activeConversationId,
+                          _SectionHeader(title: header),
+                          ...items.map(
+                            (final Conversation conversation) =>
+                                _HistoryItemWrapper(
+                              conversation: conversation,
+                              isActive: conversation.id == activeConversationId,
+                            ),
                           ),
                         ],
                       );
@@ -94,10 +128,88 @@ class HistoryDrawerList extends ConsumerWidget {
                   );
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (final Object err, final _) => Center(child: Text('Error: $err')),
+                error: (final Object err, final _) =>
+                    Center(child: Text('Error: $err')),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HistorySearchBar extends StatelessWidget {
+  const _HistorySearchBar({
+    required this.controller,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(final BuildContext context) {
+    final Color onSurface = Theme.of(context).colorScheme.onSurface;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        height: 40,
+        decoration: BoxDecoration(
+          color: onSurface.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: TextField(
+          controller: controller,
+          onChanged: onChanged,
+          textAlignVertical: TextAlignVertical.center,
+          style: const TextStyle(fontSize: 14),
+          decoration: InputDecoration(
+            hintText: 'Search chats...',
+            hintStyle: TextStyle(
+              fontSize: 14,
+              color: onSurface.withValues(alpha: 0.4),
+            ),
+            prefixIconConstraints: const BoxConstraints(
+              minWidth: 44,
+              minHeight: 40,
+            ),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: SvgPicture.asset(
+                AppAssets.searchSvg,
+                width: 16,
+                height: 16,
+                colorFilter: ColorFilter.mode(
+                  onSurface.withValues(alpha: 0.4),
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+            suffixIcon: controller.text.isNotEmpty
+                ? IconButton(
+                    icon: Transform.rotate(
+                      angle: math.pi / 4,
+                      child: SvgPicture.asset(
+                        AppAssets.plusSvg,
+                        width: 16,
+                        height: 16,
+                        colorFilter: ColorFilter.mode(
+                          onSurface.withValues(alpha: 0.4),
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                    onPressed: onClear,
+                  )
+                : null,
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+          ),
         ),
       ),
     );
@@ -113,7 +225,8 @@ class _HistoryItemWrapper extends ConsumerWidget {
   final Conversation conversation;
   final bool isActive;
 
-  Future<void> _confirmDelete(final BuildContext context, final WidgetRef ref) async {
+  Future<void> _confirmDelete(
+      final BuildContext context, final WidgetRef ref) async {
     final bool? confirmed = await showCupertinoDialog<bool>(
       context: context,
       builder: (final BuildContext context) => CupertinoAlertDialog(
@@ -135,38 +248,72 @@ class _HistoryItemWrapper extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref.read(historyProvider.notifier).deleteConversation(conversation.id);
+      await ref
+          .read(historyProvider.notifier)
+          .deleteConversation(conversation.id);
     }
   }
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final double screenWidth = MediaQuery.sizeOf(context).width;
-    // Drawer is 80% of screen, padding is 8dp on each side.
     final double constrainedWidth = (screenWidth * 0.8) - 16.0;
 
     return CupertinoContextMenu(
       actions: <Widget>[
         CupertinoContextMenuAction(
           onPressed: () => Navigator.pop(context),
-          trailingIcon: CupertinoIcons.pencil,
-          child: const Text('Rename'),
+          child: Row(
+            children: <Widget>[
+              SvgPicture.asset(
+                AppAssets.pencilSvg,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn),
+              ),
+              const SizedBox(width: 12),
+              const Text('Rename'),
+            ],
+          ),
         ),
         CupertinoContextMenuAction(
           onPressed: () {
             Navigator.pop(context);
             ref.read(historyProvider.notifier).pinConversation(
-              conversation.id,
-              pinned: !conversation.isPinned,
-            );
+                  conversation.id,
+                  pinned: !conversation.isPinned,
+                );
           },
-          trailingIcon: conversation.isPinned ? CupertinoIcons.pin_slash : CupertinoIcons.pin,
-          child: Text(conversation.isPinned ? 'Unpin' : 'Pin'),
+          child: Row(
+            children: <Widget>[
+              SvgPicture.asset(
+                AppAssets.pinSvg,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn),
+              ),
+              const SizedBox(width: 12),
+              Text(conversation.isPinned ? 'Unpin' : 'Pin'),
+            ],
+          ),
         ),
         CupertinoContextMenuAction(
           onPressed: () => Navigator.pop(context),
-          trailingIcon: CupertinoIcons.archivebox,
-          child: const Text('Archive'),
+          child: Row(
+            children: <Widget>[
+              SvgPicture.asset(
+                AppAssets.archieveSvg,
+                width: 18,
+                height: 18,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.onSurface, BlendMode.srcIn),
+              ),
+              const SizedBox(width: 12),
+              const Text('Archive'),
+            ],
+          ),
         ),
         CupertinoContextMenuAction(
           isDestructiveAction: true,
@@ -174,8 +321,19 @@ class _HistoryItemWrapper extends ConsumerWidget {
             Navigator.pop(context);
             unawaited(_confirmDelete(context, ref));
           },
-          trailingIcon: CupertinoIcons.delete,
-          child: const Text('Delete'),
+          child: Row(
+            children: <Widget>[
+              SvgPicture.asset(
+                AppAssets.deleteSvg,
+                width: 18,
+                height: 18,
+                colorFilter: const ColorFilter.mode(
+                    CupertinoColors.destructiveRed, BlendMode.srcIn),
+              ),
+              const SizedBox(width: 12),
+              const Text('Delete'),
+            ],
+          ),
         ),
       ],
       child: Padding(
@@ -201,8 +359,9 @@ class _HistoryItemWrapper extends ConsumerWidget {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.onSurface});
+  const _EmptyState({required this.onSurface, this.isSearching = false});
   final Color onSurface;
+  final bool isSearching;
 
   @override
   Widget build(final BuildContext context) {
@@ -221,7 +380,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No conversations yet',
+            isSearching ? 'No chats match your search' : 'No conversations yet',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: onSurface.withValues(alpha: 0.4),
                 ),
@@ -270,7 +429,9 @@ class _ConversationTile extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? colorScheme.primary.withValues(alpha: 0.08) : colorScheme.surface,
+        color: isActive
+            ? colorScheme.primary.withValues(alpha: 0.08)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -295,9 +456,10 @@ class _ConversationTile extends StatelessWidget {
         ),
         trailing: conversation.isPinned
             ? SvgPicture.asset(
-                AppAssets.plugSvg, // Closest tech icon if no pin.svg
+                AppAssets.pinSvg,
                 width: 14,
-                colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+                colorFilter:
+                    ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
               )
             : null,
       ),

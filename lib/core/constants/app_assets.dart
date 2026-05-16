@@ -23,10 +23,18 @@ class AppAssets {
   static const String micSvg = 'assets/icons/mic.svg';
   static const String upArrowSvg = 'assets/icons/up-arrow.svg';
   static const String downArrowSvg = 'assets/icons/down-arrow.svg';
+  static const String searchSvg = 'assets/icons/search.svg';
 
   static const String pencilSvg = 'assets/icons/pencil.svg';
   static const String copySvg = 'assets/icons/copy.svg';
   static const String checkSvg = 'assets/icons/check.svg';
+  static const String pinSvg = 'assets/icons/pin.svg';
+  static const String archieveSvg = 'assets/icons/archieve.svg';
+  static const String deleteSvg = 'assets/icons/delete.svg';
+
+  static const String cameraSvg = 'assets/icons/camera.svg';
+  static const String pictureSvg = 'assets/icons/picture.svg';
+  static const String attachSvg = 'assets/icons/attach.svg';
 
   static const String blobSolid = 'assets/illustrations/blob_solid.svg';
   static const String blobHollow = 'assets/illustrations/blob_hollow.svg';

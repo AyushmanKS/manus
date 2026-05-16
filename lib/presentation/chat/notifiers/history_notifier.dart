@@ -3,6 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/data/local/history_storage_provider.dart';
 import 'package:manus/data/models/conversation.dart';
 
+class HistorySearchNotifier extends Notifier<String> {
+  @override
+  String build() => '';
+
+  void set(final String query) => state = query;
+  void clear() => state = '';
+}
+
+final NotifierProvider<HistorySearchNotifier, String> historySearchProvider =
+    NotifierProvider<HistorySearchNotifier, String>(HistorySearchNotifier.new);
+
 class HistoryNotifier extends AsyncNotifier<List<Conversation>> {
   @override
   FutureOr<List<Conversation>> build() async {
@@ -37,21 +48,30 @@ class HistoryNotifier extends AsyncNotifier<List<Conversation>> {
     await ref.read(historyStorageProvider).archiveConversation(id, archived: archived);
     await refresh();
   }
-
-  Map<String, List<Conversation>> get grouped {
-    final List<Conversation> list = state.value ?? <Conversation>[];
-    final Map<String, List<Conversation>> groups = <String, List<Conversation>>{};
-
-    for (final Conversation conv in list) {
-      if (conv.isArchived) continue;
-      final String header = conv.groupHeader;
-      groups.putIfAbsent(header, () => <Conversation>[]).add(conv);
-    }
-    return groups;
-  }
 }
 
 final AsyncNotifierProvider<HistoryNotifier, List<Conversation>> historyProvider =
     AsyncNotifierProvider<HistoryNotifier, List<Conversation>>(HistoryNotifier.new);
 
-final Provider<String> historySearchQueryProvider = Provider<String>((final Ref ref) => '');
+final Provider<Map<String, List<Conversation>>> groupedHistoryProvider =
+    Provider<Map<String, List<Conversation>>>((final Ref ref) {
+  final List<Conversation> list = ref.watch(historyProvider).value ?? <Conversation>[];
+  final String query = ref.watch(historySearchProvider).toLowerCase();
+
+  final Map<String, List<Conversation>> groups = <String, List<Conversation>>{};
+
+  for (final Conversation conv in list) {
+    if (conv.isArchived) continue;
+
+    if (query.isNotEmpty) {
+      if (!conv.title.toLowerCase().contains(query) &&
+          !conv.lastMessage.toLowerCase().contains(query)) {
+        continue;
+      }
+    }
+
+    final String header = conv.groupHeader;
+    groups.putIfAbsent(header, () => <Conversation>[]).add(conv);
+  }
+  return groups;
+});

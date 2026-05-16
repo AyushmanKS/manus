@@ -29,7 +29,6 @@ class _ChatComposerState extends ConsumerState<ChatComposer> {
   bool _showAttachmentTray = false;
 
   FocusNode get _focusNode => widget.focusNode;
-
   TextEditingController get _controller => widget.controller;
 
   @override
@@ -320,37 +319,37 @@ class _ChatComposerState extends ConsumerState<ChatComposer> {
         Consumer(
           builder:
               (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
-                final bool isStreaming = ref.watch(chatIsStreamingProvider);
-                final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
+            final bool isStreaming = ref.watch(chatIsStreamingProvider);
+            final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
 
-                bool canTap;
-                if (editingMessage != null) {
-                  canTap =
-                      _controller.text.trim().isNotEmpty &&
-                      _controller.text.trim() != editingMessage.originalText;
-                } else {
-                  canTap = hasText || isStreaming;
-                }
+            bool canTap;
+            if (editingMessage != null) {
+              canTap =
+                  _controller.text.trim().isNotEmpty &&
+                  _controller.text.trim() != editingMessage.originalText;
+            } else {
+              canTap = hasText || isStreaming;
+            }
 
-                void onTap() {
-                  if (isStreaming) {
-                    HapticFeedback.mediumImpact();
-                    ref.read(chatProvider.notifier).stopStream();
-                  } else if (!isSubmitting) {
-                    _handleSend(editingMessage);
-                  }
-                }
+            void onTap() {
+              if (isStreaming) {
+                HapticFeedback.mediumImpact();
+                ref.read(chatProvider.notifier).stopStream();
+              } else if (!isSubmitting) {
+                _handleSend(editingMessage);
+              }
+            }
 
-                return _SendButton(
-                  hasText: hasText,
-                  isStreaming: isStreaming,
-                  isSubmitting: isSubmitting,
-                  onTap: canTap ? onTap : null,
-                  isDark: isDark,
-                  activeSendCircle: activeSendCircle,
-                  inactiveSendCircle: inactiveSendCircle,
-                );
-              },
+            return _SendButton(
+              hasText: hasText,
+              isStreaming: isStreaming,
+              isSubmitting: isSubmitting,
+              onTap: canTap ? onTap : null,
+              isDark: isDark,
+              activeSendCircle: activeSendCircle,
+              inactiveSendCircle: inactiveSendCircle,
+            );
+          },
         ),
       ],
     );
@@ -507,27 +506,27 @@ class _AttachmentTray extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
-        _TrayItem(
-          icon: Icons.camera_alt_outlined,
-          label: 'Camera',
-          iconColor: iconColor,
+        Expanded(
+          child: _TrayItem(
+            iconAsset: AppAssets.cameraSvg,
+            label: 'Camera',
+            iconColor: iconColor,
+          ),
         ),
-        _TrayItem(
-          icon: Icons.photo_outlined,
-          label: 'Photo',
-          iconColor: iconColor,
+        Expanded(
+          child: _TrayItem(
+            iconAsset: AppAssets.pictureSvg,
+            label: 'Picture',
+            iconColor: iconColor,
+          ),
         ),
-        _TrayItem(
-          icon: Icons.insert_drive_file_outlined,
-          label: 'File',
-          iconColor: iconColor,
-        ),
-        _TrayItem(
-          icon: Icons.crop_free_outlined,
-          label: 'Capture',
-          iconColor: iconColor,
+        Expanded(
+          child: _TrayItem(
+            iconAsset: AppAssets.attachSvg,
+            label: 'File',
+            iconColor: iconColor,
+          ),
         ),
       ],
     );
@@ -536,12 +535,12 @@ class _AttachmentTray extends StatelessWidget {
 
 class _TrayItem extends StatelessWidget {
   const _TrayItem({
-    required this.icon,
+    required this.iconAsset,
     required this.label,
     required this.iconColor,
   });
 
-  final IconData icon;
+  final String iconAsset;
   final String label;
   final Color iconColor;
 
@@ -568,7 +567,14 @@ class _TrayItem extends StatelessWidget {
               color: bgColor,
               borderRadius: BorderRadius.circular(14.0),
             ),
-            child: Icon(icon, color: iconColor, size: 24.0),
+            child: Center(
+              child: SvgPicture.asset(
+                iconAsset,
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                width: 24.0,
+                height: 24.0,
+              ),
+            ),
           ),
           const SizedBox(height: 6.0),
           Text(

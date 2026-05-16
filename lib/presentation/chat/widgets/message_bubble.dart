@@ -97,7 +97,6 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
     _removeOverlay();
 
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    const double menuWidth = 114.0;
     bool copied = false;
 
     _overlayEntry = OverlayEntry(
@@ -112,37 +111,36 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
                       behavior: HitTestBehavior.opaque,
                       child: Container(color: Colors.transparent),
                     ),
-                    Positioned(
-                      width: menuWidth,
-                      child: CompositedTransformFollower(
-                        link: _layerLink,
-                        showWhenUnlinked: false,
-                        targetAnchor: Alignment.bottomRight,
-                        followerAnchor: Alignment.topRight,
-                        offset: const Offset(0.0, 6.0),
-                        child: Material(
-                          color: Colors.transparent,
-                          child:
-                              Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(14),
-                                      color: isDark
-                                          ? AppColors.composerBgDark
-                                          : AppColors.composerBgLight,
-                                      boxShadow: <BoxShadow>[
-                                        BoxShadow(
-                                          blurRadius: 15,
-                                          spreadRadius: 0,
-                                          color: Colors.black.withValues(
-                                            alpha: 0.15,
-                                          ),
+                    CompositedTransformFollower(
+                      link: _layerLink,
+                      showWhenUnlinked: false,
+                      targetAnchor: Alignment.bottomRight,
+                      followerAnchor: Alignment.topRight,
+                      offset: const Offset(0.0, 6.0),
+                      child:
+                          Material(
+                                color: Colors.transparent,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    color: isDark
+                                        ? AppColors.composerBgDark
+                                        : AppColors.composerBgLight,
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        blurRadius: 15,
+                                        spreadRadius: 0,
+                                        color: Colors.black.withValues(
+                                          alpha: 0.15,
                                         ),
-                                      ],
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 8,
-                                    ),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 8,
+                                  ),
+                                  child: IntrinsicWidth(
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
@@ -191,17 +189,17 @@ class _UserBubbleState extends ConsumerState<_UserBubble> {
                                         ),
                                       ],
                                     ),
-                                  )
-                                  .animate()
-                                  .fadeIn(duration: 150.ms)
-                                  .scaleXY(
-                                    begin: 0.85,
-                                    end: 1.0,
-                                    curve: Curves.easeOutCubic,
-                                    alignment: Alignment.topRight,
                                   ),
-                        ),
-                      ),
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(duration: 150.ms)
+                              .scaleXY(
+                                begin: 0.85,
+                                end: 1.0,
+                                curve: Curves.easeOutCubic,
+                                alignment: Alignment.topRight,
+                              ),
                     ),
                   ],
                 );
@@ -295,28 +293,25 @@ class _ContextMenuItem extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
-      child: SizedBox(
-        width: 50,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              SvgPicture.asset(
-                asset,
-                width: 18,
-                height: 18,
-                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: iconColor, fontSize: 10),
-              ),
-            ],
-          ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            SvgPicture.asset(
+              asset,
+              width: 18,
+              height: 18,
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: iconColor, fontSize: 10),
+            ),
+          ],
         ),
       ),
     );

@@ -339,7 +339,10 @@ class _ChatHeader extends ConsumerWidget {
               }).toList();
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 2.0,
+                vertical: 8.0,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[

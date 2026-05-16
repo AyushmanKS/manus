@@ -194,6 +194,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     return CustomDrawerLayout(
       drawer: const HistoryDrawerList(),
       child: Scaffold(
+        key: ValueKey<String>(activeConvId),
         backgroundColor: bgColor,
         resizeToAvoidBottomInset: drawerValue == 0,
         body: Container(

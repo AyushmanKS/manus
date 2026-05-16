@@ -71,17 +71,17 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                           BlendMode.srcIn,
                         ),
                       ),
-                      onPressed: () async {
+                      onPressed: () {
                         ref.read(drawerProvider.notifier).close();
-                        await Future<void>.delayed(
-                          const Duration(milliseconds: 150),
-                        );
-                        if (context.mounted) {
-                          context.go(
-                            '/chat',
-                            extra: <String, dynamic>{'fromDrawer': true},
-                          );
-                        }
+                        Future<void>.delayed(const Duration(milliseconds: 300),
+                            () {
+                          if (context.mounted) {
+                            context.go(
+                              '/chat',
+                              extra: <String, dynamic>{'fromDrawer': true},
+                            );
+                          }
+                        });
                       },
                       tooltip: 'New Chat',
                     ),
@@ -470,11 +470,15 @@ class _HistoryItemWrapper extends ConsumerWidget {
               isActive: isActive,
               onTap: () {
                 ref.read(drawerProvider.notifier).close();
-                AppLogger.info('Loading conversation: ${conversation.id}');
-                context.go(
-                  '/chat/${conversation.id}',
-                  extra: <String, dynamic>{'fromDrawer': true},
-                );
+                Future<void>.delayed(const Duration(milliseconds: 300), () {
+                  if (context.mounted) {
+                    AppLogger.info('Loading conversation: ${conversation.id}');
+                    context.go(
+                      '/chat/${conversation.id}',
+                      extra: <String, dynamic>{'fromDrawer': true},
+                    );
+                  }
+                });
               },
             ),
           ),

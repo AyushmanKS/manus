@@ -21,7 +21,7 @@ class _CustomDrawerLayoutState extends ConsumerState<CustomDrawerLayout>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   
-  static const double _drawerWidthFactor = 0.8;
+  static const double _drawerWidthFactor = 0.82;
   
   double _dragStartX = 0;
   bool _canDrag = false;

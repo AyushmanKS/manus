@@ -7,8 +7,8 @@ class ManusLoader extends StatelessWidget {
   @override
   Widget build(final BuildContext context) {
     return Container(
-      width: 100.0,
-      height: 100.0,
+      width: 116.0,
+      height: 116.0,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24.0),

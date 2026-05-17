@@ -40,8 +40,8 @@ class ChatHeader extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
               child: SvgPicture.asset(
                 AppAssets.menuSvg,
-                width: 22,
-                height: 22,
+                width: 26,
+                height: 26,
                 colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
               ),
             ),
@@ -110,7 +110,7 @@ class ChatHeader extends ConsumerWidget {
                     Text(
                       selectedModel,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -140,8 +140,8 @@ class ChatHeader extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
                 child: SvgPicture.asset(
                   AppAssets.shareSvg,
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                 ),
               ),
@@ -153,8 +153,8 @@ class ChatHeader extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
               child: SvgPicture.asset(
                 AppAssets.profileSvg,
-                width: 24,
-                height: 24,
+                width: 26,
+                height: 26,
                 colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
               ),
             ),

@@ -27,7 +27,7 @@ class MetaAttribution extends StatelessWidget {
           children: <Widget>[
             SvgPicture.asset(
               AppAssets.metaSvg,
-              height: 22,
+              height: 26,
               colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
             ),
             const SizedBox(width: 4),

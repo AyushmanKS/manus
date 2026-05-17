@@ -13,7 +13,8 @@ class LogoutButton extends ConsumerWidget {
   void _showLogoutDialog(final BuildContext context) {
     showDialog<void>(
       context: context,
-      builder: (final BuildContext context) => const LogoutDialog(),
+      builder: (final BuildContext dialogContext) =>
+          LogoutDialog(parentContext: context),
     );
   }
 

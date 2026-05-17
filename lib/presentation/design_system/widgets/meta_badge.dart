@@ -25,7 +25,7 @@ class MetaBadge extends StatelessWidget {
         const SizedBox(width: 4),
         SvgPicture.asset(
           AppAssets.metaSvg,
-          height: 32,
+          height: 36,
           colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
         ),
       ],

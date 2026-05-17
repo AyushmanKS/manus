@@ -66,8 +66,10 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                   children: <Widget>[
                     Text(
                       'History',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     if (!isChatEmpty)
                       TappableOpacity(

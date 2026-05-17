@@ -1,10 +1,15 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
+import 'package:manus/presentation/design_system/widgets/manus_loader.dart';
 
 class LogoutDialog extends ConsumerWidget {
-  const LogoutDialog({super.key});
+  const LogoutDialog({required this.parentContext, super.key});
+
+  final BuildContext parentContext;
 
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
@@ -75,9 +80,19 @@ class LogoutDialog extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      final AuthNotifier authNotifier = ref.read(authProvider.notifier);
                       Navigator.pop(context);
-                      ref.read(authProvider.notifier).logout();
+                      unawaited(showManusLoader(parentContext));
+                      await Future<void>.delayed(const Duration(seconds: 2));
+                      if (!parentContext.mounted) {
+                        return;
+                      }
+                      Navigator.pop(parentContext);
+                      await authNotifier.logout();
+                      if (parentContext.mounted) {
+                        parentContext.go('/auth');
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),

@@ -63,7 +63,9 @@ class _ConversationTileState extends ConsumerState<ConversationTile> {
               ? ManusTextField(
                   controller: _renameController,
                   autofocus: true,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontSize: 14,
+                  ),
                   decoration: const InputDecoration(
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(vertical: 8),
@@ -84,6 +86,7 @@ class _ConversationTileState extends ConsumerState<ConversationTile> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontSize: 14,
                     fontWeight: widget.isActive
                         ? FontWeight.w600
                         : FontWeight.w500,
@@ -97,6 +100,7 @@ class _ConversationTileState extends ConsumerState<ConversationTile> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 12,
               color: widget.isActive
                   ? colorScheme.primary.withValues(alpha: 0.7)
                   : colorScheme.onSurface.withValues(alpha: 0.5),

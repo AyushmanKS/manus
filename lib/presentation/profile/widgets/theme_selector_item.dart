@@ -99,7 +99,9 @@ class _ThemeSelectorItemState extends ConsumerState<ThemeSelectorItem> {
                 Expanded(
                   child: Text(
                     widget.themeInfo.$1,
-                    style: const TextStyle(fontSize: 15),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontSize: 15,
+                        ),
                   ),
                 ),
                 SvgPicture.asset(

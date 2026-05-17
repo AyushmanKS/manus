@@ -1,7 +1,13 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-enum PhysicsBlobType { bigCircle, smallCircle, hollowCircle, triangle, rectangle }
+enum PhysicsBlobType {
+  bigCircle,
+  smallCircle,
+  hollowCircle,
+  triangle,
+  rectangle,
+}
 
 class PhysicsBlob {
   Offset position;

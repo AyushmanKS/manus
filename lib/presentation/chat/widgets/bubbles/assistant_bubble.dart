@@ -1,5 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/core/constants/app_assets.dart';
+import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/services/haptic_service.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/core/utils/markdown_segmenter.dart';
@@ -22,6 +27,7 @@ class _AssistantBubbleState extends State<AssistantBubble> {
   final GlobalKey<SelectableRegionState> _selectionKey =
       GlobalKey<SelectableRegionState>();
   final Map<int, Widget> _blockCache = <int, Widget>{};
+  bool _copied = false;
 
   void _shareMessage(final BuildContext context) {
     unawaited(Share.share(widget.message.text));
@@ -82,6 +88,32 @@ class _AssistantBubbleState extends State<AssistantBubble> {
         _buildBlockList(blocks, isStreaming),
         if (isStreaming) const StreamingCaret(),
         if (isStopped) const StoppedBadge(),
+        if (_copied)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SvgPicture.asset(
+                  AppAssets.checkSvg,
+                  width: 14,
+                  height: 14,
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Copied',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ).animate().fadeIn(duration: 200.ms).slideY(begin: 0.2, end: 0.0),
       ],
     );
 
@@ -104,12 +136,13 @@ class _AssistantBubbleState extends State<AssistantBubble> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onLongPress: () {
-                unawaited(HapticService.medium());
-                WidgetsBinding.instance.addPostFrameCallback((final _) {
-                  if (!mounted) return;
-                  _selectionKey.currentState?.selectAll(
-                    SelectionChangedCause.toolbar,
-                  );
+                unawaited(HapticFeedback.mediumImpact());
+                unawaited(
+                  Clipboard.setData(ClipboardData(text: widget.message.text)),
+                );
+                setState(() => _copied = true);
+                Future<void>.delayed(const Duration(milliseconds: 1500), () {
+                  if (mounted) setState(() => _copied = false);
                 });
               },
               child: bubbleContentColumn,

@@ -60,22 +60,30 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   }
 
   void _loadConversationIfNeeded() {
-    unawaited(Future<void>.microtask(() {
-      if (!mounted) return;
+    unawaited(
+      Future<void>.microtask(() {
+        if (!mounted) return;
 
-      final String? convId = widget.conversationId;
-      if (convId != null) {
-        ref.read<ChatNotifier>(chatProvider.notifier).loadConversation(convId);
-      } else {
-        final List<ChatMessage> currentMessages = ref.read<List<ChatMessage>>(
-          chatProvider,
-        );
-        if (currentMessages.isNotEmpty) {
-          ref.read<ChatNotifier>(chatProvider.notifier).startNewConversation();
+        final String? convId = widget.conversationId;
+        if (convId != null) {
+          ref
+              .read<ChatNotifier>(chatProvider.notifier)
+              .loadConversation(convId);
+        } else {
+          final List<ChatMessage> currentMessages = ref.read<List<ChatMessage>>(
+            chatProvider,
+          );
+          if (currentMessages.isNotEmpty) {
+            ref
+                .read<ChatNotifier>(chatProvider.notifier)
+                .startNewConversation();
+          }
         }
-      }
-      unawaited(ref.read<HistoryNotifier>(historyProvider.notifier).refresh());
-    }));
+        unawaited(
+          ref.read<HistoryNotifier>(historyProvider.notifier).refresh(),
+        );
+      }),
+    );
   }
 
   @override

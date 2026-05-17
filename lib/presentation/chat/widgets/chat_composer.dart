@@ -15,7 +15,6 @@ import 'package:manus/presentation/widgets/manus_text_field.dart';
 import 'composer/action_icon.dart';
 import 'composer/attachment_preview_row.dart';
 import 'composer/attachment_tray.dart';
-import 'composer/model_picker_sheet.dart';
 import 'composer/send_button.dart';
 
 class ChatComposer extends ConsumerStatefulWidget {
@@ -107,17 +106,6 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
   void _toggleAttachmentTray() {
     unawaited(HapticFeedback.mediumImpact());
     setState(() => _showAttachmentTray = !_showAttachmentTray);
-  }
-
-  void _toggleModelPicker() {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: AppColors.transparent,
-      isScrollControlled: true,
-      builder: (final BuildContext ctx) => ModelPickerSheet(
-        isDark: Theme.of(context).brightness == Brightness.dark,
-      ),
-    ).whenComplete(() => _focusNode.requestFocus());
   }
 
   @override
@@ -363,7 +351,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
         const SizedBox(width: 20.0),
         ActionIcon(
           asset: AppAssets.plugSvg,
-          onTap: _toggleModelPicker,
+          onTap: null,
           colorFilter: iconFilter,
           isBold: true,
         ),

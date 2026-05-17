@@ -2,7 +2,9 @@ import 'package:manus/data/models/chat_message.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ShareService {
-  static Future<void> shareConversation(final List<ChatMessage> messages) async {
+  static Future<void> shareConversation(
+    final List<ChatMessage> messages,
+  ) async {
     if (messages.isEmpty) return;
 
     final String markdown = _formatToMarkdown(messages);

@@ -11,7 +11,11 @@ import 'package:manus/presentation/chat/providers/attachment_provider.dart';
 import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 class AttachmentTray extends ConsumerWidget {
-  const AttachmentTray({required this.iconColor, required this.onClose, super.key});
+  const AttachmentTray({
+    required this.iconColor,
+    required this.onClose,
+    super.key,
+  });
 
   final Color iconColor;
   final VoidCallback onClose;
@@ -33,7 +37,9 @@ class AttachmentTray extends ConsumerWidget {
               onTap: () {
                 unawaited(HapticFeedback.lightImpact());
                 unawaited(() async {
-                  final Attachment? result = await service.pickFromCamera(context);
+                  final Attachment? result = await service.pickFromCamera(
+                    context,
+                  );
                   if (result != null) {
                     notifier.add(result);
                     onClose();
@@ -51,7 +57,8 @@ class AttachmentTray extends ConsumerWidget {
               onTap: () {
                 unawaited(HapticFeedback.lightImpact());
                 unawaited(() async {
-                  final List<Attachment> results = await service.pickFromGallery(context);
+                  final List<Attachment> results = await service
+                      .pickFromGallery(context);
                   if (results.isNotEmpty) {
                     for (final Attachment result in results) {
                       notifier.add(result);
@@ -71,7 +78,9 @@ class AttachmentTray extends ConsumerWidget {
               onTap: () {
                 unawaited(HapticFeedback.lightImpact());
                 unawaited(() async {
-                  final List<Attachment> results = await service.pickFiles(context);
+                  final List<Attachment> results = await service.pickFiles(
+                    context,
+                  );
                   if (results.isNotEmpty) {
                     for (final Attachment result in results) {
                       notifier.add(result);
@@ -140,10 +149,10 @@ class TrayItem extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 11.0,
-                  color: labelColor,
-                  fontWeight: FontWeight.w600,
-                ),
+              fontSize: 11.0,
+              color: labelColor,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

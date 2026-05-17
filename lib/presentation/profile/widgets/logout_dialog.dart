@@ -17,7 +17,9 @@ class LogoutDialog extends ConsumerWidget {
     final Color titleColor = isDark ? AppColors.white : AppColors.black;
     const Color descColor = AppColors.textDescriptionGrey;
     const Color logoutTextColor = AppColors.whiteFD;
-    final Color cancelTextColor = isDark ? AppColors.whiteFD : AppColors.cancelBtnDark;
+    final Color cancelTextColor = isDark
+        ? AppColors.whiteFD
+        : AppColors.cancelBtnDark;
 
     return Dialog(
       backgroundColor: bgColor,

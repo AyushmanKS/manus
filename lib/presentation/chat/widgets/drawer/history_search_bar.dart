@@ -33,15 +33,13 @@ class HistorySearchBar extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           textAlignVertical: TextAlignVertical.center,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
-              ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14),
           decoration: InputDecoration(
             hintText: 'Search chats...',
             hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
-                  color: iconColor.withValues(alpha: 0.4),
-                ),
+              fontSize: 14,
+              color: iconColor.withValues(alpha: 0.4),
+            ),
             prefixIconConstraints: const BoxConstraints(
               minWidth: 44,
               minHeight: 40,

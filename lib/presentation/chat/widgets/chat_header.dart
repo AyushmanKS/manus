@@ -119,7 +119,10 @@ class ChatHeader extends ConsumerWidget {
                       AppAssets.downArrowSvg,
                       width: 18,
                       height: 18,
-                      colorFilter: ColorFilter.mode(mutedColor, BlendMode.srcIn),
+                      colorFilter: ColorFilter.mode(
+                        mutedColor,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ],
                 ),
@@ -130,7 +133,9 @@ class ChatHeader extends ConsumerWidget {
           Opacity(
             opacity: canShare ? 1.0 : 0.3,
             child: TappableOpacity(
-              onTap: canShare ? () => ShareService.shareConversation(messages) : null,
+              onTap: canShare
+                  ? () => ShareService.shareConversation(messages)
+                  : null,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
                 child: SvgPicture.asset(

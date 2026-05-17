@@ -29,18 +29,14 @@ class MenuButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: <Widget>[
-            SizedBox(
-              width: 22,
-              height: 22,
-              child: Center(child: leading),
-            ),
+            SizedBox(width: 22, height: 22, child: Center(child: leading)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: 15,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontSize: 15),
               ),
             ),
             if (showArrow)

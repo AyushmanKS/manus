@@ -137,10 +137,10 @@ class SendButtonBadge extends ConsumerWidget {
               child: Text(
                 '$count',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

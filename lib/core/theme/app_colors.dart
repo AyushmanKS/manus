@@ -35,7 +35,7 @@ class AppColors {
   static const Color sendCircleActiveDark = Color(0xFFFFFFFF);
   static const Color iconDark = Color(0xFFDADADA);
   static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceDark = Color(0xFF292929);
+  static const Color surfaceDark = Color(0xFF171717);
   static const Color textPrimaryLight = Color(0xFF1A1A1A);
   static const Color textPrimaryDark = Colors.white;
   static const Color textSecondaryLight = Color(0xFF757575);

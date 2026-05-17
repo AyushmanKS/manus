@@ -64,10 +64,12 @@ class HistoryNotifier extends AsyncNotifier<HistoryState> {
   }
 
   Future<void> refresh() async {
-    // We don't set state to loading() synchronously to avoid 
+    // We don't set state to loading() synchronously to avoid
     // "Tried to modify a provider while the widget tree was building"
     // and to prevent the UI from flashing a loader if we already have data.
-    final AsyncValue<HistoryState> newState = await AsyncValue.guard(() => _loadHistory());
+    final AsyncValue<HistoryState> newState = await AsyncValue.guard(
+      () => _loadHistory(),
+    );
     if (ref.mounted) {
       state = newState;
     }

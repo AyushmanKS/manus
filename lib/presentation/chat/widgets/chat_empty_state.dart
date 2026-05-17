@@ -71,10 +71,12 @@ class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color borderColor =
-        isDark ? AppColors.dividerDark : AppColors.dividerLight;
-    final Color textColor =
-        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color borderColor = isDark
+        ? AppColors.dividerDark
+        : AppColors.dividerLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     return Container(
       width: double.infinity,
@@ -84,7 +86,9 @@ class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
           spacing: 8,
           runSpacing: 10,
           alignment: WrapAlignment.center,
-          children: List<Widget>.generate(_currentIndices.length, (final int i) {
+          children: List<Widget>.generate(_currentIndices.length, (
+            final int i,
+          ) {
             final int suggestionIndex = _currentIndices[i];
             final bool isClicked = _clickedIndices.contains(suggestionIndex);
 
@@ -107,10 +111,8 @@ class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
                             ),
                             child: Text(
                               kSuggestionData[suggestionIndex].prompt,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 13,
-                                    color: textColor,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontSize: 13, color: textColor),
                             ),
                           ),
                         )

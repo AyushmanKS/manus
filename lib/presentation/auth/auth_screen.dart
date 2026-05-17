@@ -77,11 +77,12 @@ class LegalFooter extends ConsumerWidget {
   Widget build(final BuildContext context, final WidgetRef ref) {
     final Color onSurface = Theme.of(context).colorScheme.onSurface;
     final Color mutedColor = onSurface.withValues(alpha: 0.5);
-    final TextStyle baseStyle = (Theme.of(context).textTheme.bodySmall ?? const TextStyle()).copyWith(
-      fontSize: 13,
-      color: mutedColor,
-      height: 1.4,
-    );
+    final TextStyle baseStyle =
+        (Theme.of(context).textTheme.bodySmall ?? const TextStyle()).copyWith(
+          fontSize: 13,
+          color: mutedColor,
+          height: 1.4,
+        );
     final TextStyle linkStyle = baseStyle.copyWith(
       decoration: TextDecoration.underline,
     );

@@ -45,62 +45,64 @@ class AppTheme {
             ? AppColors.loaderBgDark
             : AppColors.loaderBgLight,
       ),
-      textTheme: baseTextTheme.apply(
-        fontFamily: _bodyFontFamily,
-        bodyColor: onSurface,
-        displayColor: onSurface,
-      ).copyWith(
-        displaySmall: baseTextTheme.displaySmall?.copyWith(
-          color: onSurface,
-          fontSize: 28,
-          fontWeight: FontWeight.w800,
-          fontFamily: _displayFontFamily,
-          letterSpacing: -0.5,
-        ),
-        headlineLarge: baseTextTheme.headlineLarge?.copyWith(
-          color: onSurface,
-          fontSize: 24,
-          fontWeight: FontWeight.w800,
-          fontFamily: _displayFontFamily,
-          letterSpacing: -0.5,
-        ),
-        headlineMedium: baseTextTheme.headlineMedium?.copyWith(
-          color: onSurface,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-          fontFamily: _displayFontFamily,
-          letterSpacing: -0.4,
-        ),
-        bodyLarge: baseTextTheme.bodyLarge?.copyWith(
-          color: onSurface,
-          fontSize: 16,
-          fontFamily: _bodyFontFamily,
-          fontWeight: FontWeight.w400,
-        ),
-        bodyMedium: baseTextTheme.bodyMedium?.copyWith(
-          color: secondaryText,
-          fontSize: 14,
-          fontFamily: _bodyFontFamily,
-          fontWeight: FontWeight.w400,
-        ),
-        bodySmall: baseTextTheme.bodySmall?.copyWith(
-          color: secondaryText,
-          fontSize: 12,
-          fontFamily: _bodyFontFamily,
-          fontWeight: FontWeight.w400,
-        ),
-        labelLarge: baseTextTheme.labelLarge?.copyWith(
-          fontSize: 16,
-          fontWeight: FontWeight.w300,
-          fontFamily: _bodyFontFamily,
-        ),
-        labelMedium: baseTextTheme.labelMedium?.copyWith(
-          color: isDark ? AppColors.iconDark : AppColors.textMutedLight,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          fontFamily: _bodyFontFamily,
-        ),
-      ),
+      textTheme: baseTextTheme
+          .apply(
+            fontFamily: _bodyFontFamily,
+            bodyColor: onSurface,
+            displayColor: onSurface,
+          )
+          .copyWith(
+            displaySmall: baseTextTheme.displaySmall?.copyWith(
+              color: onSurface,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              fontFamily: _displayFontFamily,
+              letterSpacing: -0.5,
+            ),
+            headlineLarge: baseTextTheme.headlineLarge?.copyWith(
+              color: onSurface,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              fontFamily: _displayFontFamily,
+              letterSpacing: -0.5,
+            ),
+            headlineMedium: baseTextTheme.headlineMedium?.copyWith(
+              color: onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              fontFamily: _displayFontFamily,
+              letterSpacing: -0.4,
+            ),
+            bodyLarge: baseTextTheme.bodyLarge?.copyWith(
+              color: onSurface,
+              fontSize: 16,
+              fontFamily: _bodyFontFamily,
+              fontWeight: FontWeight.w400,
+            ),
+            bodyMedium: baseTextTheme.bodyMedium?.copyWith(
+              color: secondaryText,
+              fontSize: 14,
+              fontFamily: _bodyFontFamily,
+              fontWeight: FontWeight.w400,
+            ),
+            bodySmall: baseTextTheme.bodySmall?.copyWith(
+              color: secondaryText,
+              fontSize: 12,
+              fontFamily: _bodyFontFamily,
+              fontWeight: FontWeight.w400,
+            ),
+            labelLarge: baseTextTheme.labelLarge?.copyWith(
+              fontSize: 16,
+              fontWeight: FontWeight.w300,
+              fontFamily: _bodyFontFamily,
+            ),
+            labelMedium: baseTextTheme.labelMedium?.copyWith(
+              color: isDark ? AppColors.iconDark : AppColors.textMutedLight,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              fontFamily: _bodyFontFamily,
+            ),
+          ),
       iconTheme: IconThemeData(
         color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
         size: 24,

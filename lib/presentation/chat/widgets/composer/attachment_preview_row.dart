@@ -52,85 +52,82 @@ class AttachmentPreviewItem extends StatelessWidget {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return RepaintBoundary(
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: <Widget>[
-          Container(
-            width: 64,
-            height: 64,
-            margin: const EdgeInsets.only(top: 8, right: 8),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: isDark
-                  ? AppColors.composerIconBgDark
-                  : AppColors.composerIconBgLight,
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: attachment.type == AttachmentType.image
-                ? Image.file(
-                    File(attachment.path),
-                    fit: BoxFit.cover,
-                  )
-                : Container(
-                    padding: const EdgeInsets.all(4),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Icon(Icons.insert_drive_file, size: 20),
-                        const SizedBox(height: 2),
-                        Text(
-                          _formatFileName(attachment.name),
-                          style: const TextStyle(fontSize: 8),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              Container(
+                width: 64,
+                height: 64,
+                margin: const EdgeInsets.only(top: 8, right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: isDark
+                      ? AppColors.composerIconBgDark
+                      : AppColors.composerIconBgLight,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: attachment.type == AttachmentType.image
+                    ? Image.file(File(attachment.path), fit: BoxFit.cover)
+                    : Container(
+                        padding: const EdgeInsets.all(4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            const Icon(Icons.insert_drive_file, size: 20),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatFileName(attachment.name),
+                              style: const TextStyle(fontSize: 8),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatFileSize(attachment.sizeBytes),
+                              style: TextStyle(
+                                fontSize: 7,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _formatFileSize(attachment.sizeBytes),
-                          style: TextStyle(
-                            fontSize: 7,
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
-                          ),
+                      ),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: onRemove,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.black : AppColors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 4,
                         ),
                       ],
                     ),
-                  ),
-          ),
-          Positioned(
-            top: 0,
-            right: 0,
-            child: GestureDetector(
-              onTap: onRemove,
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.black : AppColors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 4,
+                    child: Icon(
+                      Icons.close,
+                      size: 14,
+                      color: isDark ? AppColors.white : AppColors.black,
                     ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.close,
-                  size: 14,
-                  color: isDark ? AppColors.white : AppColors.black,
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    ).animate().scale(
-          begin: const Offset(0.7, 0.7),
-          curve: Curves.easeOutBack,
-        ).fadeIn(duration: 200.ms);
+        )
+        .animate()
+        .scale(begin: const Offset(0.7, 0.7), curve: Curves.easeOutBack)
+        .fadeIn(duration: 200.ms);
   }
 
   String _formatFileName(final String name) {

@@ -37,10 +37,10 @@ class ProfileHeader extends StatelessWidget {
           Text(
             'Manus',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
-                ),
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
+            ),
           ),
         ],
       ),

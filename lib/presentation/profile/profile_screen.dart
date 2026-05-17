@@ -5,8 +5,8 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
-import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/design_system/widgets/meta_attribution.dart';
+import 'package:manus/presentation/profile/widgets/logout_button.dart';
 import 'package:manus/presentation/profile/widgets/menu_button.dart';
 import 'package:manus/presentation/profile/widgets/profile_group.dart';
 import 'package:manus/presentation/profile/widgets/profile_header.dart';
@@ -15,6 +15,7 @@ import 'package:manus/presentation/profile/widgets/theme_selector_item.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
+
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -134,23 +135,7 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 24),
                       ProfileGroup(
-                        children: <Widget>[
-                          MenuButton(
-                            leading: SvgPicture.asset(
-                              AppAssets.logoutSvg,
-                              width: 22,
-                              height: 22,
-                              colorFilter: ColorFilter.mode(
-                                iconColor,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            title: 'Logout',
-                            showArrow: false,
-                            onTap: () =>
-                                ref.read(authProvider.notifier).logout(),
-                          ),
-                        ],
+                        children: <Widget>[LogoutButton(iconColor: iconColor)],
                       ),
                       const SizedBox(height: 32),
                     ],

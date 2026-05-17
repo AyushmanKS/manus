@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   AppColors._();
+
   static const Color primary = Color(0xFF007AFF);
   static const Color backgroundDark = Color(0xFF1C1C1C);
   static const Color dotIdleDark = Color(0xFF131313);
@@ -64,4 +65,8 @@ class AppColors {
   static const Color stoppedBgLight = Color(0xFFEEEEEE);
   static const Color stoppedTextDark = Color(0xFF888888);
   static const Color stoppedTextLight = Color(0xFF888888);
+  static const Color logoutRed = Color(0xFFEA454B);
+  static const Color textDescriptionGrey = Color(0xFF848380);
+  static const Color whiteFD = Color(0xFFFFFDFD);
+  static const Color cancelBtnDark = Color(0xFF353430);
 }

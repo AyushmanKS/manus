@@ -31,7 +31,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   late final FocusNode _composerFocusNode;
   final GlobalKey<ChatHistoryListState> _listKey =
       GlobalKey<ChatHistoryListState>();
-  bool _initialFocusRequested = false;
   double _previousViewInset = 0;
 
   @override
@@ -76,16 +75,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
         }
       }
       unawaited(ref.read<HistoryNotifier>(historyProvider.notifier).refresh());
-
-      if (ref.read<double>(drawerProvider) == 0) {
-        if (_initialFocusRequested) return;
-        _initialFocusRequested = true;
-        Future<void>.delayed(const Duration(milliseconds: 400), () {
-          if (mounted && ref.read<double>(drawerProvider) == 0) {
-            _composerFocusNode.requestFocus();
-          }
-        });
-      }
     }));
   }
 
@@ -133,14 +122,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     ref.listen<double>(drawerProvider, (final double? prev, final double next) {
       if (next > 0 && (prev == null || prev == 0)) {
         FocusManager.instance.primaryFocus?.unfocus();
-      } else if (prev != null && prev > 0 && next == 0) {
-        Future<void>.delayed(const Duration(milliseconds: 300), () {
-          if (mounted &&
-              !_composerFocusNode.hasFocus &&
-              ref.read<double>(drawerProvider) == 0) {
-            _composerFocusNode.requestFocus();
-          }
-        });
       }
     });
 

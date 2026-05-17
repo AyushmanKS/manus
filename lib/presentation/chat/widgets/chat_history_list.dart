@@ -9,6 +9,7 @@ import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/widgets/message_bubble.dart';
+import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 class ChatHistoryList extends ConsumerStatefulWidget {
   const ChatHistoryList({super.key});
@@ -274,7 +275,7 @@ class _JumpToLatestPill extends StatelessWidget {
         : AppColors.textPrimaryLight;
     final Color borderColor = isDark ? Colors.white12 : Colors.black12;
 
-    return GestureDetector(
+    return TappableOpacity(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

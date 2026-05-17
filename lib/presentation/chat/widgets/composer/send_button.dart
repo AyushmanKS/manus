@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/presentation/chat/providers/attachment_provider.dart';
+import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 enum SendState { idle, submitting, streaming }
 
@@ -42,9 +43,8 @@ class SendButton extends StatelessWidget {
         ? (isDark ? AppColors.black : AppColors.white)
         : AppColors.iconDisabled;
 
-    return GestureDetector(
+    return TappableOpacity(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,

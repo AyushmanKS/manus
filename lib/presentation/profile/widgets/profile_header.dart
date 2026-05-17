@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({super.key});
@@ -20,14 +21,16 @@ class ProfileHeader extends StatelessWidget {
         children: <Widget>[
           Align(
             alignment: Alignment.centerLeft,
-            child: IconButton(
-              onPressed: () => context.pop(),
-              padding: EdgeInsets.zero,
-              icon: SvgPicture.asset(
-                AppAssets.arrowBackSvg,
-                width: 18,
-                height: 18,
-                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+            child: TappableOpacity(
+              onTap: () => context.pop(),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SvgPicture.asset(
+                  AppAssets.arrowBackSvg,
+                  width: 18,
+                  height: 18,
+                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                ),
               ),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 class ActionIcon extends StatelessWidget {
   const ActionIcon({
@@ -31,9 +32,8 @@ class ActionIcon extends StatelessWidget {
       colorFilter: colorFilter,
     );
 
-    return GestureDetector(
+    return TappableOpacity(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         clipBehavior: Clip.none,

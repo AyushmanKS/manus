@@ -14,6 +14,7 @@ import 'package:manus/presentation/chat/widgets/drawer/history_empty_state.dart'
 import 'package:manus/presentation/chat/widgets/drawer/history_item_wrapper.dart';
 import 'package:manus/presentation/chat/widgets/drawer/history_search_bar.dart';
 import 'package:manus/presentation/chat/widgets/drawer/history_section_header.dart';
+import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 class HistoryDrawerList extends ConsumerStatefulWidget {
   const HistoryDrawerList({super.key});
@@ -69,17 +70,8 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     if (!isChatEmpty)
-                      IconButton(
-                        icon: SvgPicture.asset(
-                          AppAssets.plusSvg,
-                          width: 22,
-                          height: 22,
-                          colorFilter: ColorFilter.mode(
-                            iconColor,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        onPressed: () {
+                      TappableOpacity(
+                        onTap: () {
                           AppLogger.info(
                             'HistoryDrawerList: starting new conversation from drawer',
                           );
@@ -92,7 +84,18 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
                             extra: <String, dynamic>{'fromDrawer': true},
                           );
                         },
-                        tooltip: 'New Chat',
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SvgPicture.asset(
+                            AppAssets.plusSvg,
+                            width: 22,
+                            height: 22,
+                            colorFilter: ColorFilter.mode(
+                              iconColor,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                       ),
                   ],
                 ),

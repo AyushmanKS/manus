@@ -9,6 +9,7 @@ import 'package:manus/core/services/share_service.dart';
 import 'package:manus/data/models/chat_message.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
+import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 class ChatHeader extends ConsumerWidget {
   const ChatHeader({required this.composerFocusNode, super.key});
@@ -33,9 +34,8 @@ class ChatHeader extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 9),
       child: Row(
         children: <Widget>[
-          GestureDetector(
+          TappableOpacity(
             onTap: () => Scaffold.of(context).openDrawer(),
-            behavior: HitTestBehavior.opaque,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
               child: SvgPicture.asset(
@@ -100,37 +100,37 @@ class ChatHeader extends ConsumerWidget {
                 );
               }).toList();
             },
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    selectedModel,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
+            child: TappableOpacity(
+              onTap: null, // PopupMenuButton handles tap
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      selectedModel,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  SvgPicture.asset(
-                    AppAssets.downArrowSvg,
-                    width: 18,
-                    height: 18,
-                    colorFilter: ColorFilter.mode(mutedColor, BlendMode.srcIn),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    SvgPicture.asset(
+                      AppAssets.downArrowSvg,
+                      width: 18,
+                      height: 18,
+                      colorFilter: ColorFilter.mode(mutedColor, BlendMode.srcIn),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           const Spacer(),
           Opacity(
             opacity: canShare ? 1.0 : 0.3,
-            child: GestureDetector(
-              onTap: canShare
-                  ? () => ShareService.shareConversation(messages)
-                  : null,
-              behavior: HitTestBehavior.opaque,
+            child: TappableOpacity(
+              onTap: canShare ? () => ShareService.shareConversation(messages) : null,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
                 child: SvgPicture.asset(
@@ -142,9 +142,8 @@ class ChatHeader extends ConsumerWidget {
               ),
             ),
           ),
-          GestureDetector(
+          TappableOpacity(
             onTap: () => context.push(AppRouter.profile),
-            behavior: HitTestBehavior.opaque,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
               child: SvgPicture.asset(

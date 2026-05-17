@@ -8,6 +8,7 @@ import 'package:manus/core/models/attachment.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/data/services/attachment_service.dart';
 import 'package:manus/presentation/chat/providers/attachment_provider.dart';
+import 'package:manus/presentation/widgets/tappable_opacity.dart';
 
 class AttachmentTray extends ConsumerWidget {
   const AttachmentTray({required this.iconColor, required this.onClose, super.key});
@@ -112,9 +113,8 @@ class TrayItem extends StatelessWidget {
         ? AppColors.textSecondaryDark
         : AppColors.textSecondaryLight;
 
-    return GestureDetector(
+    return TappableOpacity(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[

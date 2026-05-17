@@ -3,16 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/theme/app_colors.dart';
-
-class ComposerPulseNotifier extends Notifier<int> {
-  @override
-  int build() => 0;
-
-  void increment() => state++;
-}
-
-final NotifierProvider<ComposerPulseNotifier, int> composerPulseProvider =
-    NotifierProvider<ComposerPulseNotifier, int>(ComposerPulseNotifier.new);
+import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
 
 class ChatEmptyState extends ConsumerStatefulWidget {
   const ChatEmptyState({

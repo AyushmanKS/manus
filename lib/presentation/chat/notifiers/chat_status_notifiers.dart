@@ -29,3 +29,13 @@ class SelectedModelNotifier extends Notifier<String> {
 
 final NotifierProvider<SelectedModelNotifier, String> selectedModelProvider =
     NotifierProvider<SelectedModelNotifier, String>(SelectedModelNotifier.new);
+
+class ComposerPulseNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void increment() => state++;
+}
+
+final NotifierProvider<ComposerPulseNotifier, int> composerPulseProvider =
+    NotifierProvider<ComposerPulseNotifier, int>(ComposerPulseNotifier.new);

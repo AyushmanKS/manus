@@ -1,22 +1,22 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
-import 'package:manus/core/models/attachment.dart';
 import 'package:manus/core/theme/app_colors.dart';
-import 'package:manus/data/services/attachment_service.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
 import 'package:manus/presentation/chat/notifiers/editing_notifier.dart';
 import 'package:manus/presentation/chat/providers/attachment_provider.dart';
-import 'package:manus/presentation/chat/widgets/chat_empty_state.dart';
 import 'package:manus/presentation/widgets/manus_text_field.dart';
+
+import 'composer/action_icon.dart';
+import 'composer/attachment_preview_row.dart';
+import 'composer/attachment_tray.dart';
+import 'composer/model_picker_sheet.dart';
+import 'composer/send_button.dart';
 
 class ChatComposer extends ConsumerStatefulWidget {
   const ChatComposer({
@@ -114,7 +114,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
       context: context,
       backgroundColor: AppColors.transparent,
       isScrollControlled: true,
-      builder: (final BuildContext ctx) => _ModelPickerSheet(
+      builder: (final BuildContext ctx) => ModelPickerSheet(
         isDark: Theme.of(context).brightness == Brightness.dark,
       ),
     ).whenComplete(() => _focusNode.requestFocus());
@@ -122,10 +122,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
 
   @override
   Widget build(final BuildContext context) {
-    ref.listen<int>(composerPulseProvider, (
-      final int? previous,
-      final int next,
-    ) {
+    ref.listen<int>(composerPulseProvider, (final int? previous, final int next) {
       _pulseController.forward(from: 0.0);
     });
 
@@ -190,118 +187,161 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutCubic,
-                  child: editingMessage != null
-                      ? AnimatedOpacity(
-                          opacity: 1.0,
-                          duration: const Duration(milliseconds: 300),
-                          child: SizedBox(
-                            height: 28,
-                            child: Row(
-                              children: <Widget>[
-                                SvgPicture.asset(
-                                  AppAssets.pencilSvg,
-                                  width: 16,
-                                  height: 16,
-                                  colorFilter: ColorFilter.mode(
-                                    secondaryTextColor,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Editing message',
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: secondaryTextColor),
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                  icon: Transform.rotate(
-                                    angle: math.pi / 4,
-                                    child: SvgPicture.asset(
-                                      AppAssets.plusSvg,
-                                      width: 18,
-                                      height: 18,
-                                      colorFilter: ColorFilter.mode(
-                                        secondaryTextColor,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                  ),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () {
-                                    _controller.clear();
-                                    ref
-                                        .read(editingMessageProvider.notifier)
-                                        .cancelEditing();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 220),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: _slideTransition,
-                  child: _showAttachmentTray
-                      ? Padding(
-                          key: const ValueKey<String>('tray'),
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _AttachmentTray(
-                            iconColor: iconColor,
-                            onClose: () =>
-                                setState(() => _showAttachmentTray = false),
-                          ),
-                        )
-                      : const SizedBox.shrink(key: ValueKey<String>('empty')),
-                ),
-                const _AttachmentPreviewRow(),
-                ManusTextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  minLines: 1,
-                  maxLines: 6,
-                  keyboardType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: isEmpty
-                        ? 'Assign a task or ask anything'
-                        : 'Message Manus',
-                    contentPadding: const EdgeInsets.symmetric(vertical: 6.0),
-                    isDense: true,
-                  ),
-                ),
+                _buildEditingIndicator(editingMessage, secondaryTextColor),
+                _buildAttachmentTray(iconColor),
+                const AttachmentPreviewRow(),
+                _buildTextField(isEmpty),
                 const SizedBox(height: 16.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    _buildLeftActions(iconFilter),
-                    _buildRightActions(
-                      iconFilter,
-                      borderColor,
-                      hasText,
-                      isDark,
-                      activeSendCircle,
-                      inactiveSendCircle,
-                      editingMessage,
-                    ),
-                  ],
+                _buildActionsRow(
+                  iconFilter,
+                  borderColor,
+                  hasText,
+                  isDark,
+                  activeSendCircle,
+                  inactiveSendCircle,
+                  editingMessage,
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildEditingIndicator(
+    final EditingMessage? editingMessage,
+    final Color color,
+  ) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+      child: editingMessage != null
+          ? AnimatedOpacity(
+              opacity: 1.0,
+              duration: const Duration(milliseconds: 300),
+              child: SizedBox(
+                height: 28,
+                child: Row(
+                  children: <Widget>[
+                    SvgPicture.asset(
+                      AppAssets.pencilSvg,
+                      width: 16,
+                      height: 16,
+                      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Editing message',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: color),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: Transform.rotate(
+                        angle: math.pi / 4,
+                        child: SvgPicture.asset(
+                          AppAssets.plusSvg,
+                          width: 18,
+                          height: 18,
+                          colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                        ),
+                      ),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        _controller.clear();
+                        ref
+                            .read(editingMessageProvider.notifier)
+                            .cancelEditing();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+
+  Widget _buildAttachmentTray(final Color iconColor) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder:
+          (final Widget child, final Animation<double> animation) {
+            final Animation<Offset> slide = Tween<Offset>(
+              begin: const Offset(0.0, 1.0),
+              end: Offset.zero,
+            ).animate(animation);
+            return ClipRect(
+              child: SlideTransition(
+                position: slide,
+                child: SizeTransition(
+                  sizeFactor: animation,
+                  axisAlignment: -1.0,
+                  child: child,
+                ),
+              ),
+            );
+          },
+      child: _showAttachmentTray
+          ? Padding(
+              key: const ValueKey<String>('tray'),
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: AttachmentTray(
+                iconColor: iconColor,
+                onClose: () => setState(() => _showAttachmentTray = false),
+              ),
+            )
+          : const SizedBox.shrink(key: ValueKey<String>('empty')),
+    );
+  }
+
+  Widget _buildTextField(final bool isEmpty) {
+    return ManusTextField(
+      controller: _controller,
+      focusNode: _focusNode,
+      minLines: 1,
+      maxLines: 6,
+      keyboardType: TextInputType.multiline,
+      textCapitalization: TextCapitalization.sentences,
+      style: Theme.of(context).textTheme.bodyLarge,
+      decoration: InputDecoration(
+        border: InputBorder.none,
+        hintText: isEmpty ? 'Assign a task or ask anything' : 'Message Manus',
+        contentPadding: const EdgeInsets.symmetric(vertical: 6.0),
+        isDense: true,
+      ),
+    );
+  }
+
+  Widget _buildActionsRow(
+    final ColorFilter iconFilter,
+    final Color borderColor,
+    final bool hasText,
+    final bool isDark,
+    final Color activeSendCircle,
+    final Color inactiveSendCircle,
+    final EditingMessage? editingMessage,
+  ) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: <Widget>[
+        _buildLeftActions(iconFilter),
+        _buildRightActions(
+          iconFilter,
+          borderColor,
+          hasText,
+          isDark,
+          activeSendCircle,
+          inactiveSendCircle,
+          editingMessage,
+        ),
+      ],
     );
   }
 
@@ -313,7 +353,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
           turns: _showAttachmentTray ? 0.125 : 0.0,
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          child: _ActionIcon(
+          child: ActionIcon(
             asset: AppAssets.plusSvg,
             onTap: _toggleAttachmentTray,
             colorFilter: iconFilter,
@@ -321,7 +361,7 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
           ),
         ),
         const SizedBox(width: 20.0),
-        _ActionIcon(
+        ActionIcon(
           asset: AppAssets.plugSvg,
           onTap: _toggleModelPicker,
           colorFilter: iconFilter,
@@ -343,707 +383,113 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 180),
-          transitionBuilder: _fadeHorizontalTransition,
-          child: hasText
-              ? const SizedBox.shrink(key: ValueKey<bool>(true))
-              : Row(
-                  key: const ValueKey<bool>(false),
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    _ActionIcon(
-                      asset: AppAssets.chatSvg,
-                      onTap: () {},
-                      colorFilter: iconFilter,
-                      padding: 9.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: borderColor),
-                      ),
-                    ),
-                    const SizedBox(width: 20.0),
-                  ],
-                ),
-        ),
-        _ActionIcon(
+        _buildChatIcon(iconFilter, borderColor, hasText),
+        ActionIcon(
           asset: AppAssets.micSvg,
           onTap: () {},
           colorFilter: iconFilter,
         ),
         const SizedBox(width: 20.0),
-        Consumer(
-          builder:
-              (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
-                final bool isStreaming = ref.watch(chatIsStreamingProvider);
-                final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
-
-                bool canTap;
-                if (editingMessage != null) {
-                  canTap =
-                      _controller.text.trim().isNotEmpty &&
-                      _controller.text.trim() != editingMessage.originalText;
-                } else {
-                  canTap =
-                      hasText ||
-                      isStreaming ||
-                      ref.watch(attachmentProvider).isNotEmpty;
-                }
-
-                void onTap() {
-                  if (isStreaming) {
-                    unawaited(HapticFeedback.mediumImpact());
-                    ref.read(chatProvider.notifier).stopStream();
-                  } else if (!isSubmitting) {
-                    _handleSend(editingMessage);
-                  }
-                }
-
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: <Widget>[
-                    _SendButton(
-                      hasText: hasText,
-                      isStreaming: isStreaming,
-                      isSubmitting: isSubmitting,
-                      onTap: canTap ? onTap : null,
-                      isDark: isDark,
-                      activeSendCircle: activeSendCircle,
-                      inactiveSendCircle: inactiveSendCircle,
-                    ),
-                    const _SendButtonBadge(),
-                  ],
-                );
-              },
+        _buildSendButton(
+          hasText,
+          isDark,
+          activeSendCircle,
+          inactiveSendCircle,
+          editingMessage,
         ),
       ],
     );
   }
 
-  static Widget _slideTransition(
-    final Widget child,
-    final Animation<double> animation,
+  Widget _buildChatIcon(
+    final ColorFilter iconFilter,
+    final Color borderColor,
+    final bool hasText,
   ) {
-    final Animation<Offset> slide = Tween<Offset>(
-      begin: const Offset(0.0, 1.0),
-      end: Offset.zero,
-    ).animate(animation);
-    return ClipRect(
-      child: SlideTransition(
-        position: slide,
-        child: SizeTransition(
-          sizeFactor: animation,
-          axisAlignment: -1.0,
-          child: child,
-        ),
-      ),
-    );
-  }
-
-  static Widget _fadeHorizontalTransition(
-    final Widget child,
-    final Animation<double> animation,
-  ) {
-    return FadeTransition(
-      opacity: animation,
-      child: SizeTransition(
-        sizeFactor: animation,
-        axis: Axis.horizontal,
-        child: child,
-      ),
-    );
-  }
-}
-
-enum _SendState { idle, submitting, streaming }
-
-class _SendButton extends StatelessWidget {
-  const _SendButton({
-    required this.hasText,
-    required this.isStreaming,
-    required this.isSubmitting,
-    required this.onTap,
-    required this.isDark,
-    required this.activeSendCircle,
-    required this.inactiveSendCircle,
-  });
-
-  final bool hasText;
-  final bool isStreaming;
-  final bool isSubmitting;
-  final VoidCallback? onTap;
-  final bool isDark;
-  final Color activeSendCircle;
-  final Color inactiveSendCircle;
-
-  _SendState get _state {
-    if (isSubmitting) return _SendState.submitting;
-    if (isStreaming) return _SendState.streaming;
-    return _SendState.idle;
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    final bool isActive = hasText || isStreaming || isSubmitting;
-    final Color circleColor = isActive ? activeSendCircle : inactiveSendCircle;
-    final Color iconColor = isActive
-        ? (isDark ? AppColors.black : AppColors.white)
-        : AppColors.iconDisabled;
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOutCubic,
-        width: 38.0,
-        height: 38.0,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: circleColor),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeIn,
-          transitionBuilder: _morphTransition,
-          child: _buildIcon(iconColor),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildIcon(final Color iconColor) {
-    switch (_state) {
-      case _SendState.submitting:
-        return SizedBox(
-          key: const ValueKey<String>('submitting'),
-          width: 18.0,
-          height: 18.0,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.0,
-            valueColor: AlwaysStoppedAnimation<Color>(iconColor),
-          ),
-        );
-      case _SendState.streaming:
-        return Center(
-          key: const ValueKey<String>('streaming'),
-          child: Container(
-            width: 16.0,
-            height: 16.0,
-            decoration: BoxDecoration(
-              color: iconColor,
-              borderRadius: BorderRadius.circular(3.0),
-            ),
-          ),
-        );
-      case _SendState.idle:
-        return Padding(
-          key: const ValueKey<String>('idle'),
-          padding: const EdgeInsets.all(10.0),
-          child: SvgPicture.asset(
-            AppAssets.upArrowSvg,
-            width: 18.0,
-            height: 18.0,
-            colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-          ),
-        );
-    }
-  }
-
-  static Widget _morphTransition(
-    final Widget child,
-    final Animation<double> animation,
-  ) {
-    final Animation<double> scale = Tween<double>(
-      begin: 0.5,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
-    return FadeTransition(
-      opacity: animation,
-      child: ScaleTransition(scale: scale, child: child),
-    );
-  }
-}
-
-class _AttachmentTray extends ConsumerWidget {
-  const _AttachmentTray({required this.iconColor, required this.onClose});
-
-  final Color iconColor;
-  final VoidCallback onClose;
-
-  @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
-    final AttachmentService service = ref.read(attachmentServiceProvider);
-    final AttachmentNotifier notifier = ref.read(attachmentProvider.notifier);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
-            child: _TrayItem(
-              iconAsset: AppAssets.cameraSvg,
-              label: 'Camera',
-              iconColor: iconColor,
-              onTap: () {
-                unawaited(HapticFeedback.lightImpact());
-                unawaited(() async {
-                  final Attachment? result = await service.pickFromCamera(
-                    context,
-                  );
-                  if (result != null) {
-                    notifier.add(result);
-                    onClose();
-                  }
-                }());
-              },
-            ),
-          ),
-          const SizedBox(width: 12.0),
-          Expanded(
-            child: _TrayItem(
-              iconAsset: AppAssets.pictureSvg,
-              label: 'Picture',
-              iconColor: iconColor,
-              onTap: () {
-                unawaited(HapticFeedback.lightImpact());
-                unawaited(() async {
-                  final List<Attachment> results = await service
-                      .pickFromGallery(context);
-                  if (results.isNotEmpty) {
-                    for (final Attachment result in results) {
-                      notifier.add(result);
-                    }
-                    onClose();
-                  }
-                }());
-              },
-            ),
-          ),
-          const SizedBox(width: 12.0),
-          Expanded(
-            child: _TrayItem(
-              iconAsset: AppAssets.attachSvg,
-              label: 'File',
-              iconColor: iconColor,
-              onTap: () {
-                unawaited(HapticFeedback.lightImpact());
-                unawaited(() async {
-                  final List<Attachment> results = await service.pickFiles(
-                    context,
-                  );
-                  if (results.isNotEmpty) {
-                    for (final Attachment result in results) {
-                      notifier.add(result);
-                    }
-                    onClose();
-                  }
-                }());
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TrayItem extends StatelessWidget {
-  const _TrayItem({
-    required this.iconAsset,
-    required this.label,
-    required this.iconColor,
-    required this.onTap,
-  });
-
-  final String iconAsset;
-  final String label;
-  final Color iconColor;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(final BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final Color bgColor = isDark
-        ? AppColors.composerIconBgDark
-        : AppColors.composerIconBgLight;
-    final Color labelColor = isDark
-        ? AppColors.textSecondaryDark
-        : AppColors.textSecondaryLight;
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 52.0,
-            height: 52.0,
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: BorderRadius.circular(14.0),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                iconAsset,
-                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-                width: 24.0,
-                height: 24.0,
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      transitionBuilder:
+          (final Widget child, final Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: SizeTransition(
+                sizeFactor: animation,
+                axis: Axis.horizontal,
+                child: child,
               ),
-            ),
-          ),
-          const SizedBox(height: 6.0),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11.0,
-              color: labelColor,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttachmentPreviewRow extends ConsumerWidget {
-  const _AttachmentPreviewRow();
-
-  @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
-    final List<Attachment> attachments = ref.watch(attachmentProvider);
-    if (attachments.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      height: 80,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        itemCount: attachments.length,
-        separatorBuilder: (final BuildContext context, final int index) =>
-            const SizedBox(width: 8),
-        itemBuilder: (final BuildContext context, final int index) {
-          final Attachment attachment = attachments[index];
-          return _AttachmentPreviewItem(
-            attachment: attachment,
-            onRemove: () =>
-                ref.read(attachmentProvider.notifier).remove(attachment.path),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _AttachmentPreviewItem extends StatelessWidget {
-  const _AttachmentPreviewItem({
-    required this.attachment,
-    required this.onRemove,
-  });
-
-  final Attachment attachment;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(final BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return RepaintBoundary(
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: <Widget>[
-              Container(
-                width: 64,
-                height: 64,
-                margin: const EdgeInsets.only(top: 8, right: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: isDark
-                      ? AppColors.composerIconBgDark
-                      : AppColors.composerIconBgLight,
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: attachment.type == AttachmentType.image
-                    ? Image.file(File(attachment.path), fit: BoxFit.cover)
-                    : Container(
-                        padding: const EdgeInsets.all(4),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            const Icon(Icons.insert_drive_file, size: 20),
-                            const SizedBox(height: 2),
-                            Text(
-                              _formatFileName(attachment.name),
-                              style: const TextStyle(fontSize: 8),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _formatFileSize(attachment.sizeBytes),
-                              style: TextStyle(
-                                fontSize: 7,
-                                color: isDark
-                                    ? AppColors.textSecondaryDark
-                                    : AppColors.textSecondaryLight,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-              ),
-              Positioned(
-                top: 0,
-                right: 0,
-                child: GestureDetector(
-                  onTap: onRemove,
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.black : AppColors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.close,
-                      size: 14,
-                      color: isDark ? AppColors.white : AppColors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        )
-        .animate()
-        .scale(begin: const Offset(0.7, 0.7), curve: Curves.easeOutBack)
-        .fadeIn(duration: 200.ms);
-  }
-
-  String _formatFileName(final String name) {
-    if (name.length <= 12) return name;
-    final List<String> parts = name.split('.');
-    if (parts.length < 2) return name.substring(0, 8);
-    final String ext = parts.last;
-    final String base = parts.first;
-    return '${base.substring(0, math.min(8, base.length))}.$ext';
-  }
-
-  String _formatFileSize(final int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-}
-
-class _SendButtonBadge extends ConsumerWidget {
-  const _SendButtonBadge();
-
-  @override
-  Widget build(final BuildContext context, final WidgetRef ref) {
-    final int count = ref.watch(attachmentProvider).length;
-    if (count == 0) return const SizedBox.shrink();
-
-    return Positioned(
-          top: -4,
-          right: -4,
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                '$count',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 200.ms)
-        .scale(begin: const Offset(0.5, 0.5), curve: Curves.easeOutBack);
-  }
-}
-
-class _ModelPickerSheet extends StatelessWidget {
-  const _ModelPickerSheet({required this.isDark});
-
-  final bool isDark;
-
-  @override
-  Widget build(final BuildContext context) {
-    final Color bg = isDark
-        ? AppColors.composerBgDark
-        : AppColors.composerBgLight;
-    final Color textColor = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
-    final Color divider = isDark
-        ? AppColors.dividerDark
-        : AppColors.dividerLight;
-
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20.0, 12.0, 20.0, 32.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            width: 36.0,
-            height: 4.0,
-            decoration: BoxDecoration(
-              color: divider,
-              borderRadius: BorderRadius.circular(2.0),
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          Text(
-            'Select Model',
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w600,
-              color: textColor,
-            ),
-          ),
-          const SizedBox(height: 16.0),
-          ...<String>[
-            'Manus Default',
-            'GPT-4o',
-            'Claude 3.5',
-            'Gemini 1.5 Pro',
-          ].map<Widget>(
-            (final String model) => Column(
+            );
+          },
+      child: hasText
+          ? const SizedBox.shrink(key: ValueKey<bool>(true))
+          : Row(
+              key: const ValueKey<bool>(false),
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                GestureDetector(
-                  onTap: () => context.pop(),
-                  behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 14.0),
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          model,
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: textColor,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
-                    ),
+                ActionIcon(
+                  asset: AppAssets.chatSvg,
+                  onTap: () {},
+                  colorFilter: iconFilter,
+                  padding: 9.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: borderColor),
                   ),
                 ),
-                Divider(color: divider, height: 1.0, thickness: 1.0),
+                const SizedBox(width: 20.0),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
-}
 
-class _ActionIcon extends StatelessWidget {
-  const _ActionIcon({
-    required this.asset,
-    this.onTap,
-    required this.colorFilter,
-    this.decoration,
-    this.padding = 0.0,
-    this.isBold = false,
-    this.size = 18.0,
-  });
+  Widget _buildSendButton(
+    final bool hasText,
+    final bool isDark,
+    final Color activeSendCircle,
+    final Color inactiveSendCircle,
+    final EditingMessage? editingMessage,
+  ) {
+    return Consumer(
+      builder: (final BuildContext ctx, final WidgetRef ref, final Widget? _) {
+        final bool isStreaming = ref.watch(chatIsStreamingProvider);
+        final bool isSubmitting = ref.watch(chatIsSubmittingProvider);
 
-  final String asset;
-  final VoidCallback? onTap;
-  final ColorFilter colorFilter;
-  final BoxDecoration? decoration;
-  final double padding;
-  final bool isBold;
-  final double size;
+        bool canTap;
+        if (editingMessage != null) {
+          canTap =
+              _controller.text.trim().isNotEmpty &&
+              _controller.text.trim() != editingMessage.originalText;
+        } else {
+          canTap =
+              hasText ||
+              isStreaming ||
+              ref.watch(attachmentProvider).isNotEmpty;
+        }
 
-  @override
-  Widget build(final BuildContext context) {
-    const double strength = 0.3;
-    final Widget icon = SvgPicture.asset(
-      asset,
-      width: size,
-      height: size,
-      colorFilter: colorFilter,
-    );
+        void onTap() {
+          if (isStreaming) {
+            unawaited(HapticFeedback.mediumImpact());
+            ref.read(chatProvider.notifier).stopStream();
+          } else if (!isSubmitting) {
+            _handleSend(editingMessage);
+          }
+        }
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        clipBehavior: Clip.none,
-        padding: EdgeInsets.all(padding),
-        decoration: decoration,
-        child: isBold
-            ? Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: <Widget>[
-                  Transform.translate(
-                    offset: const Offset(strength, 0),
-                    child: icon,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(-strength, 0),
-                    child: icon,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(0, strength),
-                    child: icon,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(0, -strength),
-                    child: icon,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(strength * 0.65, strength * 0.65),
-                    child: icon,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(-strength * 0.65, strength * 0.65),
-                    child: icon,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(strength * 0.65, -strength * 0.65),
-                    child: icon,
-                  ),
-                  Transform.translate(
-                    offset: const Offset(-strength * 0.65, -strength * 0.65),
-                    child: icon,
-                  ),
-                  icon,
-                ],
-              )
-            : icon,
-      ),
+        return Stack(
+          clipBehavior: Clip.none,
+          children: <Widget>[
+            SendButton(
+              hasText: hasText,
+              isStreaming: isStreaming,
+              isSubmitting: isSubmitting,
+              onTap: canTap ? onTap : null,
+              isDark: isDark,
+              activeSendCircle: activeSendCircle,
+              inactiveSendCircle: inactiveSendCircle,
+            ),
+            const SendButtonBadge(),
+          ],
+        );
+      },
     );
   }
 }

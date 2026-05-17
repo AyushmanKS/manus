@@ -84,11 +84,6 @@ class AttachmentService {
           'csv',
           'xls',
           'xlsx',
-          'png',
-          'jpg',
-          'jpeg',
-          'gif',
-          'webp',
         ],
       );
 

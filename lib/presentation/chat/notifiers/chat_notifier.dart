@@ -124,7 +124,6 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
     state = <ChatMessage>[...state, userMessage, placeholder];
     ref.read(chatIsSubmittingProvider.notifier).setSubmitting(true);
 
-    // TODO: encode attachments into Gemini multimodal request
     ref.read(attachmentProvider.notifier).clear();
 
     final List<ChatMessage> history = state

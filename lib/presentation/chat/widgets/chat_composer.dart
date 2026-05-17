@@ -99,7 +99,6 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
       widget.onSend(text);
     }
     _controller.clear();
-    // TODO: encode attachments into Gemini multimodal request
     ref.read(attachmentProvider.notifier).clear();
   }
 
@@ -110,7 +109,10 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
 
   @override
   Widget build(final BuildContext context) {
-    ref.listen<int>(composerPulseProvider, (final int? previous, final int next) {
+    ref.listen<int>(composerPulseProvider, (
+      final int? previous,
+      final int next,
+    ) {
       _pulseController.forward(from: 0.0);
     });
 

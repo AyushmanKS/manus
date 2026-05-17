@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/data/local/suggestion_data.dart';
 import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
 
 class ChatEmptyState extends ConsumerStatefulWidget {
@@ -21,70 +22,48 @@ class ChatEmptyState extends ConsumerStatefulWidget {
 
 class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
     with TickerProviderStateMixin {
-  late final List<AnimationController> _chipControllers;
-  late final List<Animation<double>> _scaleAnimations;
-  late final List<Animation<double>> _fadeAnimations;
-
-  final List<String> _suggestions = const <String>[
-    "Help me plan a trip",
-    "Write a poem for me",
-    "Explain quantum computing",
-    "Debug my code",
-  ];
+  final List<int> _currentIndices = <int>[];
+  final Set<int> _clickedIndices = <int>{};
+  int _nextStartIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _chipControllers = List<AnimationController>.generate(
-      _suggestions.length,
-      (final int index) => AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 200),
-      ),
-    );
-
-    _scaleAnimations = _chipControllers.map((
-      final AnimationController controller,
-    ) {
-      return Tween<double>(
-        begin: 1.0,
-        end: 0.9,
-      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInCubic));
-    }).toList();
-
-    _fadeAnimations = _chipControllers.map((
-      final AnimationController controller,
-    ) {
-      return Tween<double>(
-        begin: 1.0,
-        end: 0.0,
-      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInCubic));
-    }).toList();
+    _loadNextPrompts();
   }
 
-  @override
-  void dispose() {
-    for (final AnimationController controller in _chipControllers) {
-      controller.dispose();
+  void _loadNextPrompts() {
+    _currentIndices.clear();
+    _clickedIndices.clear();
+    for (int i = 0; i < 4; i++) {
+      final int index = (_nextStartIndex + i) % kSuggestionData.length;
+      _currentIndices.add(index);
     }
-    super.dispose();
+    _nextStartIndex = (_nextStartIndex + 4) % kSuggestionData.length;
   }
 
-  void _onChipTap(final int index) {
+  void _onChipTap(final int suggestionIndex) {
     HapticFeedback.selectionClick();
-    final AnimationController controller = _chipControllers[index];
-    controller.forward();
-
-    Future<void>.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        ref.read(composerPulseProvider.notifier).increment();
-      }
+    setState(() {
+      _clickedIndices.add(suggestionIndex);
     });
 
-    controller.addStatusListener((final AnimationStatus status) {
-      if (status == AnimationStatus.completed) {
-        widget.composerController.text = _suggestions[index];
+    Future<void>.delayed(const Duration(milliseconds: 250), () {
+      if (mounted) {
+        ref.read(composerPulseProvider.notifier).increment();
+        widget.composerController.text =
+            kSuggestionData[suggestionIndex].prompt;
         widget.composerFocusNode.requestFocus();
+
+        if (_clickedIndices.length == _currentIndices.length) {
+          Future<void>.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              setState(() {
+                _loadNextPrompts();
+              });
+            }
+          });
+        }
       }
     });
   }
@@ -92,62 +71,56 @@ class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color borderColor = isDark
-        ? AppColors.dividerDark
-        : AppColors.dividerLight;
-    final Color textColor = isDark
-        ? AppColors.textPrimaryDark
-        : AppColors.textPrimaryLight;
+    final Color borderColor =
+        isDark ? AppColors.dividerDark : AppColors.dividerLight;
+    final Color textColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Center(
         child: Wrap(
           spacing: 8,
           runSpacing: 10,
           alignment: WrapAlignment.center,
-          children: List<Widget>.generate(_suggestions.length, (
-            final int index,
-          ) {
-            return AnimatedBuilder(
-                  animation: _chipControllers[index],
-                  builder: (final BuildContext context, final Widget? child) {
-                    return Opacity(
-                      opacity: _fadeAnimations[index].value,
-                      child: Transform.scale(
-                        scale: _scaleAnimations[index].value,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: GestureDetector(
-                    onTap: () => _onChipTap(index),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: borderColor),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Text(
-                        _suggestions[index],
-                        style: TextStyle(fontSize: 13, color: textColor),
-                      ),
-                    ),
-                  ),
-                )
-                .animate(delay: (index * 60).ms)
-                .fadeIn(duration: 250.ms)
-                .slideY(
-                  begin: 0.2,
-                  end: 0.0,
-                  duration: 250.ms,
-                  curve: Curves.easeOutCubic,
-                );
+          children: List<Widget>.generate(_currentIndices.length, (final int i) {
+            final int suggestionIndex = _currentIndices[i];
+            final bool isClicked = _clickedIndices.contains(suggestionIndex);
+
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              child: isClicked
+                  ? const SizedBox.shrink()
+                  : GestureDetector(
+                          key: ValueKey<int>(suggestionIndex),
+                          onTap: () => _onChipTap(suggestionIndex),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: borderColor),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Text(
+                              kSuggestionData[suggestionIndex].prompt,
+                              style: TextStyle(fontSize: 13, color: textColor),
+                            ),
+                          ),
+                        )
+                        .animate()
+                        .fadeIn(
+                          delay: Duration(milliseconds: i * 80),
+                          duration: const Duration(milliseconds: 400),
+                        )
+                        .scale(
+                          begin: const Offset(0.8, 0.8),
+                          curve: Curves.easeOutBack,
+                        ),
+            );
           }),
         ),
       ),

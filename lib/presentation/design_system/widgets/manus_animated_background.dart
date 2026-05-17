@@ -106,6 +106,8 @@ class _ManusAnimatedBackgroundState extends State<ManusAnimatedBackground>
     if (dt <= 0 || dt > 0.1) return;
 
     final Size size = MediaQuery.sizeOf(context);
+    if (size.width == 0 || size.height == 0) return;
+
     if (!_initialized) _initBlobs(size);
 
     for (final PhysicsBlob blob in _blobs) {

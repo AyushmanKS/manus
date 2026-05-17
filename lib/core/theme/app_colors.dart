@@ -11,7 +11,7 @@ class AppColors {
   static const Color activeHollowCircleDark = Color(0xFF274946);
   static const Color activeTriangleDark = Color(0xFF593D3E);
   static const Color backgroundLight = Color(0xFFF0F0F0);
-  static const Color dotIdleLight = Color(0xFFE0E0E0);
+  static const Color dotIdleLight = Color(0xFFF2F2F2);
   static const Color activeBigCircleLight = Color(0xFFD1E4F0);
   static const Color activeSmallCircleLight = Color(0xFFE8E2D0);
   static const Color activeHollowCircleLight = Color(0xFFD0E8E5);
@@ -52,7 +52,7 @@ class AppColors {
   static const Color greyF9 = Color(0xFFF9F9F9);
   static const Color greyF2 = Color(0xFFF2F2F2);
   static const Color loaderBgDark = Color(0xFF0A0A0A);
-  static const Color loaderBgLight = Color(0xFF292929);
+  static const Color loaderBgLight = Color(0xFFEAEAEA);
   static const Color loaderDotColor = Colors.white;
   static const Color codeBgDark = Color(0xFF1E1E1E);
   static const Color codeBgLight = Color(0xFFF5F5F5);

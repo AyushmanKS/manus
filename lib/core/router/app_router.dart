@@ -110,7 +110,7 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((final Ref ref) {
           return AppRouter.buildPage(
             context,
             state,
-            ChatScreen(conversationId: conversationId),
+            ChatScreen(conversationId: conversationId, fromDrawer: fromDrawer),
             fromDrawer: fromDrawer,
           );
         },
@@ -125,7 +125,7 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((final Ref ref) {
           return AppRouter.buildPage(
             context,
             state,
-            const ChatScreen(),
+            ChatScreen(fromDrawer: fromDrawer),
             fromDrawer: fromDrawer,
           );
         },

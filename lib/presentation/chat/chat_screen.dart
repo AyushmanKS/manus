@@ -17,9 +17,10 @@ import 'package:manus/presentation/chat/widgets/history_drawer_list.dart';
 import 'package:manus/presentation/chat/widgets/chat_header.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({this.conversationId, super.key});
+  const ChatScreen({this.conversationId, this.fromDrawer = false, super.key});
 
   final String? conversationId;
+  final bool fromDrawer;
 
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
@@ -32,6 +33,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   final GlobalKey<ChatHistoryListState> _listKey =
       GlobalKey<ChatHistoryListState>();
   double _previousViewInset = 0;
+  bool _shouldFocusOnDrawerClose = false;
 
   @override
   void initState() {
@@ -49,6 +51,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     WidgetsBinding.instance.addPostFrameCallback((final _) {
       _loadConversationIfNeeded();
     });
+
+    if (widget.fromDrawer) {
+      _shouldFocusOnDrawerClose = true;
+      WidgetsBinding.instance.addPostFrameCallback((final _) {
+        if (mounted && ref.read<double>(drawerProvider) == 0) {
+          _shouldFocusOnDrawerClose = false;
+          Future<void>.delayed(const Duration(milliseconds: 300), () {
+            if (mounted && ref.read<double>(drawerProvider) == 0) {
+              _composerFocusNode.requestFocus();
+            }
+          });
+        }
+      });
+    } else {
+      Future<void>.delayed(const Duration(milliseconds: 350), () {
+        if (mounted && ref.read<double>(drawerProvider) == 0) {
+          _composerFocusNode.requestFocus();
+        }
+      });
+    }
   }
 
   @override
@@ -56,6 +78,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     super.didUpdateWidget(oldWidget);
     if (widget.conversationId != oldWidget.conversationId) {
       _loadConversationIfNeeded();
+      if (widget.fromDrawer) {
+        _shouldFocusOnDrawerClose = true;
+        if (ref.read<double>(drawerProvider) == 0) {
+          _shouldFocusOnDrawerClose = false;
+          Future<void>.delayed(const Duration(milliseconds: 300), () {
+            if (mounted && ref.read<double>(drawerProvider) == 0) {
+              _composerFocusNode.requestFocus();
+            }
+          });
+        }
+      }
     }
   }
 
@@ -130,6 +163,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
     ref.listen<double>(drawerProvider, (final double? prev, final double next) {
       if (next > 0 && (prev == null || prev == 0)) {
         FocusManager.instance.primaryFocus?.unfocus();
+      } else if (prev != null && prev > 0 && next == 0) {
+        if (_shouldFocusOnDrawerClose) {
+          _shouldFocusOnDrawerClose = false;
+          Future<void>.delayed(const Duration(milliseconds: 100), () {
+            if (mounted && ref.read<double>(drawerProvider) == 0) {
+              _composerFocusNode.requestFocus();
+            }
+          });
+        }
       }
     });
 

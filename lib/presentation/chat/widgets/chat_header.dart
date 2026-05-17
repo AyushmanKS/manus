@@ -27,16 +27,18 @@ class ChatHeader extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 9),
       child: Row(
         children: <Widget>[
-          IconButton(
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            icon: SvgPicture.asset(
-              AppAssets.menuSvg,
-              width: 22,
-              height: 22,
-              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          GestureDetector(
+            onTap: () => Scaffold.of(context).openDrawer(),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
+              child: SvgPicture.asset(
+                AppAssets.menuSvg,
+                width: 22,
+                height: 22,
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+              ),
             ),
-            constraints: const BoxConstraints.tightFor(width: 36, height: 44),
-            padding: EdgeInsets.zero,
           ),
           PopupMenuButton<String>(
             offset: const Offset(0, 40),
@@ -93,10 +95,7 @@ class ChatHeader extends ConsumerWidget {
               }).toList();
             },
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 2.0,
-                vertical: 8.0,
-              ),
+              padding: const EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -119,28 +118,31 @@ class ChatHeader extends ConsumerWidget {
             ),
           ),
           const Spacer(),
-          IconButton(
-            onPressed: () {},
-            icon: SvgPicture.asset(
-              AppAssets.shareSvg,
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          GestureDetector(
+            onTap: () {},
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
+              child: SvgPicture.asset(
+                AppAssets.shareSvg,
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+              ),
             ),
-            constraints: const BoxConstraints.tightFor(width: 36, height: 44),
-            padding: EdgeInsets.zero,
           ),
-          const SizedBox(width: 8),
-          IconButton(
-            onPressed: () => context.push(AppRouter.profile),
-            icon: SvgPicture.asset(
-              AppAssets.profileSvg,
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          GestureDetector(
+            onTap: () => context.push(AppRouter.profile),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4.0, 8.0, 8.0, 8.0),
+              child: SvgPicture.asset(
+                AppAssets.profileSvg,
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+              ),
             ),
-            constraints: const BoxConstraints.tightFor(width: 36, height: 44),
-            padding: EdgeInsets.zero,
           ),
         ],
       ),

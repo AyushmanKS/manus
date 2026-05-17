@@ -47,7 +47,12 @@ class _MenuButtonState extends State<MenuButton> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(widget.title, style: const TextStyle(fontSize: 15)),
+                child: Text(
+                  widget.title,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: 15,
+                      ),
+                ),
               ),
               if (widget.showArrow)
                 SvgPicture.asset(

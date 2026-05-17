@@ -136,11 +136,11 @@ class SendButtonBadge extends ConsumerWidget {
             child: Center(
               child: Text(
                 '$count',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ),
           ),

@@ -44,21 +44,20 @@ class ProfileInfo extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           'User',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? AppColors.iconDark : AppColors.textPrimaryLight,
+              ),
         ),
         const SizedBox(height: 4),
         Text(
           'user@example.com',
-          style: TextStyle(
-            fontSize: 14,
-            color: isDark
-                ? AppColors.textSecondaryDark
-                : AppColors.textSecondaryLight,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
+              ),
         ),
       ],
     );

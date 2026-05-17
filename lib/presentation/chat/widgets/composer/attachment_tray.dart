@@ -139,11 +139,11 @@ class TrayItem extends StatelessWidget {
           const SizedBox(height: 8.0),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 11.0,
-              color: labelColor,
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 11.0,
+                  color: labelColor,
+                  fontWeight: FontWeight.w600,
+                ),
           ),
         ],
       ),

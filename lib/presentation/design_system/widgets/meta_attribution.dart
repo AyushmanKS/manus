@@ -5,15 +5,17 @@ import 'package:manus/core/theme/app_colors.dart';
 
 class MetaAttribution extends StatelessWidget {
   const MetaAttribution({super.key});
+
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color color = isDark ? AppColors.white60 : AppColors.black54;
-    const TextStyle textStyle = TextStyle(
-      fontSize: 13,
-      height: 18 / 13,
-      fontWeight: FontWeight.w400,
-    );
+    final TextStyle textStyle =
+        (Theme.of(context).textTheme.bodySmall ?? const TextStyle()).copyWith(
+          fontSize: 13,
+          height: 18 / 13,
+          fontWeight: FontWeight.w400,
+        );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[

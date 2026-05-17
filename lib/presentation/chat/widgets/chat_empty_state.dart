@@ -107,7 +107,10 @@ class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
                             ),
                             child: Text(
                               kSuggestionData[suggestionIndex].prompt,
-                              style: TextStyle(fontSize: 13, color: textColor),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontSize: 13,
+                                    color: textColor,
+                                  ),
                             ),
                           ),
                         )

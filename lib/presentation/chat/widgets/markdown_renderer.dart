@@ -382,13 +382,16 @@ class _TableBlock extends StatelessWidget {
               data: block.content,
               selectable: false,
               styleSheet: MarkdownStyleSheet(
-                p: TextStyle(color: textColor, fontSize: 14.0),
-                tableHead: TextStyle(
+                p: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: textColor),
+                tableHead: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: textColor,
                   fontWeight: FontWeight.w600,
-                  fontSize: 14.0,
                 ),
-                tableBody: TextStyle(color: textColor, fontSize: 14.0),
+                tableBody: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: textColor),
                 tableBorder: TableBorder.all(
                   color: isDark ? Colors.white24 : Colors.black12,
                 ),

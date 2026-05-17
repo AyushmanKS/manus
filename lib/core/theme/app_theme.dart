@@ -53,7 +53,11 @@ class AppTheme {
             ? AppColors.loaderBgDark
             : AppColors.loaderBgLight,
       ),
-      textTheme: baseTextTheme.copyWith(
+      textTheme: baseTextTheme.apply(
+        fontFamily: _bodyFontFamily,
+        bodyColor: onSurface,
+        displayColor: onSurface,
+      ).copyWith(
         displaySmall: baseTextTheme.displaySmall?.copyWith(
           color: onSurface,
           fontSize: 28,

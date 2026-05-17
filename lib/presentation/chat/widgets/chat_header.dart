@@ -70,15 +70,20 @@ class ChatHeader extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Text(model.$1, style: const TextStyle(fontSize: 15)),
+                          Text(
+                            model.$1,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyLarge?.copyWith(fontSize: 15),
+                          ),
                           Text(
                             model.$2,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark
-                                  ? AppColors.textSecondaryDark
-                                  : AppColors.textSecondaryLight,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: isDark
+                                      ? AppColors.textSecondaryDark
+                                      : AppColors.textSecondaryLight,
+                                ),
                           ),
                         ],
                       ),
@@ -97,7 +102,7 @@ class ChatHeader extends ConsumerWidget {
                 children: <Widget>[
                   Text(
                     selectedModel,
-                    style: const TextStyle(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),

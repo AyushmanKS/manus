@@ -6,6 +6,7 @@ import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
+import 'package:manus/presentation/design_system/widgets/meta_attribution.dart';
 import 'package:manus/presentation/profile/widgets/menu_button.dart';
 import 'package:manus/presentation/profile/widgets/profile_group.dart';
 import 'package:manus/presentation/profile/widgets/profile_header.dart';
@@ -155,6 +156,10 @@ class ProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 24.0),
+                child: MetaAttribution(),
               ),
             ],
           ),

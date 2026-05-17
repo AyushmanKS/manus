@@ -61,28 +61,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen>
   }
 
   void _loadConversationIfNeeded() {
-    final String? convId = widget.conversationId;
-    if (convId != null) {
-      ref.read<ChatNotifier>(chatProvider.notifier).loadConversation(convId);
-    } else {
-      final List<ChatMessage> currentMessages = ref.read<List<ChatMessage>>(
-        chatProvider,
-      );
-      if (currentMessages.isNotEmpty) {
-        ref.read<ChatNotifier>(chatProvider.notifier).startNewConversation();
-      }
-    }
-    unawaited(ref.read<HistoryNotifier>(historyProvider.notifier).refresh());
+    unawaited(Future<void>.microtask(() {
+      if (!mounted) return;
 
-    if (ref.read<double>(drawerProvider) == 0) {
-      if (_initialFocusRequested) return;
-      _initialFocusRequested = true;
-      Future<void>.delayed(const Duration(milliseconds: 400), () {
-        if (mounted && ref.read<double>(drawerProvider) == 0) {
-          _composerFocusNode.requestFocus();
+      final String? convId = widget.conversationId;
+      if (convId != null) {
+        ref.read<ChatNotifier>(chatProvider.notifier).loadConversation(convId);
+      } else {
+        final List<ChatMessage> currentMessages = ref.read<List<ChatMessage>>(
+          chatProvider,
+        );
+        if (currentMessages.isNotEmpty) {
+          ref.read<ChatNotifier>(chatProvider.notifier).startNewConversation();
         }
-      });
-    }
+      }
+      unawaited(ref.read<HistoryNotifier>(historyProvider.notifier).refresh());
+
+      if (ref.read<double>(drawerProvider) == 0) {
+        if (_initialFocusRequested) return;
+        _initialFocusRequested = true;
+        Future<void>.delayed(const Duration(milliseconds: 400), () {
+          if (mounted && ref.read<double>(drawerProvider) == 0) {
+            _composerFocusNode.requestFocus();
+          }
+        });
+      }
+    }));
   }
 
   @override

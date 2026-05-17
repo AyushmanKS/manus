@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-enum PhysicsBlobType { bigCircle, smallCircle, hollowCircle, triangle }
+enum PhysicsBlobType { bigCircle, smallCircle, hollowCircle, triangle, rectangle }
 
 class PhysicsBlob {
   Offset position;
@@ -10,6 +10,7 @@ class PhysicsBlob {
   final double? innerRadius;
   final PhysicsBlobType type;
   final Path? trianglePath;
+  final Path? rectanglePath;
   double rotation;
   final double rotationSpeed;
 
@@ -20,6 +21,7 @@ class PhysicsBlob {
     required this.type,
     this.innerRadius,
     this.trianglePath,
+    this.rectanglePath,
     this.rotation = 0.0,
     this.rotationSpeed = 0.0,
   });
@@ -64,6 +66,15 @@ class PhysicsBlob {
           localPoint.dx * sinR + localPoint.dy * cosR,
         );
         return trianglePath!.contains(rotatedPoint);
+      case PhysicsBlobType.rectangle:
+        if (rectanglePath == null) return false;
+        final double cosR = math.cos(-rotation);
+        final double sinR = math.sin(-rotation);
+        final Offset rotatedPoint = Offset(
+          localPoint.dx * cosR - localPoint.dy * sinR,
+          localPoint.dx * sinR + localPoint.dy * cosR,
+        );
+        return rectanglePath!.contains(rotatedPoint);
     }
   }
 

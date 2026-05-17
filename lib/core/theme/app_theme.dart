@@ -49,6 +49,9 @@ class AppTheme {
         errorContainer: isDark
             ? AppColors.activeTriangleDark
             : AppColors.activeTriangleLight,
+        inversePrimary: isDark
+            ? AppColors.activeRectangleDark
+            : AppColors.activeRectangleLight,
         surfaceContainerHigh: isDark
             ? AppColors.loaderBgDark
             : AppColors.loaderBgLight,

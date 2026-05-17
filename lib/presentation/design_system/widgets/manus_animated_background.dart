@@ -79,6 +79,22 @@ class _ManusAnimatedBackgroundState extends State<ManusAnimatedBackground>
       ),
     );
 
+    const double rectW = 55.0;
+    const double rectH = 90.0;
+    final Path rectPath = Path()
+      ..addRect(const Rect.fromLTWH(-rectW / 2, -rectH / 2, rectW, rectH));
+
+    _blobs.add(
+      PhysicsBlob(
+        position: _randomPos(size, math.max(rectW, rectH) / 2, random),
+        velocity: _randomVel(random),
+        radius: math.max(rectW, rectH) / 2,
+        type: PhysicsBlobType.rectangle,
+        rectanglePath: rectPath,
+        rotationSpeed: -0.4,
+      ),
+    );
+
     _initialized = true;
   }
 
@@ -143,6 +159,7 @@ class _ManusAnimatedBackgroundState extends State<ManusAnimatedBackground>
           activeSmallCircle: colorScheme.secondary,
           activeHollowCircle: colorScheme.tertiaryContainer,
           activeTriangle: colorScheme.errorContainer,
+          activeRectangle: colorScheme.inversePrimary,
         ),
         child: widget.child,
       ),
@@ -158,6 +175,7 @@ class ManusBackgroundPainter extends CustomPainter {
   final Color activeSmallCircle;
   final Color activeHollowCircle;
   final Color activeTriangle;
+  final Color activeRectangle;
 
   ManusBackgroundPainter({
     required this.blobs,
@@ -167,6 +185,7 @@ class ManusBackgroundPainter extends CustomPainter {
     required this.activeSmallCircle,
     required this.activeHollowCircle,
     required this.activeTriangle,
+    required this.activeRectangle,
   });
 
   @override
@@ -181,6 +200,7 @@ class ManusBackgroundPainter extends CustomPainter {
     final List<Offset> smallDots = <Offset>[];
     final List<Offset> hollowDots = <Offset>[];
     final List<Offset> triangleDots = <Offset>[];
+    final List<Offset> rectangleDots = <Offset>[];
 
     for (double x = 0.0; x < size.width; x += spacing) {
       for (double y = 0.0; y < size.height; y += spacing) {
@@ -210,6 +230,9 @@ class ManusBackgroundPainter extends CustomPainter {
             case PhysicsBlobType.triangle:
               triangleDots.add(point);
               break;
+            case PhysicsBlobType.rectangle:
+              rectangleDots.add(point);
+              break;
           }
         }
       }
@@ -224,6 +247,7 @@ class ManusBackgroundPainter extends CustomPainter {
     _drawPoints(canvas, smallDots, p..color = activeSmallCircle);
     _drawPoints(canvas, hollowDots, p..color = activeHollowCircle);
     _drawPoints(canvas, triangleDots, p..color = activeTriangle);
+    _drawPoints(canvas, rectangleDots, p..color = activeRectangle);
   }
 
   void _drawPoints(

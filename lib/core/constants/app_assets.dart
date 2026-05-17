@@ -51,4 +51,5 @@ class AppAssets {
   static const String blobHollow = 'assets/illustrations/blob_hollow.svg';
   static const String blobTriangle = 'assets/illustrations/blob_triangle.svg';
   static const String blobOrganic = 'assets/illustrations/blob_organic.svg';
+  static const String blobRectangle = 'assets/icons/blob_reactangle.svg';
 }

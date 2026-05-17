@@ -35,4 +35,4 @@ class AppLogger {
   static void debug(final String message) {
     _logger.d(message);
   }
-}
+}

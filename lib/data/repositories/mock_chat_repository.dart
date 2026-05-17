@@ -285,4 +285,4 @@ class MockChatRepository implements ChatRepository {
     }
     return _longMarkdownResponse;
   }
-}
+}

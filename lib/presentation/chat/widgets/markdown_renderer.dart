@@ -482,4 +482,4 @@ class _SkeletonRow extends StatelessWidget {
       }),
     );
   }
-}
+}

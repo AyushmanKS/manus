@@ -5,11 +5,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/presentation/design_system/widgets/meta_attribution.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
+
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
@@ -27,11 +29,13 @@ class _SplashScreenState extends State<SplashScreen>
       }
     });
   }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
+
   @override
   Widget build(final BuildContext context) {
     final ThemeData theme = Theme.of(context);

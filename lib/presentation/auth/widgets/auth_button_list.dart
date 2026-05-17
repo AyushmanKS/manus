@@ -6,11 +6,13 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/design_system/widgets/manus_primary_button.dart';
 import 'package:manus/presentation/design_system/widgets/manus_loader.dart';
+
 class AuthButtonList extends ConsumerStatefulWidget {
   const AuthButtonList({super.key});
   @override
   ConsumerState<AuthButtonList> createState() => _AuthButtonListState();
 }
+
 class _AuthButtonListState extends ConsumerState<AuthButtonList> {
   bool _isLoading = false;
   Future<void> handleAuthAction(final BuildContext context) async {
@@ -30,6 +32,7 @@ class _AuthButtonListState extends ConsumerState<AuthButtonList> {
       context.go('/chat');
     }
   }
+
   @override
   Widget build(final BuildContext context) {
     final ThemeData theme = Theme.of(context);

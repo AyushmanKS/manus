@@ -38,4 +38,4 @@ class AppNavigationObserver extends NavigatorObserver {
     super.didRemove(route, previousRoute);
     AppLogger.route('REMOVE: ${route.settings.name ?? route.toString()}');
   }
-}
+}

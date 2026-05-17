@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manus/core/theme/app_colors.dart';
+
 class ProfileGroup extends StatelessWidget {
   const ProfileGroup({required this.children, super.key});
   final List<Widget> children;
@@ -21,6 +22,7 @@ class ProfileGroup extends StatelessWidget {
     );
   }
 }
+
 class ProfileDivider extends StatelessWidget {
   const ProfileDivider({super.key});
   @override

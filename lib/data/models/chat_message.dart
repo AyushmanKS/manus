@@ -58,4 +58,4 @@ class ChatMessage {
       isEdited: isEdited ?? this.isEdited,
     );
   }
-}
+}

@@ -1,14 +1,20 @@
+import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
+import 'package:manus/core/models/attachment.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/data/services/attachment_service.dart';
 import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
 import 'package:manus/presentation/chat/notifiers/editing_notifier.dart';
+import 'package:manus/presentation/chat/providers/attachment_provider.dart';
 import 'package:manus/presentation/chat/widgets/chat_empty_state.dart';
 import 'package:manus/presentation/widgets/manus_text_field.dart';
 
@@ -79,10 +85,11 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
   void _onTextChanged() => setState(() {});
 
   void _handleSend(final EditingMessage? editingMessage) {
-    HapticFeedback.lightImpact();
+    unawaited(HapticFeedback.lightImpact());
     FocusManager.instance.primaryFocus?.unfocus();
     final String text = _controller.text.trim();
-    if (text.isEmpty) return;
+    final bool hasAttachments = ref.read(attachmentProvider).isNotEmpty;
+    if (text.isEmpty && !hasAttachments) return;
 
     if (editingMessage != null) {
       ref
@@ -93,10 +100,12 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
       widget.onSend(text);
     }
     _controller.clear();
+    // TODO: encode attachments into Gemini multimodal request
+    ref.read(attachmentProvider.notifier).clear();
   }
 
   void _toggleAttachmentTray() {
-    HapticFeedback.mediumImpact();
+    unawaited(HapticFeedback.mediumImpact());
     setState(() => _showAttachmentTray = !_showAttachmentTray);
   }
 
@@ -150,7 +159,6 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
     final ColorFilter iconFilter = ColorFilter.mode(iconColor, BlendMode.srcIn);
 
     final bool hasText = _controller.text.isNotEmpty;
-    final bool isEditing = editingMessage != null;
 
     final Color borderColor = isDark
         ? AppColors.iconBorderDark
@@ -185,9 +193,9 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
                 AnimatedSize(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeOutCubic,
-                  child: isEditing
+                  child: editingMessage != null
                       ? AnimatedOpacity(
-                          opacity: isEditing ? 1.0 : 0.0,
+                          opacity: 1.0,
                           duration: const Duration(milliseconds: 300),
                           child: SizedBox(
                             height: 28,
@@ -246,10 +254,15 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
                       ? Padding(
                           key: const ValueKey<String>('tray'),
                           padding: const EdgeInsets.only(bottom: 12.0),
-                          child: _AttachmentTray(iconColor: iconColor),
+                          child: _AttachmentTray(
+                            iconColor: iconColor,
+                            onClose: () =>
+                                setState(() => _showAttachmentTray = false),
+                          ),
                         )
                       : const SizedBox.shrink(key: ValueKey<String>('empty')),
                 ),
+                const _AttachmentPreviewRow(),
                 ManusTextField(
                   controller: _controller,
                   focusNode: _focusNode,
@@ -371,26 +384,35 @@ class _ChatComposerState extends ConsumerState<ChatComposer>
                       _controller.text.trim().isNotEmpty &&
                       _controller.text.trim() != editingMessage.originalText;
                 } else {
-                  canTap = hasText || isStreaming;
+                  canTap =
+                      hasText ||
+                      isStreaming ||
+                      ref.watch(attachmentProvider).isNotEmpty;
                 }
 
                 void onTap() {
                   if (isStreaming) {
-                    HapticFeedback.mediumImpact();
+                    unawaited(HapticFeedback.mediumImpact());
                     ref.read(chatProvider.notifier).stopStream();
                   } else if (!isSubmitting) {
                     _handleSend(editingMessage);
                   }
                 }
 
-                return _SendButton(
-                  hasText: hasText,
-                  isStreaming: isStreaming,
-                  isSubmitting: isSubmitting,
-                  onTap: canTap ? onTap : null,
-                  isDark: isDark,
-                  activeSendCircle: activeSendCircle,
-                  inactiveSendCircle: inactiveSendCircle,
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: <Widget>[
+                    _SendButton(
+                      hasText: hasText,
+                      isStreaming: isStreaming,
+                      isSubmitting: isSubmitting,
+                      onTap: canTap ? onTap : null,
+                      isDark: isDark,
+                      activeSendCircle: activeSendCircle,
+                      inactiveSendCircle: inactiveSendCircle,
+                    ),
+                    const _SendButtonBadge(),
+                  ],
                 );
               },
         ),
@@ -541,13 +563,17 @@ class _SendButton extends StatelessWidget {
   }
 }
 
-class _AttachmentTray extends StatelessWidget {
-  const _AttachmentTray({required this.iconColor});
+class _AttachmentTray extends ConsumerWidget {
+  const _AttachmentTray({required this.iconColor, required this.onClose});
 
   final Color iconColor;
+  final VoidCallback onClose;
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(final BuildContext context, final WidgetRef ref) {
+    final AttachmentService service = ref.read(attachmentServiceProvider);
+    final AttachmentNotifier notifier = ref.read(attachmentProvider.notifier);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Row(
@@ -558,6 +584,18 @@ class _AttachmentTray extends StatelessWidget {
               iconAsset: AppAssets.cameraSvg,
               label: 'Camera',
               iconColor: iconColor,
+              onTap: () {
+                unawaited(HapticFeedback.lightImpact());
+                unawaited(() async {
+                  final Attachment? result = await service.pickFromCamera(
+                    context,
+                  );
+                  if (result != null) {
+                    notifier.add(result);
+                    onClose();
+                  }
+                }());
+              },
             ),
           ),
           const SizedBox(width: 12.0),
@@ -566,6 +604,19 @@ class _AttachmentTray extends StatelessWidget {
               iconAsset: AppAssets.pictureSvg,
               label: 'Picture',
               iconColor: iconColor,
+              onTap: () {
+                unawaited(HapticFeedback.lightImpact());
+                unawaited(() async {
+                  final List<Attachment> results = await service
+                      .pickFromGallery(context);
+                  if (results.isNotEmpty) {
+                    for (final Attachment result in results) {
+                      notifier.add(result);
+                    }
+                    onClose();
+                  }
+                }());
+              },
             ),
           ),
           const SizedBox(width: 12.0),
@@ -574,6 +625,20 @@ class _AttachmentTray extends StatelessWidget {
               iconAsset: AppAssets.attachSvg,
               label: 'File',
               iconColor: iconColor,
+              onTap: () {
+                unawaited(HapticFeedback.lightImpact());
+                unawaited(() async {
+                  final List<Attachment> results = await service.pickFiles(
+                    context,
+                  );
+                  if (results.isNotEmpty) {
+                    for (final Attachment result in results) {
+                      notifier.add(result);
+                    }
+                    onClose();
+                  }
+                }());
+              },
             ),
           ),
         ],
@@ -587,11 +652,13 @@ class _TrayItem extends StatelessWidget {
     required this.iconAsset,
     required this.label,
     required this.iconColor,
+    required this.onTap,
   });
 
   final String iconAsset;
   final String label;
   final Color iconColor;
+  final VoidCallback onTap;
 
   @override
   Widget build(final BuildContext context) {
@@ -605,7 +672,7 @@ class _TrayItem extends StatelessWidget {
         : AppColors.textSecondaryLight;
 
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -639,6 +706,180 @@ class _TrayItem extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _AttachmentPreviewRow extends ConsumerWidget {
+  const _AttachmentPreviewRow();
+
+  @override
+  Widget build(final BuildContext context, final WidgetRef ref) {
+    final List<Attachment> attachments = ref.watch(attachmentProvider);
+    if (attachments.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      height: 80,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        itemCount: attachments.length,
+        separatorBuilder: (final BuildContext context, final int index) =>
+            const SizedBox(width: 8),
+        itemBuilder: (final BuildContext context, final int index) {
+          final Attachment attachment = attachments[index];
+          return _AttachmentPreviewItem(
+            attachment: attachment,
+            onRemove: () =>
+                ref.read(attachmentProvider.notifier).remove(attachment.path),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _AttachmentPreviewItem extends StatelessWidget {
+  const _AttachmentPreviewItem({
+    required this.attachment,
+    required this.onRemove,
+  });
+
+  final Attachment attachment;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(final BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return RepaintBoundary(
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: <Widget>[
+              Container(
+                width: 64,
+                height: 64,
+                margin: const EdgeInsets.only(top: 8, right: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: isDark
+                      ? AppColors.composerIconBgDark
+                      : AppColors.composerIconBgLight,
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: attachment.type == AttachmentType.image
+                    ? Image.file(File(attachment.path), fit: BoxFit.cover)
+                    : Container(
+                        padding: const EdgeInsets.all(4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            const Icon(Icons.insert_drive_file, size: 20),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatFileName(attachment.name),
+                              style: const TextStyle(fontSize: 8),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatFileSize(attachment.sizeBytes),
+                              style: TextStyle(
+                                fontSize: 7,
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: onRemove,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.black : AppColors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.close,
+                      size: 14,
+                      color: isDark ? AppColors.white : AppColors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        )
+        .animate()
+        .scale(begin: const Offset(0.7, 0.7), curve: Curves.easeOutBack)
+        .fadeIn(duration: 200.ms);
+  }
+
+  String _formatFileName(final String name) {
+    if (name.length <= 12) return name;
+    final List<String> parts = name.split('.');
+    if (parts.length < 2) return name.substring(0, 8);
+    final String ext = parts.last;
+    final String base = parts.first;
+    return '${base.substring(0, math.min(8, base.length))}.$ext';
+  }
+
+  String _formatFileSize(final int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+}
+
+class _SendButtonBadge extends ConsumerWidget {
+  const _SendButtonBadge();
+
+  @override
+  Widget build(final BuildContext context, final WidgetRef ref) {
+    final int count = ref.watch(attachmentProvider).length;
+    if (count == 0) return const SizedBox.shrink();
+
+    return Positioned(
+          top: -4,
+          right: -4,
+          child: Container(
+            padding: const EdgeInsets.all(2),
+            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+            decoration: const BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                '$count',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        )
+        .animate()
+        .fadeIn(duration: 200.ms)
+        .scale(begin: const Offset(0.5, 0.5), curve: Curves.easeOutBack);
   }
 }
 
@@ -805,4 +1046,4 @@ class _ActionIcon extends StatelessWidget {
       ),
     );
   }
-}
+}

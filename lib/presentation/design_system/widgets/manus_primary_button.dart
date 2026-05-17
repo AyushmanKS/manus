@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/app_spacing.dart';
+
 class ManusPrimaryButton extends StatefulWidget {
   final String label;
   final String? iconPath;
@@ -20,19 +21,23 @@ class ManusPrimaryButton extends StatefulWidget {
   @override
   State<ManusPrimaryButton> createState() => _ManusPrimaryButtonState();
 }
+
 class _ManusPrimaryButtonState extends State<ManusPrimaryButton> {
   bool _isPressed = false;
   void _handleTapDown(final TapDownDetails details) {
     HapticFeedback.selectionClick();
     setState(() => _isPressed = true);
   }
+
   void _handleTapUp(final TapUpDetails details) {
     setState(() => _isPressed = false);
     widget.onTap();
   }
+
   void _handleTapCancel() {
     setState(() => _isPressed = false);
   }
+
   @override
   Widget build(final BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;

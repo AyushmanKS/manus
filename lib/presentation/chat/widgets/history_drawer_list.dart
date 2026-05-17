@@ -14,11 +14,13 @@ import 'package:manus/presentation/chat/widgets/drawer/history_empty_state.dart'
 import 'package:manus/presentation/chat/widgets/drawer/history_item_wrapper.dart';
 import 'package:manus/presentation/chat/widgets/drawer/history_search_bar.dart';
 import 'package:manus/presentation/chat/widgets/drawer/history_section_header.dart';
+
 class HistoryDrawerList extends ConsumerStatefulWidget {
   const HistoryDrawerList({super.key});
   @override
   ConsumerState<HistoryDrawerList> createState() => _HistoryDrawerListState();
 }
+
 class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
   late final TextEditingController _searchController;
   @override
@@ -28,11 +30,13 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
       text: ref.read(historySearchProvider),
     );
   }
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(final BuildContext context) {
     final AsyncValue<HistoryState> historyState = ref.watch(historyProvider);
@@ -168,6 +172,7 @@ class _HistoryDrawerListState extends ConsumerState<HistoryDrawerList> {
       ),
     );
   }
+
   List<Widget> _buildGroupedList(
     final Map<String, List<Conversation>> groups,
     final String activeConversationId,

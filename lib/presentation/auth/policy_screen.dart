@@ -5,6 +5,7 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/utils/app_logger.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+
 class PolicyScreen extends StatefulWidget {
   final String url;
   final String title;
@@ -12,6 +13,7 @@ class PolicyScreen extends StatefulWidget {
   @override
   State<PolicyScreen> createState() => _PolicyScreenState();
 }
+
 class _PolicyScreenState extends State<PolicyScreen> {
   late final WebViewController _controller;
   int _loadingProgress = 0;
@@ -20,6 +22,7 @@ class _PolicyScreenState extends State<PolicyScreen> {
     super.initState();
     _initializeController();
   }
+
   void _initializeController() {
     _controller = WebViewController();
     _controller
@@ -55,11 +58,13 @@ class _PolicyScreenState extends State<PolicyScreen> {
       AppLogger.error('Invalid URL passed to PolicyScreen: ${widget.url}');
     }
   }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _controller.setBackgroundColor(Theme.of(context).scaffoldBackgroundColor);
   }
+
   @override
   Widget build(final BuildContext context) {
     return Scaffold(

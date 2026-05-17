@@ -13,4 +13,4 @@ class DrawerNotifier extends Notifier<double> {
 }
 
 final NotifierProvider<DrawerNotifier, double> drawerProvider =
-    NotifierProvider<DrawerNotifier, double>(DrawerNotifier.new);
+    NotifierProvider<DrawerNotifier, double>(DrawerNotifier.new);

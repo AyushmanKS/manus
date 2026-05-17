@@ -17,4 +17,4 @@ class ErrorShake extends StatelessWidget {
       curve: Curves.easeInOut,
     );
   }
-}
+}

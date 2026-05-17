@@ -8,6 +8,7 @@ import 'package:manus/core/theme/app_spacing.dart';
 import 'package:manus/presentation/auth/notifiers/auth_notifier.dart';
 import 'package:manus/presentation/auth/widgets/auth_button_list.dart';
 import 'package:manus/presentation/design_system/widgets/manus_animated_background.dart';
+
 class AuthScreen extends ConsumerWidget {
   const AuthScreen({super.key});
   @override
@@ -69,6 +70,7 @@ class AuthScreen extends ConsumerWidget {
     );
   }
 }
+
 class LegalFooter extends ConsumerWidget {
   const LegalFooter({super.key});
   @override

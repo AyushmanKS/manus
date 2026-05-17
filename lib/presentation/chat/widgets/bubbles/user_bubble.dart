@@ -115,9 +115,7 @@ class UserBubble extends ConsumerWidget {
               ),
             ),
           ],
-          child: HapticListener(
-            child: bubbleContent,
-          ),
+          child: HapticListener(child: bubbleContent),
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
+
 class ThemeSelectorItem extends ConsumerStatefulWidget {
   const ThemeSelectorItem({
     required this.iconColor,
@@ -17,6 +18,7 @@ class ThemeSelectorItem extends ConsumerStatefulWidget {
   @override
   ConsumerState<ThemeSelectorItem> createState() => _ThemeSelectorItemState();
 }
+
 class _ThemeSelectorItemState extends ConsumerState<ThemeSelectorItem> {
   bool _isPressed = false;
   @override
@@ -113,9 +115,11 @@ class _ThemeSelectorItemState extends ConsumerState<ThemeSelectorItem> {
       ),
     );
   }
+
   PopupMenuEntry<ThemeMode> _buildDivider(final bool isDark) {
     return const PopupMenuDivider(height: 1);
   }
+
   PopupMenuItem<ThemeMode> _buildPopupItem(
     final BuildContext context,
     final ThemeMode mode,

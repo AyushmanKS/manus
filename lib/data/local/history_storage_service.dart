@@ -150,4 +150,4 @@ class HiveHistoryStorageService implements HistoryStorageService {
     );
     return messages;
   }
-}
+}

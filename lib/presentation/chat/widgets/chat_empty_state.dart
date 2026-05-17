@@ -162,4 +162,4 @@ class _ChatEmptyStateState extends ConsumerState<ChatEmptyState>
       ),
     );
   }
-}
+}

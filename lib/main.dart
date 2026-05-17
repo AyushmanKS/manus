@@ -10,6 +10,8 @@ import 'package:manus/core/router/app_router.dart';
 import 'package:manus/core/theme/app_theme.dart';
 import 'package:manus/core/theme/theme_notifier.dart';
 import 'package:manus/core/utils/app_logger.dart';
+import 'package:manus/core/utils/globals.dart';
+
 Future<void> main() async {
   final WidgetsBinding widgetsBinding =
       WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +38,7 @@ Future<void> main() async {
   AppLogger.info('Application Started');
   runApp(const ProviderScope(child: ManusApp()));
 }
+
 class ManusApp extends ConsumerWidget {
   const ManusApp({super.key});
   @override
@@ -43,6 +46,7 @@ class ManusApp extends ConsumerWidget {
     final GoRouter router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'Manus',
+      scaffoldMessengerKey: snackbarKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,

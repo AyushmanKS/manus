@@ -41,9 +41,7 @@ class ChatHeader extends ConsumerWidget {
           PopupMenuButton<String>(
             offset: const Offset(0, 40),
             onSelected: (final String model) {
-              ref
-                  .read(selectedModelProvider.notifier)
-                  .set(model);
+              ref.read(selectedModelProvider.notifier).set(model);
               composerFocusNode.requestFocus();
             },
             itemBuilder: (final BuildContext context) {

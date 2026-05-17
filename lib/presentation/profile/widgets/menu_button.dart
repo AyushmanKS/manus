@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+
 class MenuButton extends StatefulWidget {
   const MenuButton({
     required this.leading,
@@ -17,6 +18,7 @@ class MenuButton extends StatefulWidget {
   @override
   State<MenuButton> createState() => _MenuButtonState();
 }
+
 class _MenuButtonState extends State<MenuButton> {
   bool _isPressed = false;
   @override

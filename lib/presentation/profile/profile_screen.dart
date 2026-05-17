@@ -11,6 +11,7 @@ import 'package:manus/presentation/profile/widgets/profile_group.dart';
 import 'package:manus/presentation/profile/widgets/profile_header.dart';
 import 'package:manus/presentation/profile/widgets/profile_info.dart';
 import 'package:manus/presentation/profile/widgets/theme_selector_item.dart';
+
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
   @override
@@ -72,7 +73,8 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                             ),
                             title: 'Scheduled Tasks',
-                            onTap: () => AppLogger.info('Scheduled Tasks tapped'),
+                            onTap: () =>
+                                AppLogger.info('Scheduled Tasks tapped'),
                           ),
                           const ProfileDivider(),
                           MenuButton(
@@ -144,7 +146,8 @@ class ProfileScreen extends ConsumerWidget {
                             ),
                             title: 'Logout',
                             showArrow: false,
-                            onTap: () => ref.read(authProvider.notifier).logout(),
+                            onTap: () =>
+                                ref.read(authProvider.notifier).logout(),
                           ),
                         ],
                       ),

@@ -5,6 +5,7 @@ import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/widgets/manus_text_field.dart';
+
 class ConversationTile extends ConsumerStatefulWidget {
   const ConversationTile({
     required this.conversation,
@@ -18,6 +19,7 @@ class ConversationTile extends ConsumerStatefulWidget {
   @override
   ConsumerState<ConversationTile> createState() => _ConversationTileState();
 }
+
 class _ConversationTileState extends ConsumerState<ConversationTile> {
   late final TextEditingController _renameController;
   @override
@@ -25,11 +27,13 @@ class _ConversationTileState extends ConsumerState<ConversationTile> {
     super.initState();
     _renameController = TextEditingController(text: widget.conversation.title);
   }
+
   @override
   void dispose() {
     _renameController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(final BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
@@ -48,8 +52,13 @@ class _ConversationTileState extends ConsumerState<ConversationTile> {
         ),
         child: ListTile(
           onTap: isCurrentlyRenaming ? null : widget.onTap,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 2,
+          ),
           title: isCurrentlyRenaming
               ? ManusTextField(
                   controller: _renameController,

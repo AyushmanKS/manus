@@ -68,5 +68,11 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>Manus needs camera access to attach photos to your message.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Manus needs photo library access to attach images to your message.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Manus needs microphone access when recording video.</string>
 	</dict>
 </plist>

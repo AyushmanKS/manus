@@ -11,6 +11,7 @@ import 'package:manus/data/models/conversation.dart';
 import 'package:manus/presentation/chat/notifiers/history_notifier.dart';
 import 'package:manus/presentation/widgets/haptic_listener.dart';
 import 'package:manus/presentation/chat/widgets/drawer/conversation_tile.dart';
+
 class HistoryItemWrapper extends ConsumerWidget {
   const HistoryItemWrapper({
     required this.conversation,
@@ -48,6 +49,7 @@ class HistoryItemWrapper extends ConsumerWidget {
           .deleteConversation(conversation.id);
     }
   }
+
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;

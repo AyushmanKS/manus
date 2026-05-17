@@ -178,4 +178,4 @@ class MarkdownSegmenter {
 
     return blocks;
   }
-}
+}

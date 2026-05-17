@@ -17,6 +17,7 @@ import 'package:manus/data/services/impl/google_llm_service.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
+import 'package:manus/presentation/chat/providers/attachment_provider.dart';
 
 const bool kUseMockChat = true;
 
@@ -122,6 +123,9 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
 
     state = <ChatMessage>[...state, userMessage, placeholder];
     ref.read(chatIsSubmittingProvider.notifier).setSubmitting(true);
+
+    // TODO: encode attachments into Gemini multimodal request
+    ref.read(attachmentProvider.notifier).clear();
 
     final List<ChatMessage> history = state
         .where((final ChatMessage m) => m.id != assistantId)
@@ -337,4 +341,4 @@ class ChatNotifier extends Notifier<List<ChatMessage>> {
         ? clean
         : '${clean.substring(0, maxLength)}...';
   }
-}
+}

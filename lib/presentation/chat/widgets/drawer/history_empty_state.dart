@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+
 class HistoryEmptyState extends StatelessWidget {
   const HistoryEmptyState({this.isSearching = false, super.key});
   final bool isSearching;

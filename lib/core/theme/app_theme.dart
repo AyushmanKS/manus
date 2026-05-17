@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:manus/core/theme/app_colors.dart';
+
 class AppTheme {
   AppTheme._();
   static String get _bodyFontFamily => Platform.isIOS ? '.SF UI Text' : 'Inter';

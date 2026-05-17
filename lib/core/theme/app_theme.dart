@@ -34,13 +34,21 @@ class AppTheme {
         surface: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
         onSurface: onSurface,
         outlineVariant: isDark ? AppColors.dotIdleDark : AppColors.dotIdleLight,
-        primaryContainer: AppColors.activeBigCircleLight,
+        primaryContainer: isDark
+            ? AppColors.activeBigCircleDark
+            : AppColors.activeBigCircleLight,
         secondaryContainer: isDark
             ? AppColors.msgBubbleBgDark
             : AppColors.msgBubbleBgLight,
-        secondary: AppColors.activeSmallCircleLight,
-        tertiaryContainer: AppColors.activeHollowCircleLight,
-        errorContainer: AppColors.activeTriangleLight,
+        secondary: isDark
+            ? AppColors.activeSmallCircleDark
+            : AppColors.activeSmallCircleLight,
+        tertiaryContainer: isDark
+            ? AppColors.activeHollowCircleDark
+            : AppColors.activeHollowCircleLight,
+        errorContainer: isDark
+            ? AppColors.activeTriangleDark
+            : AppColors.activeTriangleLight,
         surfaceContainerHigh: isDark
             ? AppColors.loaderBgDark
             : AppColors.loaderBgLight,

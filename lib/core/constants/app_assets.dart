@@ -32,7 +32,9 @@ class AppAssets {
   static const String micSvg = 'assets/icons/mic.svg';
   static const String upArrowSvg = 'assets/icons/up-arrow.svg';
   static const String downArrowSvg = 'assets/icons/down-arrow.svg';
+  static const String arrowDownSvg = 'assets/icons/arrow-down.svg';
   static const String searchSvg = 'assets/icons/search.svg';
+  static const String shareSvg = 'assets/icons/share.svg';
 
   static const String pencilSvg = 'assets/icons/pencil.svg';
   static const String copySvg = 'assets/icons/copy.svg';

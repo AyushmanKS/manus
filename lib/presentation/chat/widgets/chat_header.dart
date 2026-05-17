@@ -120,6 +120,18 @@ class ChatHeader extends ConsumerWidget {
           ),
           const Spacer(),
           IconButton(
+            onPressed: () {},
+            icon: SvgPicture.asset(
+              AppAssets.shareSvg,
+              width: 24,
+              height: 24,
+              colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+            ),
+            constraints: const BoxConstraints.tightFor(width: 36, height: 44),
+            padding: EdgeInsets.zero,
+          ),
+          const SizedBox(width: 8),
+          IconButton(
             onPressed: () => context.push(AppRouter.profile),
             icon: SvgPicture.asset(
               AppAssets.profileSvg,

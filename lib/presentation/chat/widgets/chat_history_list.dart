@@ -213,51 +213,40 @@ class ChatHistoryListState extends ConsumerState<ChatHistoryList> {
         ),
         Positioned(
           bottom: 12.0,
-          left: 0,
-          right: 0,
+          right: 16.0,
           child: ValueListenableBuilder<bool>(
             valueListenable: _autoScrollNotifier,
-            builder:
-                (
-                  final BuildContext context,
-                  final bool autoScroll,
-                  final Widget? _,
+            builder: (
+              final BuildContext context,
+              final bool autoScroll,
+              final Widget? _,
+            ) {
+              return AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (
+                  final Widget child,
+                  final Animation<double> animation,
                 ) {
-                  return AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    transitionBuilder:
-                        (
-                          final Widget child,
-                          final Animation<double> animation,
-                        ) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: SlideTransition(
-                              position:
-                                  Tween<Offset>(
-                                    begin: const Offset(0.0, 0.3),
-                                    end: Offset.zero,
-                                  ).animate(
-                                    CurvedAnimation(
-                                      parent: animation,
-                                      curve: Curves.easeOutCubic,
-                                    ),
-                                  ),
-                              child: child,
-                            ),
-                          );
-                        },
-                    child: autoScroll
-                        ? const SizedBox.shrink(key: ValueKey<bool>(true))
-                        : Center(
-                            key: const ValueKey<bool>(false),
-                            child: _JumpToLatestPill(
-                              isDark: isDark,
-                              onTap: forceScrollToBottom,
-                            ),
-                          ),
+                  return FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOutBack,
+                      ),
+                      child: child,
+                    ),
                   );
                 },
+                child: autoScroll
+                    ? const SizedBox.shrink(key: ValueKey<bool>(true))
+                    : _JumpToLatestPill(
+                        key: const ValueKey<bool>(false),
+                        isDark: isDark,
+                        onTap: forceScrollToBottom,
+                      ),
+              );
+            },
           ),
         ),
       ],
@@ -269,7 +258,11 @@ class _JumpToLatestPill extends StatelessWidget {
   final bool isDark;
   final VoidCallback onTap;
 
-  const _JumpToLatestPill({required this.isDark, required this.onTap});
+  const _JumpToLatestPill({
+    required this.isDark,
+    required this.onTap,
+    super.key,
+  });
 
   @override
   Widget build(final BuildContext context) {
@@ -299,7 +292,7 @@ class _JumpToLatestPill extends StatelessWidget {
           ],
         ),
         child: SvgPicture.asset(
-          AppAssets.downArrowSvg,
+          AppAssets.arrowDownSvg,
           width: 20.0,
           height: 20.0,
           colorFilter: ColorFilter.mode(textColor, BlendMode.srcIn),

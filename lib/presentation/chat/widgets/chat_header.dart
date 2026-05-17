@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:manus/core/router/app_router.dart';
 import 'package:manus/core/constants/app_assets.dart';
 import 'package:manus/core/theme/app_colors.dart';
+import 'package:manus/core/services/share_service.dart';
+import 'package:manus/data/models/chat_message.dart';
+import 'package:manus/presentation/chat/notifiers/chat_notifier.dart';
 import 'package:manus/presentation/chat/notifiers/chat_status_notifiers.dart';
 
 class ChatHeader extends ConsumerWidget {
@@ -15,6 +18,9 @@ class ChatHeader extends ConsumerWidget {
   @override
   Widget build(final BuildContext context, final WidgetRef ref) {
     final String selectedModel = ref.watch<String>(selectedModelProvider);
+    final List<ChatMessage> messages = ref.watch(chatProvider);
+    final bool canShare = messages.isNotEmpty;
+
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color iconColor = isDark
         ? AppColors.iconDark
@@ -118,16 +124,21 @@ class ChatHeader extends ConsumerWidget {
             ),
           ),
           const Spacer(),
-          GestureDetector(
-            onTap: () {},
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
-              child: SvgPicture.asset(
-                AppAssets.shareSvg,
-                width: 24,
-                height: 24,
-                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+          Opacity(
+            opacity: canShare ? 1.0 : 0.3,
+            child: GestureDetector(
+              onTap: canShare
+                  ? () => ShareService.shareConversation(messages)
+                  : null,
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8.0, 8.0, 4.0, 8.0),
+                child: SvgPicture.asset(
+                  AppAssets.shareSvg,
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                ),
               ),
             ),
           ),

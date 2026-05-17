@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -96,11 +97,16 @@ class ChatHistoryListState extends ConsumerState<ChatHistoryList> {
     _scrollController
         .animateTo(
           _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.fastOutSlowIn,
         )
         .whenComplete(() {
-          HapticFeedback.lightImpact();
+          if (mounted && _autoScrollNotifier.value) {
+            _scrollController.jumpTo(
+              _scrollController.position.maxScrollExtent,
+            );
+          }
+          unawaited(HapticFeedback.lightImpact());
           if (mounted) {
             _checkAndEngageAutoScroll();
             _forcingScroll = false;
@@ -184,7 +190,7 @@ class ChatHistoryListState extends ConsumerState<ChatHistoryList> {
           physics: const ClampingScrollPhysics(),
           addAutomaticKeepAlives: false,
           addRepaintBoundaries: true,
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 20.0),
           itemCount: messages.length,
           itemBuilder: (final BuildContext context, final int index) {
             final ChatMessage message = messages[index];
@@ -217,37 +223,39 @@ class ChatHistoryListState extends ConsumerState<ChatHistoryList> {
           right: 16.0,
           child: ValueListenableBuilder<bool>(
             valueListenable: _autoScrollNotifier,
-            builder: (
-              final BuildContext context,
-              final bool autoScroll,
-              final Widget? _,
-            ) {
-              return AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (
-                  final Widget child,
-                  final Animation<double> animation,
+            builder:
+                (
+                  final BuildContext context,
+                  final bool autoScroll,
+                  final Widget? _,
                 ) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: ScaleTransition(
-                      scale: CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOutBack,
-                      ),
-                      child: child,
-                    ),
+                  return AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    transitionBuilder:
+                        (
+                          final Widget child,
+                          final Animation<double> animation,
+                        ) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: ScaleTransition(
+                              scale: CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutBack,
+                              ),
+                              child: child,
+                            ),
+                          );
+                        },
+                    child: autoScroll
+                        ? const SizedBox.shrink(key: ValueKey<bool>(true))
+                        : _JumpToLatestPill(
+                            key: const ValueKey<bool>(false),
+                            isDark: isDark,
+                            onTap: forceScrollToBottom,
+                          ),
                   );
                 },
-                child: autoScroll
-                    ? const SizedBox.shrink(key: ValueKey<bool>(true))
-                    : _JumpToLatestPill(
-                        key: const ValueKey<bool>(false),
-                        isDark: isDark,
-                        onTap: forceScrollToBottom,
-                      ),
-              );
-            },
           ),
         ),
       ],
